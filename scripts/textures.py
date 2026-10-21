@@ -224,6 +224,35 @@ def wings_icon():
     return pixels
 
 
+# The Caffeine effect's 18×18 icon: a small Original can, blue and silver, with the red and the sun.
+CAFFEINE_ICON = [
+    "..................",
+    "......OOOOOO......",
+    ".....OssssssO.....",
+    ".....ObbbbsSO.....",
+    ".....ObBbbSSO.....",
+    ".....ObbbSSSO.....",
+    ".....ORRbRRSO.....",
+    ".....ObbbSSSO.....",
+    ".....ObbYYSSO.....",
+    ".....OSYYYYbO.....",
+    ".....OSRSRRbO.....",
+    ".....OSSSbbbO.....",
+    ".....OSSbbbbO.....",
+    ".....OSbbbbbO.....",
+    ".....ObbsssbO.....",
+    ".....OssssssO.....",
+    "......OOOOOO......",
+    "..................",
+]
+
+
+def caffeine_icon():
+    colours = {"O": "#13225d", "s": "#cec7d5", "S": "#e1dee4", "b": "#213ba2", "B": "#3f5fd0",
+               "R": "#fd0046", "Y": "#fbcd00"}
+    return [[rgb(colours[c]) + (255,) if c != "." else (0, 0, 0, 0) for c in row] for row in CAFFEINE_ICON]
+
+
 ITEMS = {
     "empty_can": lambda: paint(EMPTY),
     "winged_can": winged_can,
@@ -258,6 +287,7 @@ def main():
         (OUT / f"{name}.png").write_bytes(png(draw()))
     EFFECTS.mkdir(parents=True, exist_ok=True)
     (EFFECTS / "wings.png").write_bytes(png(wings_icon()))
+    (EFFECTS / "caffeine.png").write_bytes(png(caffeine_icon()))
     print(f"{2 * len(CANS) + len(ITEMS)} textures, {len(models())} models in {ASSETS}")
 
 

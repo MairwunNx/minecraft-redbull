@@ -42,6 +42,31 @@ fun Rules.drinkCrudeTaurine(before: Caffeine, clock: Long) =
 
 fun Rules.milk(before: Caffeine, clock: Long) = before.plus(-milk, clock, this).let { it.copy(level = it.level.coerceAtLeast(0.0)) }
 
+/**
+ * The Caffeine effect the mods show: its level is the stage (I calm, II jitters, III crash) and its duration the
+ * time until the caffeine wears off, so a player sees when the next can is safe.
+ */
+fun Caffeine.effectLevel(rules: Rules): Int = when (stage(rules)) {
+  Stage.CALM -> 0
+  Stage.JITTERS -> 1
+  Stage.CRASH, Stage.OVERDOSE -> 2
+}
+
+fun Caffeine.secondsLeft(rules: Rules): Int = kotlin.math.ceil(level / rules.decayPerTick / 20).toInt()
+
+/** Too wired to sleep: any caffeine at all keeps a player out of bed. */
+fun Caffeine.sleepless(): Boolean = level > 0
+
+/**
+ * Shaking hands: what a stage adds to the inaccuracy of an arrow or a bolt. A player's bow has 1; a skeleton on
+ * normal difficulty shoots with 6 and on easy with 10, so the jitters aim like the one and the crash like the other.
+ */
+fun Stage.shake(): Double = when (this) {
+  Stage.CALM -> 0.0
+  Stage.JITTERS -> 5.0
+  Stage.CRASH, Stage.OVERDOSE -> 9.0
+}
+
 const val CRASH_SECONDS = 60
 const val CRASH_DELAY_LIMIT = 180
 

@@ -106,5 +106,7 @@
   "item.redbull.crumpled_can": "Crumpled Can",
   "item.redbull.crumpled_can.hint": "Smelt it back into iron nuggets.",
   "effect.redbull.wings": "Wiiings",
-  "itemGroup.redbull": "Red Bull"
+  "itemGroup.redbull": "Red Bull",
+  "effect.redbull.caffeine": "Caffeine",
+  "redbull.sleepless": "The caffeine won’t let you sleep."
 }

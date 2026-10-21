@@ -106,5 +106,7 @@
   "item.redbull.crumpled_can": "Мятая банка",
   "item.redbull.crumpled_can.hint": "Переплавьте обратно в железные самородки.",
   "effect.redbull.wings": "Крылья",
-  "itemGroup.redbull": "Red Bull"
+  "itemGroup.redbull": "Red Bull",
+  "effect.redbull.caffeine": "Кофеин",
+  "redbull.sleepless": "Кофеин не даёт уснуть."
 }

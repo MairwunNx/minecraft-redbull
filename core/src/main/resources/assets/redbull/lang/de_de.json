@@ -106,5 +106,7 @@
   "item.redbull.crumpled_can": "Zerdrückte Dose",
   "item.redbull.crumpled_can.hint": "Schmelz sie wieder zu Eisenklumpen ein.",
   "effect.redbull.wings": "Flügel",
-  "itemGroup.redbull": "Red Bull"
+  "itemGroup.redbull": "Red Bull",
+  "effect.redbull.caffeine": "Koffein",
+  "redbull.sleepless": "Das Koffein lässt dich nicht schlafen."
 }

@@ -25,5 +25,8 @@ object Bottles {
 /** A crumpled can smelts back into this many iron nuggets: the iron of a can, not its copper. */
 const val CRUMPLED_NUGGETS = 2
 
+/** When wings run out in the air, the player floats down under Slow Falling for this long. */
+const val SOFT_LANDING_SECONDS = 5
+
 /** A winged can lasts this long after the drink, flown or not; flying wears it out sooner. */
 const val WINGS_GRACE_MILLIS = 60_000L

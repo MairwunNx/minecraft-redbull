@@ -70,4 +70,21 @@ class CaffeineTest {
     assertEquals(16, crashDelay(can("pink_sugarfree")!!))
     assertEquals(180, crashDelay(can("blue")!!))
   }
+
+  @Test
+  fun `the effect shows the stage and the time until the caffeine is gone`() {
+    assertEquals(0, Caffeine(30.0, 0).effectLevel(rules))
+    assertEquals(1, Caffeine(60.0, 0).effectLevel(rules))
+    assertEquals(2, Caffeine(80.0, 0).effectLevel(rules))
+    assertEquals(180, Caffeine(30.0, 0).secondsLeft(rules))
+    assertEquals(0, Caffeine().secondsLeft(rules))
+  }
+
+  @Test
+  fun `caffeine keeps a player awake and shakes their aim`() {
+    assertTrue(Caffeine(0.5, 0).sleepless())
+    assertFalse(Caffeine().sleepless())
+    assertEquals(0.0, Stage.CALM.shake())
+    assertTrue(Stage.CRASH.shake() > Stage.JITTERS.shake())
+  }
 }

@@ -106,5 +106,7 @@
   "item.redbull.crumpled_can": "Lata aplastada",
   "item.redbull.crumpled_can.hint": "Fúndela de nuevo en pepitas de hierro.",
   "effect.redbull.wings": "Alas",
-  "itemGroup.redbull": "Red Bull"
+  "itemGroup.redbull": "Red Bull",
+  "effect.redbull.caffeine": "Cafeína",
+  "redbull.sleepless": "La cafeína no te deja dormir."
 }
