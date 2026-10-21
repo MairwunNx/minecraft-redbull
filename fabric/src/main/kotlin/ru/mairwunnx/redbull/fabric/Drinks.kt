@@ -13,12 +13,10 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
-import net.minecraft.world.item.ItemStack
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
 import ru.mairwunnx.redbull.core.Stage
-import ru.mairwunnx.redbull.core.WINGS_GRACE_MILLIS
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
 import ru.mairwunnx.redbull.core.drink
@@ -48,12 +46,12 @@ object Drinks {
     sound(player, SoundEvents.BUBBLE_COLUMN_UPWARDS_AMBIENT, 0.6f, 1.4f)
   }
 
-  /** After a can went down: caffeine, maybe a crash later, and wings. Returns the winged can to hold, if any. */
-  fun can(player: ServerPlayer, can: Can): ItemStack? {
+  /** After a can went down: caffeine, maybe a crash later, and wings. */
+  fun can(player: ServerPlayer, can: Can) {
     val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
-    if (!caffeine(player, drink)) return null
+    if (!caffeine(player, drink)) return
     if (drink.stage == Stage.CRASH) crashLater(player, can)
-    return if (Settings.wings && can.wings > 0) wings(player, can) else null
+    if (Settings.wings && can.wings > 0) wings(player, can)
   }
 
   fun bile(player: ServerPlayer) = bottle(player, bile, crude)
@@ -87,13 +85,14 @@ object Drinks {
     if (!player.hasDisconnected() && player.isAlive) crash().map(RedBullItems::effect).forEach(player::addEffect)
   }
 
-  private fun wings(player: ServerPlayer, can: Can): ItemStack {
+  /** Up into the air, with [Can.wings] seconds of the Wings effect to glide on. */
+  private fun wings(player: ServerPlayer, can: Can) {
     val motion = player.deltaMovement
     player.setDeltaMovement(motion.x, 0.9, motion.z)
     player.connection.send(ClientboundSetEntityMotionPacket(player))
     sound(player, SoundEvents.BREEZE_JUMP, 0.8f, 1.2f)
     player.sendOverlayMessage(Component.translatable("redbull.wings").withStyle(ChatFormatting.AQUA))
-    return RedBullItems.wingedCan(can, System.currentTimeMillis() + WINGS_GRACE_MILLIS)
+    Wings.give(player, can.wings)
   }
 
   /** A bottle makes the player moo; the other one within a minute before it starts bull mode. */
@@ -114,7 +113,8 @@ object Drinks {
     crude.remove(id)
   }
 
-  private fun schedule(delay: Long, task: () -> kotlin.Unit) {
+  /** Runs [task] [delay] ticks later, at the end of a server tick; 0 is the end of this one. */
+  fun schedule(delay: Long, task: () -> kotlin.Unit) {
     later += ticks + delay to task
   }
 

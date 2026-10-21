@@ -16,7 +16,9 @@ import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.Item
@@ -43,6 +45,7 @@ import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.RedBullItems
 import ru.mairwunnx.redbull.fabric.Settings
+import ru.mairwunnx.redbull.fabric.Wings
 import java.util.UUID
 
 /** What a player does with Red Bull on a real server: drink, craft, brew, smelt, and find. */
@@ -88,25 +91,76 @@ class RedBullGameTests {
   }
 
   @GameTest
-  fun wingsLaunchAndLeaveAWingedCan(helper: GameTestHelper) {
+  fun wingsLaunchAndLeaveTheCrumpledCan(helper: GameTestHelper) {
     val player = player(helper)
     val left = drink(player, can("original"))
-    equal(helper, left.item, RedBullItems.wingedCan, "what a can with wings leaves")
-    equal(helper, left.get(DataComponents.MAX_DAMAGE), 9, "eight seconds of flight and the last point")
-    equal(helper, left.get(RedBullItems.FLAVOUR), "original", "the flavour to crumple into")
+    equal(helper, left.item, RedBullItems.crumpled.getValue("original"), "what a can with wings leaves")
+    equal(helper, player.getEffect(Wings.WINGS)?.duration, 8 * 20, "eight seconds of Wings")
     helper.assertTrue(player.deltaMovement.y > 0.5, "the launch")
+    helper.assertFalse(BuiltInRegistries.ITEM.containsKey(RedBullItems.id("winged_can")), "no winged can left")
     helper.succeed()
   }
 
+  /** A player in the air, as one who jumped off a cliff. */
+  private fun airborne(helper: GameTestHelper): ServerPlayer = player(helper).apply {
+    val above = helper.absoluteVec(Vec3(1.5, 40.0, 1.5))
+    teleportTo(above.x, above.y, above.z)
+    setOnGround(false)
+  }
+
   @GameTest
-  fun spentWingedCanCrumples(helper: GameTestHelper) {
-    val player = player(helper)
-    val winged = RedBullItems.wingedCan(CANS.first { it.id == "cherry" }, System.currentTimeMillis() - 1)
-    player.inventory.setItem(3, winged)
-    // A mock player has no client to tick it; a real one ticks its inventory every tick.
-    helper.onEachTick(player::doTick)
+  fun wingsLetPlayersGlide(helper: GameTestHelper) {
+    val player = airborne(helper)
+    helper.assertFalse(player.tryToStartFallFlying(), "gliding without an elytra or Wings")
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding on Wings")
+    helper.assertTrue(player.isFallFlying, "in flight")
+    helper.succeed()
+  }
+
+  /** The game wears a glider every second of flight; Wings take an elytra's place, so it keeps every point. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsWearsNothing(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    var ticks = 0
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+      ticks++
+    }
     helper.succeedWhen {
-      equal(helper, player.inventory.getItem(3).item, RedBullItems.crumpled.getValue("cherry"), "slot 3")
+      helper.assertTrue(ticks >= 60, "three seconds of flight")
+      helper.assertTrue(player.isFallFlying, "still gliding after $ticks ticks")
+      equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
+    }
+  }
+
+  @GameTest(maxTicks = 100)
+  fun wingsRunningOutMidFlightSlowTheFall(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+    }
+    helper.succeedWhen {
+      helper.assertFalse(player.hasEffect(Wings.WINGS), "Wings ran out")
+      equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "five seconds of Slow Falling")
+    }
+  }
+
+  @GameTest
+  fun wingsTakenAwayOnTheGroundLeaveNothing(helper: GameTestHelper) {
+    val player = player(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    player.removeEffect(Wings.WINGS)
+    helper.runAfterDelay(2) {
+      helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling without a flight")
+      helper.succeed()
     }
   }
 
@@ -141,6 +195,10 @@ class RedBullGameTests {
       Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
       drink(player, can("red"))
       equal(helper, caffeine(player), Caffeines.rules.limit, "caffeine past the limit without the overdose")
+      Settings.read("wings = false")
+      val other = player(helper)
+      drink(other, can("original"))
+      helper.assertFalse(other.hasEffect(Wings.WINGS) || other.deltaMovement.y > 0.5, "wings switched off")
     } finally {
       Settings.read("")
     }

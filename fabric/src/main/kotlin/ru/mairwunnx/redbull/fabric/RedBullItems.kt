@@ -1,21 +1,16 @@
 package ru.mairwunnx.redbull.fabric
 
-import com.mojang.serialization.Codec
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Registry
-import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.util.Unit
 import net.minecraft.world.effect.MobEffectInstance
-import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.food.FoodProperties
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
@@ -29,7 +24,6 @@ import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.component.Consumables
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.UseRemainder
-import net.minecraft.world.item.equipment.Equippable
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Can
@@ -42,12 +36,6 @@ import java.util.Optional
  * `redbull:empty_can`. Data components give each its purpose, as on Paper, but here they're the item's defaults.
  */
 object RedBullItems {
-  /** When an unflown winged can crumples, in epoch milliseconds. */
-  val EXPIRES: DataComponentType<Long> = component("expires", Codec.LONG, ByteBufCodecs.VAR_LONG)
-
-  /** The can a winged can was before the drink, to crumple into. */
-  val FLAVOUR: DataComponentType<String> = component("flavour", Codec.STRING, ByteBufCodecs.STRING_UTF8)
-
   /** Bottles tint the game's potion model, as on Paper. */
   private const val BILE_COLOR = 0x9FB230
   private const val CRUDE_COLOR = 0xEFE3B0
@@ -61,21 +49,9 @@ object RedBullItems {
   val bile: BottleItem = bottle(Ids.BULL_BILE, BILE_COLOR, Bottles.BILE)
   val crudeTaurine: BottleItem = bottle(Ids.CRUDE_TAURINE, CRUDE_COLOR, Bottles.CRUDE_TAURINE)
 
-  /**
-   * The can after a drink with wings: a glider held in the main hand. The game wears a glider by a point per second
-   * of flight and stops a point before it breaks, so its durability is the wing seconds plus one; see [WingedCanItem].
-   */
-  val wingedCan: WingedCanItem = register(
-    Ids.WINGED_CAN, ::WingedCanItem,
-    hint(Ids.WINGED_CAN)
-      .durability(CANS.first().wings + 1)
-      .component(DataComponents.GLIDER, Unit.INSTANCE)
-      .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.MAINHAND).setSwappable(false).build()),
-  )
-
   /** Every item, in the order the creative tab lists them. */
   val all: List<Item> get() =
-    cans.values.toList() + listOf(emptyCan, taurine, bile, crudeTaurine, wingedCan) + crumpled.values
+    cans.values.toList() + listOf(emptyCan, taurine, bile, crudeTaurine) + crumpled.values
 
   fun init() {
     val key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
@@ -88,17 +64,6 @@ object RedBullItems {
   }
 
   fun canOf(stack: ItemStack): Can? = (stack.item as? CanItem)?.can
-
-  /** A winged can of [can]'s flavour: [Can.wings] seconds of flight, and crumpling at [expires] if unflown. */
-  fun wingedCan(can: Can, expires: Long): ItemStack = ItemStack(wingedCan).apply {
-    set(DataComponents.MAX_DAMAGE, can.wings + 1)
-    set(DataComponents.DAMAGE, 0)
-    set(EXPIRES, expires)
-    set(FLAVOUR, can.id)
-  }
-
-  fun crumpledOf(stack: ItemStack): ItemStack =
-    ItemStack(crumpled[stack.get(FLAVOUR)] ?: crumpled.values.first())
 
   private fun can(can: Can): CanItem {
     val properties = Item.Properties()
@@ -163,12 +128,6 @@ object RedBullItems {
     val key = ResourceKey.create(Registries.ITEM, id(name))
     return Registry.register(BuiltInRegistries.ITEM, key, factory(properties.setId(key)))
   }
-
-  private fun <T : Any> component(name: String, codec: Codec<T>, stream: net.minecraft.network.codec.StreamCodec<in net.minecraft.network.RegistryFriendlyByteBuf, T>) =
-    Registry.register(
-      BuiltInRegistries.DATA_COMPONENT_TYPE, id(name),
-      DataComponentType.builder<T>().persistent(codec).networkSynchronized(stream).build(),
-    )
 
   fun id(path: String): Identifier = Identifier.fromNamespaceAndPath("redbull", path)
 }
