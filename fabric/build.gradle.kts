@@ -33,9 +33,24 @@ kotlin {
   jvmToolchain(25)
 }
 
+// The recipes come from core, as on Paper: a small program writes them as the game's data before every build.
+val generator: SourceSet by sourceSets.creating
+dependencies {
+  "generatorImplementation"(project(":core"))
+}
+
+val generateData by tasks.registering(JavaExec::class) {
+  val output = layout.buildDirectory.dir("generated/data")
+  classpath = generator.runtimeClasspath
+  mainClass = "ru.mairwunnx.redbull.fabric.generator.RecipesKt"
+  args(output.get().asFile.absolutePath)
+  outputs.dir(output)
+}
+
 // Core's assets ship in the mod: the textures, models, item definitions, and languages every platform shares.
 sourceSets.main {
   resources.srcDir(project(":core").layout.projectDirectory.dir("src/main/resources"))
+  resources.srcDir(generateData)
 }
 
 tasks.processResources {
