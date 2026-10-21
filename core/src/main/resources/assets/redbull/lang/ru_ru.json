@@ -104,5 +104,6 @@
   "redbull.menu.admin": "Red Bull: нажмите, чтобы взять, с Shift — стак",
   "redbull.menu.locked": "Сделайте или найдите эту банку, чтобы увидеть её.",
   "item.redbull.crumpled_can": "Мятая банка",
-  "item.redbull.crumpled_can.hint": "Переплавьте обратно в железные самородки."
+  "item.redbull.crumpled_can.hint": "Переплавьте обратно в железные самородки.",
+  "effect.redbull.wings": "Крылья"
 }

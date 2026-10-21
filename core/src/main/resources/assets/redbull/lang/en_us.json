@@ -104,5 +104,6 @@
   "redbull.menu.admin": "Red Bull: click to take, Shift for a stack",
   "redbull.menu.locked": "Craft or find this can to see it.",
   "item.redbull.crumpled_can": "Crumpled Can",
-  "item.redbull.crumpled_can.hint": "Smelt it back into iron nuggets."
+  "item.redbull.crumpled_can.hint": "Smelt it back into iron nuggets.",
+  "effect.redbull.wings": "Wiiings"
 }

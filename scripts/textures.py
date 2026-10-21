@@ -212,6 +212,18 @@ def crumple(can):
     return pixels
 
 
+def wings_icon():
+    """The Wings effect's 18×18 icon: the winged can's two wings, side by side."""
+    colours = {"O": rgb("#8f99a4"), "W": rgb("#ffffff"), "L": rgb("#d3dae1")}
+    pixels = [[(0, 0, 0, 0)] * 18 for _ in range(18)]
+    for y, row in enumerate(LEFT_WING):
+        for x, role in enumerate(row):
+            if role != ".":
+                pixels[3 + y][x] = colours[role] + (255,)
+                pixels[3 + y][17 - x] = colours[role] + (255,)
+    return pixels
+
+
 ITEMS = {
     "empty_can": lambda: paint(EMPTY),
     "winged_can": winged_can,
@@ -219,6 +231,7 @@ ITEMS = {
 
 ASSETS = Path(__file__).resolve().parent.parent / "core/src/main/resources/assets/redbull"
 OUT = ASSETS / "textures/item"
+EFFECTS = ASSETS / "textures/mob_effect"
 
 
 def write_json(path, data):
@@ -243,6 +256,8 @@ def main():
         (OUT / f"crumpled_{name}.png").write_bytes(png(crumple(can)))
     for name, draw in ITEMS.items():
         (OUT / f"{name}.png").write_bytes(png(draw()))
+    EFFECTS.mkdir(parents=True, exist_ok=True)
+    (EFFECTS / "wings.png").write_bytes(png(wings_icon()))
     print(f"{2 * len(CANS) + len(ITEMS)} textures, {len(models())} models in {ASSETS}")
 
 

@@ -104,5 +104,6 @@
   "redbull.menu.admin": "Red Bull: haz clic para tomar, con Shift una pila",
   "redbull.menu.locked": "Fabrica o encuentra esta lata para verla.",
   "item.redbull.crumpled_can": "Lata aplastada",
-  "item.redbull.crumpled_can.hint": "Fúndela de nuevo en pepitas de hierro."
+  "item.redbull.crumpled_can.hint": "Fúndela de nuevo en pepitas de hierro.",
+  "effect.redbull.wings": "Alas"
 }

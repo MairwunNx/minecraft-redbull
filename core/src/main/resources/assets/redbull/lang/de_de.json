@@ -104,5 +104,6 @@
   "redbull.menu.admin": "Red Bull: klick zum Nehmen, mit Shift ein Stapel",
   "redbull.menu.locked": "Stell diese Dose her oder finde sie, um sie zu sehen.",
   "item.redbull.crumpled_can": "Zerdrückte Dose",
-  "item.redbull.crumpled_can.hint": "Schmelz sie wieder zu Eisenklumpen ein."
+  "item.redbull.crumpled_can.hint": "Schmelz sie wieder zu Eisenklumpen ein.",
+  "effect.redbull.wings": "Flügel"
 }

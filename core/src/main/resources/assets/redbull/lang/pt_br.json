@@ -104,5 +104,6 @@
   "redbull.menu.admin": "Red Bull: clique para pegar, com Shift uma pilha",
   "redbull.menu.locked": "Fabrique ou encontre esta lata para vê-la.",
   "item.redbull.crumpled_can": "Lata amassada",
-  "item.redbull.crumpled_can.hint": "Derreta de volta em pepitas de ferro."
+  "item.redbull.crumpled_can.hint": "Derreta de volta em pepitas de ferro.",
+  "effect.redbull.wings": "Asas"
 }
