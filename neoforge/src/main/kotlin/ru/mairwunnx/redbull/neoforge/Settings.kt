@@ -2,7 +2,10 @@ package ru.mairwunnx.redbull.neoforge
 
 import net.neoforged.neoforge.common.ModConfigSpec
 
-/** `redbull-server.toml` in the world's `serverconfig`: the same switches as the Paper plugin's `config.yml`. */
+/**
+ * `config/redbull.toml`: the same switches, comments, and defaults as Fabric's file of that name and Paper's
+ * `config.yml` without the pack. NeoForge reads it again whenever it's saved.
+ */
 object Settings {
   private val builder = ModConfigSpec.Builder()
 
