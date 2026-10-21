@@ -48,7 +48,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends. Regeneration and Strength II stay short, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends, which shimmer like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
@@ -85,7 +85,11 @@ Type `/redbull` to open your collection: every can you have ever held, crafted, 
 
 ## Wiiings
 
-A can with wings throws you upward as you finish it and leaves a winged can in your hand. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. The winged can works only in your main hand, and switching away drops you. After a minute, or once its flight runs out, it turns back into an empty can, ready to fill again.
+A can with wings throws you upward as you finish it and leaves a winged can in your hand. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. The winged can works only in your main hand, and switching away drops you. After a minute, or once its flight runs out, it crumples.
+
+## Crumpled cans
+
+Every can you finish leaves a crumpled can in its own colours. They stack to 64, and a furnace melts each back into two iron nuggets, twice as fast in a blast furnace. Iron comes back; for a new can you need only a copper nugget more.
 
 ## Caffeine
 
