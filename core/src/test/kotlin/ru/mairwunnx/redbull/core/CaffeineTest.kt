@@ -81,10 +81,8 @@ class CaffeineTest {
   }
 
   @Test
-  fun `caffeine keeps a player awake and shakes their aim`() {
+  fun `any caffeine keeps a player awake`() {
     assertTrue(Caffeine(0.5, 0).sleepless())
     assertFalse(Caffeine().sleepless())
-    assertEquals(0.0, Stage.CALM.shake())
-    assertTrue(Stage.CRASH.shake() > Stage.JITTERS.shake())
   }
 }

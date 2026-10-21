@@ -57,16 +57,6 @@ fun Caffeine.secondsLeft(rules: Rules): Int = kotlin.math.ceil(level / rules.dec
 /** Too wired to sleep: any caffeine at all keeps a player out of bed. */
 fun Caffeine.sleepless(): Boolean = level > 0
 
-/**
- * Shaking hands: what a stage adds to the inaccuracy of an arrow or a bolt. A player's bow has 1; a skeleton on
- * normal difficulty shoots with 6 and on easy with 10, so the jitters aim like the one and the crash like the other.
- */
-fun Stage.shake(): Double = when (this) {
-  Stage.CALM -> 0.0
-  Stage.JITTERS -> 5.0
-  Stage.CRASH, Stage.OVERDOSE -> 9.0
-}
-
 const val CRASH_SECONDS = 60
 const val CRASH_DELAY_LIMIT = 180
 
