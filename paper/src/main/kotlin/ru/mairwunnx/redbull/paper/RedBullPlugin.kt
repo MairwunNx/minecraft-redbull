@@ -4,12 +4,14 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.scheduler.BukkitTask
 import ru.mairwunnx.redbull.core.CANS
 
 class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
 
   private val recipes by lazy { Recipes(server) }
+  private val tasks = mutableListOf<BukkitTask>()
 
   override fun onEnable() {
     loadSettings()
@@ -17,12 +19,16 @@ class RedBullPlugin : JavaPlugin(), Listener {
     Items.ids.forEach { Items.create(it)!!.serializeAsBytes() }
     recipes.register()
 
-    server.pluginManager.registerEvents(this, this)
+    val heart = Heart(this)
+    listOf(this, Drinks(this)).forEach { server.pluginManager.registerEvents(it, this) }
+    tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
 
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes")
   }
 
   override fun onDisable() {
+    tasks.forEach { it.cancel() }
+    tasks.clear()
     recipes.unregister()
   }
 
