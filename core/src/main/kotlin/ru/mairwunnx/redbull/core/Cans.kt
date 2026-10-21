@@ -54,6 +54,11 @@ private val OCEANS = listOf(
   "ocean", "deep_ocean", "lukewarm_ocean", "deep_lukewarm_ocean", "warm_ocean", "cold_ocean", "deep_cold_ocean",
 )
 
+/** Buff lengths by how hard a can is to get: crafted only, crafted or looted, and the chest-only legends. */
+const val COMMON = 480
+const val EDITION = 720
+const val LEGEND = 960
+
 private fun chests(chance: Double, vararg biomes: String) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun chests(chance: Double, biomes: List<String>) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun recipe(flavour: String, dye: String) =
@@ -61,88 +66,89 @@ private fun recipe(flavour: String, dye: String) =
 
 /** Every can, in the order commands and the README list them. */
 val CANS = listOf(
-  Can("original", false, listOf(speed(180, 2), haste(180)), 8, recipe("sugar", "blue"), null),
-  Can("sugarfree", true, listOf(speed(180)), 6, recipe("honeycomb", "light_blue"), null),
-  Can("zero", true, listOf(speed(180, 2), haste(180)), 8, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
-  Can("red", false, listOf(strength(120)), 8, recipe("melon_slice", "red"), null),
-  Can("red_sugarfree", true, listOf(strength(90)), 6, recipe("melon_slice", "red"), null),
-  Can("pink_sugarfree", true, listOf(effect("regeneration", 45)), 6, recipe("sweet_berries", "pink"), null),
+  Can("original", false, listOf(speed(COMMON, 2), haste(COMMON)), 8, recipe("sugar", "blue"), null),
+  Can("sugarfree", true, listOf(speed(COMMON)), 6, recipe("honeycomb", "light_blue"), null),
+  Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), 8, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
+  Can("red", false, listOf(strength(COMMON)), 8, recipe("melon_slice", "red"), null),
+  Can("red_sugarfree", true, listOf(strength(COMMON)), 6, recipe("melon_slice", "red"), null),
+  Can("pink_sugarfree", true, listOf(effect("regeneration", 90)), 6, recipe("sweet_berries", "pink"), null),
   Can(
-    "green", false, listOf(effect("luck", 600), speed(180)), 8, recipe("cactus_flower", "green"),
+    "green", false, listOf(effect("luck", EDITION), speed(EDITION)), 8, recipe("cactus_flower", "green"),
     chests(0.15, "mangrove_swamp", "swamp", "lush_caves"),
   ),
   Can(
-    "cherry", false, listOf(effect("luck", 600), speed(120, 2)), 12, recipe("pink_petals", "red"),
+    "cherry", false, listOf(effect("luck", EDITION), speed(EDITION, 2)), 12, recipe("pink_petals", "red"),
     chests(0.15, "cherry_grove"),
   ),
   Can(
-    "ice", false, listOf(effect("resistance", 180)), 10, recipe("packed_ice", "light_blue"),
+    "ice", false, listOf(effect("resistance", EDITION)), 10, recipe("packed_ice", "light_blue"),
     chests(0.15, "ice_spikes", "frozen_ocean", "deep_frozen_ocean"),
   ),
   Can(
-    "winter_apple", false, listOf(effect("absorption", 180, 2)), 8, recipe("apple", "orange"),
+    "winter_apple", false, listOf(effect("absorption", EDITION, 2)), 8, recipe("apple", "orange"),
     chests(0.15, "snowy_taiga", "grove"),
   ),
   Can(
-    "winter_pistachio", false, listOf(effect("regeneration", 30, 2)), 8, recipe("sweet_berries", "lime"),
+    "winter_pistachio", false, listOf(effect("regeneration", 45, 2)), 8, recipe("sweet_berries", "lime"),
     chests(0.15, "snowy_plains", "snowy_beach"),
   ),
   Can(
-    "yellow", false, listOf(speed(240), effect("jump_boost", 240)), 10, recipe("sunflower", "yellow"),
+    "yellow", false, listOf(speed(EDITION), effect("jump_boost", EDITION)), 10, recipe("sunflower", "yellow"),
     chests(0.15, "desert"),
   ),
   Can(
-    "tropical", false, listOf(effect("jump_boost", 180, 2)), 12, recipe("cocoa_beans", "yellow"),
+    "tropical", false, listOf(effect("jump_boost", EDITION, 2)), 12, recipe("cocoa_beans", "yellow"),
     chests(0.15, "jungle", "sparse_jungle", "bamboo_jungle"),
   ),
   Can(
-    "amber", false, listOf(haste(180, 2)), 8, recipe("sweet_berries", "orange"),
+    "amber", false, listOf(haste(EDITION, 2)), 8, recipe("sweet_berries", "orange"),
     chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
-    "amber_sugarfree", true, listOf(haste(180)), 6, recipe("sweet_berries", "orange"),
+    "amber_sugarfree", true, listOf(haste(EDITION)), 6, recipe("sweet_berries", "orange"),
     chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
-    "peach", false, listOf(effect("health_boost", 300)), 8, recipe("pink_tulip", "pink"),
+    "peach", false, listOf(effect("health_boost", EDITION)), 8, recipe("pink_tulip", "pink"),
     chests(0.15, "plains", "sunflower_plains"),
   ),
   Can(
-    "lilac_sugarfree", true, listOf(effect("absorption", 180)), 6, recipe("lilac", "magenta"),
+    "lilac_sugarfree", true, listOf(effect("absorption", EDITION)), 6, recipe("lilac", "magenta"),
     chests(0.15, "forest", "flower_forest", "birch_forest"),
   ),
   Can(
-    "purple", false, listOf(effect("invisibility", 180), speed(180)), 8, recipe("chorus_fruit", "purple"),
+    "purple", false, listOf(effect("invisibility", EDITION), speed(EDITION)), 8, recipe("chorus_fruit", "purple"),
     chests(0.15, "dark_forest", "pale_garden"),
   ),
   Can(
-    "sea_blue", false, listOf(effect("dolphins_grace", 180), effect("conduit_power", 180)), 0,
+    "sea_blue", false, listOf(effect("dolphins_grace", EDITION), effect("conduit_power", EDITION)), 0,
     recipe("sea_pickle", "cyan"), chests(0.15, OCEANS),
   ),
   Can(
-    "coconut", false, listOf(effect("saturation", 1), speed(180)), 8, recipe("milk_bucket", "white"),
+    "coconut", false, listOf(effect("saturation", 1), speed(EDITION)), 8, recipe("milk_bucket", "white"),
     chests(0.15, "beach"),
   ),
   Can(
-    "coconut_sugarfree", true, listOf(effect("water_breathing", 480)), 6, recipe("milk_bucket", "white"),
+    "coconut_sugarfree", true, listOf(effect("water_breathing", EDITION)), 6, recipe("milk_bucket", "white"),
     chests(0.15, "beach"),
   ),
   Can(
-    "blue", false, listOf(effect("night_vision", 480), speed(180)), 8, recipe("blue_orchid", "blue"),
+    "blue", false, listOf(effect("night_vision", EDITION), speed(EDITION)), 8, recipe("blue_orchid", "blue"),
     chests(0.15, "deep_dark"),
   ),
-  // The legends: no recipe, only chests in the hardest places.
+  // The legends: no recipe, only chests in the hardest places. Regeneration and Strength II stay short
+  // everywhere: minutes of either would make a player unkillable.
   Can(
-    "ruby", false, listOf(effect("fire_resistance", 480), strength(90, 2)), 0, null, chests(0.08, NETHER),
+    "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(180, 2)), 0, null, chests(0.08, NETHER),
   ),
   Can(
-    "summer", false, listOf(speed(90, 3)), 15, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),
+    "summer", false, listOf(speed(LEGEND, 3)), 15, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),
   ),
   Can(
-    "glacier", false, listOf(effect("slow_falling", 180), effect("resistance", 120)), 15, null,
+    "glacier", false, listOf(effect("slow_falling", LEGEND), effect("resistance", LEGEND)), 15, null,
     chests(0.05, "frozen_peaks", "jagged_peaks", "snowy_slopes"),
   ),
-  Can("spring", false, listOf(effect("slow_falling", 240)), 30, null, chests(0.03, "cherry_grove")),
+  Can("spring", false, listOf(effect("slow_falling", LEGEND)), 30, null, chests(0.03, "cherry_grove")),
 )
 
 fun can(id: String): Can? = CANS.firstOrNull { it.id == id }
