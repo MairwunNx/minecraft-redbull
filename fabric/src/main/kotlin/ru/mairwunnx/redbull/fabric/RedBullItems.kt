@@ -46,18 +46,22 @@ object RedBullItems {
   val bile: BottleItem = bottle(Ids.BULL_BILE, Colors.BILE, Bottles.BILE)
   val crudeTaurine: BottleItem = bottle(Ids.CRUDE_TAURINE, Colors.CRUDE_TAURINE, Bottles.CRUDE_TAURINE)
 
-  /** Every item, in the order the creative tab lists them. */
+  /** Every item, in the order `/redbull give` suggests them. */
   val all: List<Item> get() =
     cans.values.toList() + listOf(emptyCan, taurine, bile, crudeTaurine) + crumpled.values
 
+  /** `redbull:redbull` in the creative inventory: the cans, their crumpled cans, then the ingredients. */
+  val TAB: ResourceKey<CreativeModeTab> = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
+
   fun init() {
-    val key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
     val tab = FabricCreativeModeTab.builder()
       .title(Component.translatable("itemGroup.redbull"))
       .icon { ItemStack(cans.getValue("original")) }
-      .displayItems { _, output -> all.forEach(output::accept) }
+      .displayItems { _, output ->
+        (cans.values + crumpled.values + listOf(emptyCan, bile, crudeTaurine, taurine)).forEach(output::accept)
+      }
       .build()
-    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, tab)
+    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TAB, tab)
   }
 
   fun canOf(stack: ItemStack): Can? = (stack.item as? CanItem)?.can

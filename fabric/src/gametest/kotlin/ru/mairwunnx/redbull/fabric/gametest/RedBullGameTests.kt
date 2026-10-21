@@ -35,6 +35,7 @@ import net.minecraft.server.players.NameAndId
 import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -475,6 +476,17 @@ class RedBullGameTests {
     helper.assertTrue(refused, "a player without operator rights gives nothing")
     equal(helper, dispatcher.execute("redbull", own), 1, "anyone opens the collection")
     helper.assertTrue(player.containerMenu is Menu.View, "the collection is open")
+    helper.succeed()
+  }
+
+  @GameTest
+  fun theCreativeTabListsEveryItem(helper: GameTestHelper) {
+    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(RedBullItems.TAB)
+    tab.buildContents(CreativeModeTab.ItemDisplayParameters(helper.level.enabledFeatures(), false, helper.level.registryAccess()))
+    val shown = tab.displayItems.map { RedBullItems.idOf(it.item) }
+    val expected = CANS.map { it.id } + CANS.map { it.crumpled } + listOf("empty_can", "bull_bile", "crude_taurine", "taurine")
+    equal(helper, shown, expected, "the creative tab")
+    equal(helper, RedBullItems.idOf(tab.iconItem.item), "original", "the tab's icon")
     helper.succeed()
   }
 
