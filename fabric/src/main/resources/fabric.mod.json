@@ -17,6 +17,7 @@
     "main": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.RedBullMod" }],
     "client": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.client.RedBullClient" }]
   },
+  "mixins": ["redbull.mixins.json"],
   "depends": {
     "fabricloader": ">=${loader}",
     "fabric-api": "*",
