@@ -4,6 +4,8 @@
 
 <p align="center">
   <a href="https://github.com/MairwunNx/minecraft-redbull/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/MairwunNx/minecraft-redbull?label=release"></a>
+  <a href="https://modrinth.com/plugin/minecraft-redbull"><img alt="Modrinth" src="https://img.shields.io/modrinth/dt/minecraft-redbull?logo=modrinth&label=Modrinth&color=00AF5C"></a>
+  <a href="https://hangar.papermc.io/MairwunNx/RedBull"><img alt="Hangar" src="https://img.shields.io/hangar/dt/RedBull?label=Hangar&color=1E88E5"></a>
   <img alt="Paper 26.3" src="https://img.shields.io/badge/Paper-26.3-F7CF0D">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-E76F00">
   <a href="https://github.com/MairwunNx/minecraft-redbull/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/MairwunNx/minecraft-redbull/build.yml?branch=master&label=build"></a>
@@ -106,7 +108,7 @@ Red Bull работает на Moonlands — моём сервере со сло
 
 ## Как начать
 
-1. Скачайте [redbull.jar](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) и положите в `plugins/` сервера Paper 26.3 на Java 25.
+1. Скачайте jar с [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull) или [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) и положите в `plugins/` сервера Paper 26.3 на Java 25.
 2. Перезапустите сервер. Игроки получат ресурс-пак при входе; без него банки показываются как отсутствующая текстура.
 3. Введите `/redbull`, возьмите банку и выпейте её.
 

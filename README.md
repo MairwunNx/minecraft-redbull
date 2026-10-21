@@ -4,6 +4,8 @@ I’m a fan of Red Bull—the best energy drinks in the world. They give me ener
 
 <p align="center">
   <a href="https://github.com/MairwunNx/minecraft-redbull/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/MairwunNx/minecraft-redbull?label=release"></a>
+  <a href="https://modrinth.com/plugin/minecraft-redbull"><img alt="Modrinth" src="https://img.shields.io/modrinth/dt/minecraft-redbull?logo=modrinth&label=Modrinth&color=00AF5C"></a>
+  <a href="https://hangar.papermc.io/MairwunNx/RedBull"><img alt="Hangar" src="https://img.shields.io/hangar/dt/RedBull?label=Hangar&color=1E88E5"></a>
   <img alt="Paper 26.3" src="https://img.shields.io/badge/Paper-26.3-F7CF0D">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-E76F00">
   <a href="https://github.com/MairwunNx/minecraft-redbull/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/MairwunNx/minecraft-redbull/build.yml?branch=master&label=build"></a>
@@ -106,7 +108,7 @@ A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and cr
 
 ## Get started
 
-1. Download [redbull.jar](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25.
+1. Download the jar from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25.
 2. Restart the server. Players get the resource pack when they join; without it the cans show the missing texture.
 3. Type `/redbull`, take a can, and drink it.
 
