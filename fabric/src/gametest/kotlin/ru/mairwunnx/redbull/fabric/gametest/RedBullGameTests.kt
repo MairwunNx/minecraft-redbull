@@ -499,11 +499,13 @@ class RedBullGameTests {
     val origin = helper.absoluteVec(Vec3.atCenterOf(BlockPos(1, 2, 1)))
     val biome = level.getBiome(BlockPos.containing(origin)).unwrapKey().orElseThrow().identifier().toString()
     val local = CANS.filter { biome in (it.chests?.biomes ?: emptyList()) }.map { it.id }.toSet()
-    val key = ResourceKey.create(Registries.LOOT_TABLE, Identifier.withDefaultNamespace("chests/simple_dungeon"))
-    val table: LootTable = level.server.reloadableRegistries().getLootTable(key)
     val params = LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, origin).create(LootContextParamSets.CHEST)
-    val found = (1..300).flatMap { table.getRandomItems(params) }.mapNotNull { RedBullItems.canOf(it)?.id }.toSet()
-    equal(helper, found, local, "cans in 300 dungeon chests in $biome")
+    // A dungeon's chest, and a crate of another mod's: cans turn up in any chest, as on Paper and NeoForge.
+    for (id in listOf(Identifier.withDefaultNamespace("chests/simple_dungeon"), Identifier.parse("redbull-gametest:chests/crate"))) {
+      val table: LootTable = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, id))
+      val found = (1..300).flatMap { table.getRandomItems(params) }.mapNotNull { RedBullItems.canOf(it)?.id }.toSet()
+      equal(helper, found, local, "cans in 300 chests of $id in $biome")
+    }
     helper.succeed()
   }
 }

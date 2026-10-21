@@ -15,19 +15,18 @@ import ru.mairwunnx.redbull.core.Ids
 
 /**
  * Where ingredients and cans come from besides crafting: bull bile from adult cows and mooshrooms a player kills,
- * and cans in chests by the biome the chest stands in, whatever structure it belongs to. The pools are the game's
- * own loot JSON, built from core's numbers and read through the game's codec, so they behave like vanilla loot.
+ * and cans in chests by the biome the chest stands in, whatever structure, mod, or data pack the chest belongs to,
+ * as on Paper and NeoForge. The pools are the game's own loot JSON, built from core's numbers and read through the
+ * game's codec, so they behave like vanilla loot.
  */
 object Loot {
   private val COWS = setOf("minecraft:entities/cow", "minecraft:entities/mooshroom")
 
   fun init() {
-    LootTableEvents.MODIFY.register { key, table, source, registries ->
-      if (!source.isBuiltin) return@register
-      val id = key.identifier().toString()
+    LootTableEvents.MODIFY.register { key, table, _, registries ->
       when {
-        id in COWS -> if (Settings.bile > 0) table.pool(pool(registries, bile(Settings.bile)))
-        key.identifier().namespace == "minecraft" && key.identifier().path.startsWith("chests/") ->
+        key.identifier().toString() in COWS -> if (Settings.bile > 0) table.pool(pool(registries, bile(Settings.bile)))
+        key.identifier().path.startsWith("chests/") ->
           if (Settings.chests > 0) CANS.mapNotNull { chest(it, Settings.chests) }.forEach { table.pool(pool(registries, it)) }
       }
     }
