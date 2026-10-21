@@ -22,6 +22,8 @@ object RedBullMod : ModInitializer {
     Caffeines.CAFFEINE
     Loot.init()
     Wings.init()
+    Collected.init()
+    RedBullCommand.init()
 
     ServerTickEvents.END_SERVER_TICK.register { server ->
       Drinks.tick(server)

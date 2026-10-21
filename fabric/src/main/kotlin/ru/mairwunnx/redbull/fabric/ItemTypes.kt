@@ -20,8 +20,16 @@ class CanItem(properties: Properties, val can: Can) : Item(properties) {
 
   override fun finishUsingItem(stack: ItemStack, level: Level, entity: LivingEntity): ItemStack {
     val left = super.finishUsingItem(stack, level, entity)
-    if (entity is ServerPlayer) Drinks.can(entity, can)
+    if (entity is ServerPlayer) {
+      Collected.add(entity, setOf(can.id))
+      Drinks.can(entity, can)
+    }
     return left
+  }
+
+  override fun onCraftedBy(stack: ItemStack, player: Player) {
+    super.onCraftedBy(stack, player)
+    if (player is ServerPlayer) Collected.add(player, setOf(can.id))
   }
 }
 

@@ -18,7 +18,11 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.inventory.ContainerInput
+import net.minecraft.server.players.NameAndId
+import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.Item
@@ -43,9 +47,12 @@ import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.fabric.Caffeines
+import ru.mairwunnx.redbull.fabric.Collected
+import ru.mairwunnx.redbull.fabric.Menu
 import ru.mairwunnx.redbull.fabric.RedBullItems
 import ru.mairwunnx.redbull.fabric.Settings
 import ru.mairwunnx.redbull.fabric.Wings
+import java.util.Optional
 import java.util.UUID
 
 /** What a player does with Red Bull on a real server: drink, craft, brew, smelt, and find. */
@@ -58,12 +65,12 @@ class RedBullGameTests {
   }
 
   /**
-   * A survival player on an embedded connection. The game's own mock player is always in creative, where nothing
+   * A survival player on an embedded connection, with a name of their own for commands. The game's own mock player is always in creative, where nothing
    * is used up and caffeine can't kill; and the game protects a player whose client is still loading from all harm.
    */
   private fun player(helper: GameTestHelper): ServerPlayer {
     val server = helper.level.server
-    val cookie = CommonListenerCookie.createInitial(GameProfile(UUID.randomUUID(), "test-player"), false)
+    val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
     val player = ServerPlayer(server, helper.level, cookie.gameProfile(), cookie.clientInformation())
     val connection = Connection(PacketFlow.SERVERBOUND)
     EmbeddedChannel(connection)
@@ -281,6 +288,85 @@ class RedBullGameTests {
       val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area) { it.item.`is`(RedBullItems.bile) }
       helper.assertTrue(drops.isNotEmpty(), "bull bile at ${Bile.chance(3)} a cow")
     }
+  }
+
+  @GameTest
+  fun cansJoinTheCollectionAsTheyArrive(helper: GameTestHelper) {
+    val player = player(helper)
+    drink(player, can("sea_blue"))
+    ItemStack(can("cherry")).onCraftedBy(player, 1)
+    val dropped = ItemEntity(helper.level, player.x, player.y, player.z, ItemStack(can("summer")))
+    dropped.setNoPickUpDelay()
+    helper.level.addFreshEntity(dropped)
+    dropped.playerTouch(player)
+    player.inventory.setItem(20, ItemStack(can("zero")))
+    player.doCloseContainer()
+    equal(helper, Collected.of(player), setOf("sea_blue", "cherry", "summer", "zero"), "drunk, crafted, picked up, and taken")
+
+    // Death keeps it: the respawned player is a new entity that copies the attachment.
+    val respawned = helper.level.server.playerList.respawn(player, false, Entity.RemovalReason.KILLED)
+    equal(helper, Collected.of(respawned), Collected.of(player), "the collection after death")
+    helper.succeed()
+  }
+
+  @GameTest
+  fun collectionShowsWhatThePlayerHeld(helper: GameTestHelper) {
+    val player = player(helper)
+    Collected.add(player, setOf("cherry"))
+    Menu.open(player)
+    val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no collection menu open")
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    equal(helper, menu.getSlot(cherry).item.item, can("cherry"), "a can the player held")
+    val other = menu.getSlot(if (cherry == 0) 1 else 0).item
+    equal(helper, other.item, RedBullItems.emptyCan, "a can they haven't")
+    equal(helper, other.hoverName.string, "???", "its name")
+    helper.assertTrue(menu.getSlot(27).item.isEmpty, "no ingredients for players")
+
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
+    menu.clicked(cherry, 0, ContainerInput.QUICK_MOVE, player)
+    helper.assertTrue(player.inventory.isEmpty && menu.carried.isEmpty, "nothing to take for players")
+    equal(helper, menu.getSlot(cherry).item.item, can("cherry"), "the can stays")
+    helper.succeed()
+  }
+
+  @GameTest
+  fun adminsTakeFromTheMenu(helper: GameTestHelper) {
+    val player = player(helper)
+    helper.level.server.playerList.op(NameAndId(player.gameProfile), Optional.of(LevelBasedPermissionSet.GAMEMASTER), Optional.of(false))
+    helper.assertTrue(Menu.admin(player), "an operator is an admin")
+    Menu.open(player)
+    val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
+    menu.clicked(28, 0, ContainerInput.QUICK_MOVE, player)
+    equal(helper, player.inventory.countItem(can("cherry")), 1, "one can with a click")
+    equal(helper, player.inventory.countItem(RedBullItems.taurine), 64, "a stack of taurine with Shift")
+    helper.assertTrue(menu.carried.isEmpty, "nothing on the cursor")
+    helper.assertTrue("cherry" in Collected.of(player), "a taken can joins the collection")
+    helper.level.server.playerList.deop(NameAndId(player.gameProfile))
+    helper.succeed()
+  }
+
+  @GameTest
+  fun commandsGiveAndShowCaffeine(helper: GameTestHelper) {
+    val player = player(helper)
+    val server = helper.level.server
+    val dispatcher = server.commands.dispatcher
+    val console = server.createCommandSourceStack().withSuppressedOutput()
+    equal(helper, dispatcher.execute("redbull give cherry ${player.plainTextName} 3", console), 3, "the cans given")
+    equal(helper, player.inventory.countItem(can("cherry")), 3, "cherry cans in the inventory")
+    helper.assertTrue("cherry" in Collected.of(player), "a given can joins the collection")
+    equal(helper, dispatcher.execute("redbull give winged_can ${player.plainTextName}", console), 0, "the winged can is gone")
+
+    Caffeines.set(player, Caffeine(42.5, Caffeines.clock(player)))
+    equal(helper, dispatcher.execute("redbull caffeine ${player.plainTextName}", console), 42, "caffeine")
+
+    val own = player.createCommandSourceStack().withSuppressedOutput()
+    val refused = runCatching { dispatcher.execute("redbull give cherry", own) }.isFailure
+    helper.assertTrue(refused, "a player without operator rights gives nothing")
+    equal(helper, dispatcher.execute("redbull", own), 1, "anyone opens the collection")
+    helper.assertTrue(player.containerMenu is Menu.View, "the collection is open")
+    helper.succeed()
   }
 
   /** The test runs wherever the server put it: cans of that biome turn up in its chests, and no other can does. */

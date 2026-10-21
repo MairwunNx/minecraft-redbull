@@ -65,6 +65,13 @@ object RedBullItems {
 
   fun canOf(stack: ItemStack): Can? = (stack.item as? CanItem)?.can
 
+  /** The id of one of our items without its namespace, as `/redbull give` takes it: `original`, `bull_bile`. */
+  fun idOf(item: Item): String? = BuiltInRegistries.ITEM.getKey(item).takeIf { it.namespace == "redbull" }?.path
+
+  /** One of our items by [idOf]'s id, or null for anything else. */
+  fun create(id: String): ItemStack? =
+    Identifier.tryBuild("redbull", id)?.let { BuiltInRegistries.ITEM.getOptional(it).orElse(null) }?.let(::ItemStack)
+
   private fun can(can: Can): CanItem {
     val properties = Item.Properties()
       .stacksTo(1)
