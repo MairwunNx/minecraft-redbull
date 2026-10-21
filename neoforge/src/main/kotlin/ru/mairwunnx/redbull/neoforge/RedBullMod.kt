@@ -15,6 +15,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import org.slf4j.Logger
 import ru.mairwunnx.redbull.core.CANS
+import ru.mairwunnx.redbull.neoforge.client.CaffeineHud
 
 const val MOD_ID = "redbull"
 
@@ -43,6 +44,8 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
     Collected.listen(bus)
     Later.listen(bus)
     RedBullCommand.listen(bus)
+    if (dist.isClient) CaffeineHud.listen(modBus)
+
     // Players find every crafting recipe in their recipe book.
     bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->
       val player = event.entity as? ServerPlayer ?: return@on
