@@ -68,16 +68,19 @@ jobs:
       - name: Build and test
         run: ./gradlew build -PreleaseVersion="$VERSION"
       - name: Publish the GitHub release
-        # Every jar twice: with its version, and without, so releases/latest/download/redbull.jar (Paper),
-        # redbull-neoforge.jar, and redbull-fabric.jar always fetch the newest. The pack under the name the plugin
+        # Every jar twice: with its version, and without, so releases/latest/download/redbull-paper.jar,
+        # redbull-neoforge.jar, and redbull-fabric.jar always fetch the newest; redbull.jar too, the Paper jar's
+        # name up to 1.1.1, so links to it keep working. The pack under the name the plugin
         # builds its default URL from.
         run: |
-          cp "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar
+          cp "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull-paper.jar
+          cp "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull.jar
           cp "neoforge/build/libs/redbull-neoforge-$VERSION.jar" neoforge/build/libs/redbull-neoforge.jar
           cp "fabric/build/libs/redbull-fabric-$VERSION.jar" fabric/build/libs/redbull-fabric.jar
           cp paper/build/pack/redbull-pack.zip "paper/build/pack/redbull-pack-$VERSION.zip"
           gh release create "v$VERSION" --target "$GITHUB_SHA" --title "Red Bull $VERSION" --notes-file "$NOTES" \
-            "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar "paper/build/pack/redbull-pack-$VERSION.zip" \
+            "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull-paper.jar paper/build/libs/redbull.jar \
+            "paper/build/pack/redbull-pack-$VERSION.zip" \
             "neoforge/build/libs/redbull-neoforge-$VERSION.jar" neoforge/build/libs/redbull-neoforge.jar \
             "fabric/build/libs/redbull-fabric-$VERSION.jar" fabric/build/libs/redbull-fabric.jar
         env:

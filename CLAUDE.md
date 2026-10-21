@@ -95,7 +95,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
 
 ## Building and testing
 
-- `./gradlew build` runs the tests and builds `paper/build/libs/redbull-<version>.jar`, shaded and relocated under `ru.mairwunnx.redbull.libs`, `paper/build/pack/redbull-pack.zip`, and `neoforge/build/libs/redbull-neoforge-<version>.jar`. JDK 25; Gradle provisions it through the foojay resolver.
+- `./gradlew build` runs the tests and builds `paper/build/libs/redbull-paper-<version>.jar`, shaded and relocated under `ru.mairwunnx.redbull.libs`, `paper/build/pack/redbull-pack.zip`, and `neoforge/build/libs/redbull-neoforge-<version>.jar`. JDK 25; Gradle provisions it through the foojay resolver.
 - It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with core's classes and assets inside, and runs the Fabric game tests on a real server (`./gradlew :fabric:runGameTest`): drinking, the Caffeine effect after one, two, and three cans and its return after milk, the bed, the Wings effect (the launch, gliding with it and not without, no wear, Slow Falling when it ends mid-flight), milk, the overdose through a totem, the settings, bull mode, the collection, the `/redbull` chest for players and admins, the commands, every crafting recipe, brewing, both furnaces, bile from cows, and chest loot by biome.
 - There is no MockBukkit for Paper 26.3; tests cover `core`. The rest runs on a real Paper. On NeoForge and Fabric, game tests drive a real server with a fake survival player.
 
@@ -104,7 +104,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
 1. `./gradlew build`: the tests and the jar.
 2. A real Paper with the jar. On start the plugin builds every item through the game's codecs, so a component the game rejects fails here:
    ```sh
-   python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
+   python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-paper-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
    ```
 3. NeoForge's game tests: drinking, caffeine and its effect after one, two, and three cans, milk and `/effect clear`, the bed, the overdose and its death message, bull mode, gliding on the Wings effect and only with it, Slow Falling when it ends mid-glide, an elytra that doesn't wear with Wings, no winged can, bile from a cow, and the creative tab, on a real server. It ends with “All 11 required tests passed”:
    ```sh
@@ -132,10 +132,20 @@ Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.c
 - Java: `jvmToolchain` in every module, the foojay resolver in `settings.gradle.kts`, and CI's `setup-java`.
 - Gradle in `gradle/wrapper/gradle-wrapper.properties`; Kotlin and the Gradle plugins in the root `build.gradle.kts`; libraries in each module's `dependencies`.
 
+## Platforms
+
+How the family ships a project to more than one platform; this one follows it since 1.2.0.
+
+- **Modules.** One Gradle module per platform, `paper/`, `fabric/`, `neoforge/`, next to a `core/` module with what they share: the rules as plain Kotlin without game imports, data, and assets. Every module builds from one version, and one release ships them all.
+- **Jars.** `<name>-paper-X.Y.Z.jar`, `<name>-fabric-X.Y.Z.jar`, and `<name>-neoforge-X.Y.Z.jar`, each attached again without the version, so `releases/latest/download/<name>-<platform>.jar` always fetches the newest. A project that builds only for Paper keeps its jar’s present name until it gains a second platform, so links and Moonlands’ `jars.txt` keep working.
+- **Modrinth.** One project for every platform. Each platform is its own version, numbered `X.Y.Z+paper`, `X.Y.Z+fabric`, or `X.Y.Z+neoforge`, with its own loaders and dependencies; a mod’s version says it runs on the client and the server.
+- **Hangar.** Paper only, numbered `X.Y.Z`.
+- **Moonlands** runs the Paper jar only.
+
 ## Releasing and Moonlands
 
 1. Keep a `## X.Y.Z` section in CHANGELOG.md, written for server owners. After a change that reaches what the project ships, add it in the same push: under the topmost section while that version isn't released (`gh release view vX.Y.Z` fails), or under a new section with the next version.
-2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches `redbull-X.Y.Z.jar`, `redbull.jar`, `redbull-pack-X.Y.Z.zip`, and the Fabric mod `redbull-fabric-X.Y.Z.jar`. Nothing in the repo holds the version; local and CI builds are `dev`.
+2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches every platform’s jar as “Platforms” names them, `redbull.jar` (the Paper jar’s name up to 1.1.1, kept so old links work), and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
 3. Its `deploy` job ships the jar to Moonlands through `ship-plugin.yml`, which points the Red Bull line in `minecraft/extras/jars.txt` at it.
 
 ## Stores

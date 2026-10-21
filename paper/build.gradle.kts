@@ -54,7 +54,7 @@ tasks.processResources {
 }
 
 tasks.shadowJar {
-  archiveBaseName = "redbull"
+  archiveBaseName = "redbull-paper"
   archiveClassifier = ""
   mergeServiceFiles()
   // Relocated so other plugins that ship their own Kotlin or kaml can't clash with ours.

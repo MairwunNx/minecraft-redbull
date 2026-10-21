@@ -121,7 +121,7 @@ A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and cr
 
 ## Get started
 
-**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances.
+**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances.
 
 **Fabric.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) with [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) for Minecraft 26.3, on the client and on the server.
 
