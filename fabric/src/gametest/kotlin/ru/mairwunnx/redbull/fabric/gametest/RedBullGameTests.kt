@@ -79,6 +79,14 @@ class RedBullGameTests {
     ServerPlayer(server, level, cookie.gameProfile(), cookie.clientInformation()) {
     val overlays = mutableListOf<String?>()
 
+    /** How many times the glide sent out its vibration. */
+    var glides = 0
+
+    override fun gameEvent(event: net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>) {
+      if (event.`is`(net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE)) glides++
+      super.gameEvent(event)
+    }
+
     override fun sendOverlayMessage(message: Component) {
       overlays += (message.contents as? TranslatableContents)?.key
       super.sendOverlayMessage(message)
@@ -163,6 +171,8 @@ class RedBullGameTests {
       helper.assertTrue(ticks >= 60, "three seconds of flight")
       helper.assertTrue(player.isFallFlying, "still gliding after $ticks ticks")
       equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
+      // The game sends it every half a second of flight, as with an elytra alone.
+      equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
     }
   }
 

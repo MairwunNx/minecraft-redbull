@@ -81,6 +81,14 @@ class RedBullTests(modBus: IEventBus) {
       super.sendOverlayMessage(message)
     }
 
+    /** How many times the glide sent out its vibration. */
+    var glides = 0
+
+    override fun gameEvent(event: net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>) {
+      if (event.`is`(net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE)) glides++
+      super.gameEvent(event)
+    }
+
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
     fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
       val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
@@ -296,6 +304,8 @@ class RedBullTests(modBus: IEventBus) {
       val wear = winged.getItemBySlot(EquipmentSlot.CHEST).damageValue
       helper.assertTrue(wear == 0, "an elytra worn with Wings keeps every point, not $wear lost")
       helper.assertTrue(plain.getItemBySlot(EquipmentSlot.CHEST).damageValue > 0, "an elytra alone wears")
+      // Sculk hears the glide every half a second, Wings or not.
+      helper.assertTrue(winged.glides == winged.fallFlyingTicks / 10, "${winged.glides} vibrations in ${winged.fallFlyingTicks} ticks")
       listOf(winged, plain).forEach { helper.level.server.playerList.remove(it) }
     }
   }

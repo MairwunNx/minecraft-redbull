@@ -13,13 +13,15 @@ import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.level.gameevent.GameEvent
 import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
 /**
  * Wings, the effect a can with wings gives: while it lasts, the player glides as with an elytra, wearing nothing.
  * The game asks Fabric's elytra event both whether an entity may glide, on the server and the client alike, and
- * whether the flight wears a custom glider down; the effect answers yes to the first and stands in for the second.
+ * whether the flight wears a custom glider down; the effect answers yes to the first and stands in for the second,
+ * so an elytra worn with Wings keeps every point while sculk hears the glide as with any elytra.
  * If Wings run out mid-flight, Slow Falling sets the player down.
  */
 object Wings {
@@ -30,7 +32,11 @@ object Wings {
   )
 
   fun init() {
-    EntityElytraEvents.CUSTOM.register { entity, _ -> entity.hasEffect(WINGS) }
+    // Asked every second of flight whether to wear a glider, the event skips the rest of the game's tick, the
+    // vibration of the glide included: sculk still hears a player on Wings, so the vibration goes out here.
+    EntityElytraEvents.CUSTOM.register { entity, wear ->
+      entity.hasEffect(WINGS).also { if (it && wear) entity.gameEvent(GameEvent.ELYTRA_GLIDE) }
+    }
     // The game removes an effect in the middle of ticking every effect, so a new one waits for the end of the tick.
     ServerMobEffectEvents.AFTER_REMOVE.register { instance, entity, _ ->
       if (!instance.`is`(WINGS)) return@register
