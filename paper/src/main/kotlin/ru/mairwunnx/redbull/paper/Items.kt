@@ -78,8 +78,6 @@ object Items {
     if (!can.sugarfree) {
       setData(DataComponentTypes.FOOD, FoodProperties.food().nutrition(2).saturation(1f).canAlwaysEat(true).build())
     }
-    // The legends shimmer, as a bottle o' enchanting does: things you can only find, never make.
-    if (can.recipe == null) setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true)
   }
 
   fun emptyCan(): ItemStack = base(EMPTY_CAN).apply {
@@ -181,10 +179,6 @@ object Items {
     return PotionEffect(type, effect.seconds * 20, effect.amplifier)
   }
 
-  /** Chest-only cans are the legends; cans that also turn up in chests are a step above the basics. */
-  private fun rarity(can: Can) = when {
-    can.recipe == null -> ItemRarity.EPIC
-    can.chests != null -> ItemRarity.UNCOMMON
-    else -> ItemRarity.COMMON
-  }
+  /** The chest-only legends get a yellow name, as a bottle o' enchanting does: things you can find, never make. */
+  private fun rarity(can: Can) = if (can.recipe == null) ItemRarity.UNCOMMON else ItemRarity.COMMON
 }
