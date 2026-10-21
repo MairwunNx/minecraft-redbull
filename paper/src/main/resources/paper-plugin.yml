@@ -8,5 +8,5 @@ description: "Red Bull in survival: brew taurine from bull bile, fill 26 real ca
 website: "https://github.com/MairwunNx/minecraft-redbull"
 permissions:
   redbull.admin:
-    description: Use /redbull give and /redbull caffeine
+    description: Take any item from /redbull, and use /redbull give and /redbull caffeine
     default: op

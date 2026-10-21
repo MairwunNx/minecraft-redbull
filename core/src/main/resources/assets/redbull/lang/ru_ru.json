@@ -99,5 +99,8 @@
   "redbull.command.caffeine": "%1$s: кофеин %2$s из %3$s, %4$s",
   "redbull.command.given": "%3$s получает %1$s × %2$s.",
   "redbull.command.unknown": "Нет такого предмета: %1$s",
-  "death.attack.redbull.overdose": "Сердце %1$s не выдержало лишней банки Red Bull"
+  "death.attack.redbull.overdose": "Сердце %1$s не выдержало лишней банки Red Bull",
+  "redbull.menu.collection": "Red Bull: собрано %1$s из %2$s",
+  "redbull.menu.admin": "Red Bull: нажмите, чтобы взять, с Shift — стак",
+  "redbull.menu.locked": "Сделайте или найдите эту банку, чтобы увидеть её."
 }

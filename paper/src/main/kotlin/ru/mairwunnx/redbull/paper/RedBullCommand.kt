@@ -8,14 +8,17 @@ import org.bukkit.entity.Player
 import java.util.Locale
 
 /**
- * `/redbull give <item> [player] [amount]` hands out any of our items; `/redbull caffeine [player]` shows
- * a player's caffeine and stage. Both need `redbull.admin`.
+ * `/redbull` opens the menu of cans for every player. `/redbull give <item> [player] [amount]` hands out any
+ * of our items, and `/redbull caffeine [player]` shows a player's caffeine and stage; both need [ADMIN].
  */
-class RedBullCommand : BasicCommand {
-  override fun permission() = "redbull.admin"
-
+class RedBullCommand(private val menu: Menu) : BasicCommand {
   override fun execute(source: CommandSourceStack, args: Array<String>) {
     val sender = source.sender
+    if (args.isEmpty()) {
+      val player = source.executor as? Player ?: sender as? Player ?: return usage(source)
+      return menu.open(player)
+    }
+    if (!sender.hasPermission(ADMIN)) return menu.open(sender as? Player ?: return)
     when (args.firstOrNull()?.lowercase()) {
       "give" -> {
         val id = args.getOrNull(1) ?: return usage(source)
@@ -41,7 +44,7 @@ class RedBullCommand : BasicCommand {
     }
   }
 
-  override fun suggest(source: CommandSourceStack, args: Array<String>): Collection<String> = when (args.size) {
+  override fun suggest(source: CommandSourceStack, args: Array<String>): Collection<String> = if (!source.sender.hasPermission(ADMIN)) emptyList() else when (args.size) {
     0, 1 -> listOf("give", "caffeine").filter { it.startsWith(args.firstOrNull().orEmpty()) }
     2 -> if (args[0] == "give") Items.ids.filter { it.startsWith(args[1]) } else players(args[1])
     3 -> if (args[0] == "give") players(args[2]) else emptyList()
@@ -54,6 +57,10 @@ class RedBullCommand : BasicCommand {
     if (name != null) Bukkit.getPlayerExact(name) else source.executor as? Player ?: source.sender as? Player
 
   private fun usage(source: CommandSourceStack) {
-    source.sender.sendMessage(Component.text("/redbull give <item> [player] [amount] · /redbull caffeine [player]"))
+    source.sender.sendMessage(Component.text("/redbull · /redbull give <item> [player] [amount] · /redbull caffeine [player]"))
+  }
+
+  companion object {
+    const val ADMIN = "redbull.admin"
   }
 }

@@ -23,8 +23,9 @@ class RedBullPlugin : JavaPlugin(), Listener {
     val wings = Wings(this)
     val heart = Heart(this)
     val pack = Pack(this)
-    listOf(this, Drinks(this), wings, Loot(this), pack).forEach { server.pluginManager.registerEvents(it, this) }
-    registerCommand("redbull", "Give Red Bull items, or check a player’s caffeine", RedBullCommand())
+    val menu = Menu(this)
+    listOf(this, Drinks(this), wings, Loot(this), pack, menu).forEach { server.pluginManager.registerEvents(it, this) }
+    registerCommand("redbull", "Open your Red Bull collection; admins also give items and check caffeine", RedBullCommand(menu))
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { collected.tick() }, 40L, 40L)
