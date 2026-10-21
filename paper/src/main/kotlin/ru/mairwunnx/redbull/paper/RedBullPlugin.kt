@@ -21,11 +21,13 @@ class RedBullPlugin : JavaPlugin(), Listener {
 
     val wings = Wings(this)
     val heart = Heart(this)
-    listOf(this, Drinks(this), wings, Loot(this)).forEach { server.pluginManager.registerEvents(it, this) }
+    val pack = Pack(this)
+    listOf(this, Drinks(this), wings, Loot(this), pack).forEach { server.pluginManager.registerEvents(it, this) }
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
 
-    logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes")
+    val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
+    logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
   }
 
   override fun onDisable() {
