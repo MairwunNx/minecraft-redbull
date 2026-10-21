@@ -39,7 +39,7 @@
    sugar     water       sugar
    ```
 
-   Sugarfree cans leave the sugar out. Every recipe sits in your recipe book.
+   A sugarfree can takes two honeycombs instead of the sugar. Every recipe sits in your recipe book.
 
 ## The cans
 
@@ -89,6 +89,10 @@ A can with wings throws you upward as you finish it. Jump while in the air, and 
 
 Every can you finish leaves a crumpled can in its own colours. They stack to 64, and a furnace melts each back into two iron nuggets, twice as fast in a blast furnace. Iron comes back; for a new can you need only a copper nugget more.
 
+## Sugar or sugarfree
+
+A can with sugar is cheaper and feeds you a little (two hunger points), but sugar burns out: when its buffs end, you sink into a sugar pit, Hunger I for 30 seconds and Slowness I for 15, and the bar above your hotbar says so in gold. A sugarfree can costs two honeycombs, feeds nothing, and leaves no pit, and too much caffeine from it brings no crash either. The caffeine is the same, and so is the death above 100.
+
 ## Caffeine
 
 Each can adds 30 caffeine, and caffeine wears off by one point every six seconds you play.
@@ -97,7 +101,7 @@ Each can adds 30 caffeine, and caffeine wears off by one point every six seconds
 |---|---|
 | 0–49 | Nothing. |
 | 50–74 | Jitters: you get hungry faster and hear your heart now and then. |
-| 75–100 | The crash: when a can’s buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. Your heart pounds. |
+| 75–100 | The crash, after a can with sugar: when its buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. A sugarfree can doesn’t crash. Your heart pounds. |
 | Over 100 | Your heart gives out. No totem saves you. |
 
 Any caffeine at all keeps you out of bed. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
