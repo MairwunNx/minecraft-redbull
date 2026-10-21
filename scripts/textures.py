@@ -1,9 +1,11 @@
-"""Draw every can from one 13×32 template, and the empty and winged cans from the same one.
+"""Draw every can from one 13×32 template, and the empty and winged cans from the same one;
+then give every texture in the folder an item model.
 
 Standard library only: python3 -I scripts/textures.py
 A new flavour is one line in CANS. Taurine's texture comes from Mekanism and isn't drawn here.
 """
 
+import json
 import struct
 import sys
 import zlib
@@ -176,7 +178,23 @@ ITEMS = {
     "winged_can": winged_can,
 }
 
-OUT = Path(__file__).resolve().parent.parent / "core/src/main/resources/assets/redbull/textures/item"
+ASSETS = Path(__file__).resolve().parent.parent / "core/src/main/resources/assets/redbull"
+OUT = ASSETS / "textures/item"
+
+
+def write_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+
+def models():
+    """A flat item model and an item definition for every texture, the way the game draws its own items."""
+    names = sorted(texture.stem for texture in OUT.glob("*.png"))
+    for name in names:
+        write_json(ASSETS / f"models/item/{name}.json",
+                   {"parent": "minecraft:item/generated", "textures": {"layer0": f"redbull:item/{name}"}})
+        write_json(ASSETS / f"items/{name}.json", {"model": {"type": "minecraft:model", "model": f"redbull:item/{name}"}})
+    return names
 
 
 def main():
@@ -185,7 +203,7 @@ def main():
         (OUT / f"{name}.png").write_bytes(png(paint(can)))
     for name, draw in ITEMS.items():
         (OUT / f"{name}.png").write_bytes(png(draw()))
-    print(f"{len(CANS) + len(ITEMS)} textures in {OUT}")
+    print(f"{len(CANS) + len(ITEMS)} textures, {len(models())} models in {ASSETS}")
 
 
 if __name__ == "__main__":
