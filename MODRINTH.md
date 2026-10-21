@@ -34,7 +34,7 @@ I’m a fan of Red Bull—the best energy drinks in the world. They give me ener
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends, which shimmer like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends with a yellow name like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
