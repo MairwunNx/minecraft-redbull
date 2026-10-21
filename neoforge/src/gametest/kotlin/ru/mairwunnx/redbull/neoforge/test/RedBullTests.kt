@@ -170,17 +170,15 @@ class RedBullTests(modBus: IEventBus) {
     val player = Survivor.join(helper)
     player.drink(Items.can(can("original")!!))
     player.drink(ItemStack(Vanilla.MILK_BUCKET))
-    helper.runAfterDelay(2) {
-      helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
-      val shown = player.getEffect(Caffeines.EFFECT)
-      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
-      player.removeAllEffects()
-      helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
-      // The heart beats every two seconds and puts the effect back.
-      helper.succeedWhen {
-        helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
-        helper.level.server.playerList.remove(player)
-      }
+    helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
+    val shown = player.getEffect(Caffeines.EFFECT)
+    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine right after milk, not $shown")
+    player.removeAllEffects()
+    helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
+    // The heart beats every two seconds and puts the effect back.
+    helper.succeedWhen {
+      helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
+      helper.level.server.playerList.remove(player)
     }
   }
 

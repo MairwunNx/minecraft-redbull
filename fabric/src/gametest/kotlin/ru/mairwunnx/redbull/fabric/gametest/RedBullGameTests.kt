@@ -249,15 +249,13 @@ class RedBullGameTests {
     val player = player(helper)
     drink(player, can("original"))
     drink(player, Items.MILK_BUCKET)
-    helper.runAfterDelay(2) {
-      equal(helper, caffeine(player), 10.0, "caffeine after milk")
-      val shown = player.getEffect(Caffeines.EFFECT)
-      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
-      player.removeAllEffects()
-      helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
-      // The heart beats every two seconds and puts the effect back.
-      helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
-    }
+    equal(helper, caffeine(player), 10.0, "caffeine after milk")
+    val shown = player.getEffect(Caffeines.EFFECT)
+    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine right after milk, not $shown")
+    player.removeAllEffects()
+    helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
+    // The heart beats every two seconds and puts the effect back.
+    helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
   }
 
   /**
