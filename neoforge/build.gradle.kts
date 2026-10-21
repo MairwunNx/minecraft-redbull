@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 plugins {
   kotlin("jvm")
   id("net.neoforged.moddev")
+  id("com.modrinth.minotaur")
 }
 
 val minecraft = "26.3"
@@ -95,4 +96,18 @@ tasks.processResources {
 tasks.jar {
   archiveBaseName = "redbull-neoforge"
   from(coreMain.output)
+}
+
+// `./gradlew modrinth` with MODRINTH_TOKEN set; the release workflow runs it when asked to.
+modrinth {
+  token = providers.environmentVariable("MODRINTH_TOKEN")
+  projectId = "minecraft-redbull"
+  versionNumber = "${project.version}+neoforge"
+  versionName = "Red Bull ${project.version} for NeoForge"
+  versionType = "release"
+  uploadFile.set(tasks.jar)
+  gameVersions.addAll(minecraft)
+  loaders.addAll("neoforge")
+  changelog = (findProperty("changelogFile") as String?)?.let { rootProject.file(it).readText() }
+    ?: "https://github.com/MairwunNx/minecraft-redbull/releases/tag/v${project.version}"
 }
