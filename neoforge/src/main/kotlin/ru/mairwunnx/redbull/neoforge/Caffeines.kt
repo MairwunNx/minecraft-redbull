@@ -3,13 +3,16 @@ package ru.mairwunnx.redbull.neoforge
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.attachment.AttachmentType
+import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
 import net.neoforged.neoforge.registries.NeoForgeRegistries
@@ -27,6 +30,9 @@ import java.util.function.Supplier
  * The `redbull:caffeine` effect shows it: Caffeine I calm, II in the jitters, III in the crash, for as long as the
  * caffeine takes to wear off. It only shows; everything else reads the attachment. Milk or `/effect clear` may take
  * the effect off, and the next [refresh] puts it back.
+ *
+ * Any caffeine keeps a player out of bed. The game has already checked the bed and set the spawn point by then,
+ * as it does when it's too early to sleep.
  */
 object Caffeines {
   val rules = Rules()
@@ -57,6 +63,15 @@ object Caffeines {
   fun register(bus: IEventBus) {
     ATTACHMENTS.register(bus)
     EFFECTS.register(bus)
+  }
+
+  /** What a bed answers a caffeinated player, in the action bar. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+
+  fun listen(bus: IEventBus) {
+    bus.on<CanPlayerSleepEvent> { event ->
+      if (event.problem == null && now(event.entity).sleepless()) event.problem = SLEEPLESS
+    }
   }
 
   fun clock(player: ServerPlayer): Long = player.stats.getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)).toLong()

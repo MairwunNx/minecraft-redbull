@@ -1,6 +1,16 @@
 package ru.mairwunnx.redbull.fabric.gametest
 
 import com.mojang.authlib.GameProfile
+import com.mojang.datafixers.util.Either
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraft.util.Unit
+import net.minecraft.world.attribute.BedRule
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.AbstractBedBlock
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.properties.BedPart
 import io.netty.channel.embedded.EmbeddedChannel
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.Connection
@@ -212,6 +222,37 @@ class RedBullGameTests {
       // The heart beats every two seconds and puts the effect back.
       helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
     }
+  }
+
+  /**
+   * Lies [player] down in a red bed next to them. The bed's own rule would wait for the night; this one lets them
+   * sleep at any hour, so only caffeine stands in the way.
+   */
+  private fun sleep(helper: GameTestHelper, player: ServerPlayer): Either<Player.BedSleepingProblem, Unit> {
+    val head = BlockPos(1, 1, 3)
+    val bed = Blocks.BED.red().defaultBlockState().setValue(AbstractBedBlock.FACING, Direction.NORTH)
+    helper.setBlock(head.south(), bed.setValue(AbstractBedBlock.PART, BedPart.FOOT))
+    helper.setBlock(head, bed.setValue(AbstractBedBlock.PART, BedPart.HEAD))
+    val anytime = BedRule(BedRule.Rule.ALWAYS, BedRule.Rule.ALWAYS, false, false, Optional.empty())
+    return player.startSleepInBed(Blocks.BED.red() as AbstractBedBlock, helper.getBlockState(head), anytime, helper.absolutePos(head))
+  }
+
+  private fun key(component: Component?) = (component?.contents as? TranslatableContents)?.key
+
+  /** Caffeine keeps a player awake; without it the same bed takes them. */
+  @GameTest
+  fun caffeineKeepsPlayersOutOfBed(helper: GameTestHelper) {
+    val player = player(helper)
+    helper.absoluteVec(Vec3(1.5, 1.0, 1.5)).let { player.teleportTo(it.x, it.y, it.z) }
+    drink(player, can("sea_blue"))
+    val refused = sleep(helper, player)
+    equal(helper, key(refused.left().orElse(null)?.message), "redbull.sleepless", "what the bed says")
+    helper.assertFalse(player.isSleeping, "asleep with caffeine")
+    Caffeines.reset(player)
+    val allowed = sleep(helper, player)
+    helper.assertTrue(allowed.right().isPresent && player.isSleeping, "without caffeine the bed takes them, not $allowed")
+    player.stopSleeping()
+    helper.succeed()
   }
 
   @GameTest

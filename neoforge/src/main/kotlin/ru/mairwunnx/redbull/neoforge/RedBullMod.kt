@@ -39,6 +39,7 @@ class RedBullMod(modBus: IEventBus, container: ModContainer) {
     val bus = NeoForge.EVENT_BUS
     Drinks.listen(bus)
     Wings.listen(bus)
+    Caffeines.listen(bus)
     Heart.listen(bus)
     Collected.listen(bus)
     Later.listen(bus)

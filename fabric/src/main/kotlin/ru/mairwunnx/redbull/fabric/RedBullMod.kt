@@ -19,8 +19,7 @@ object RedBullMod : ModInitializer {
   override fun onInitialize() {
     Settings.load()
     RedBullItems.init()
-    Caffeines.CAFFEINE
-    Caffeines.EFFECT
+    Caffeines.init()
     Loot.init()
     Wings.init()
     Collected.init()

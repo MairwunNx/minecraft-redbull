@@ -4,14 +4,17 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
+import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.entity.player.Player
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.core.Rules
 import ru.mairwunnx.redbull.core.effectLevel
@@ -26,6 +29,9 @@ import ru.mairwunnx.redbull.core.sleepless
  * The `redbull:caffeine` effect shows it: Caffeine I calm, II in the jitters, III in the crash, for as long as the
  * caffeine takes to wear off. It only shows; everything else reads the attachment. Milk or `/effect clear` may take
  * the effect off, and the next [refresh] puts it back.
+ *
+ * Any caffeine keeps a player out of bed. Fabric asks once the game has checked the bed and set the spawn point,
+ * as it does when it's too early to sleep.
  */
 object Caffeines {
   val rules = Rules()
@@ -45,6 +51,15 @@ object Caffeines {
   val EFFECT: Holder<MobEffect> = Registry.registerForHolder(
     BuiltInRegistries.MOB_EFFECT, RedBullItems.id("caffeine"), object : MobEffect(MobEffectCategory.NEUTRAL, COLOR) {},
   )
+
+  /** What a bed answers a caffeinated player, in the action bar. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+
+  fun init() {
+    EntitySleepEvents.ALLOW_SLEEPING.register { player, _ ->
+      if (player is ServerPlayer && now(player).sleepless()) SLEEPLESS else null
+    }
+  }
 
   fun clock(player: ServerPlayer): Long = player.stats.getValue(Stats.CUSTOM, Stats.PLAY_TIME).toLong()
 

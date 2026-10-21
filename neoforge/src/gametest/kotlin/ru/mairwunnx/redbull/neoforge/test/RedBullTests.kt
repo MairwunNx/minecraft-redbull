@@ -1,6 +1,16 @@
 package ru.mairwunnx.redbull.neoforge.test
 
 import com.mojang.authlib.GameProfile
+import com.mojang.datafixers.util.Either
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraft.util.Unit
+import net.minecraft.world.attribute.BedRule
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.AbstractBedBlock
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.properties.BedPart
 import io.netty.channel.embedded.EmbeddedChannel
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
@@ -30,6 +40,7 @@ import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
 import ru.mairwunnx.redbull.neoforge.Settings
 import ru.mairwunnx.redbull.neoforge.Wings
+import java.util.Optional
 import java.util.UUID
 import java.util.function.Consumer
 import net.minecraft.world.item.Items as Vanilla
@@ -45,6 +56,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("drinks") { -> Consumer(::drinks) }
     functions.register("caffeine") { -> Consumer(::caffeine) }
     functions.register("milk") { -> Consumer(::milk) }
+    functions.register("bed") { -> Consumer(::bed) }
     functions.register("bottles") { -> Consumer(::bottles) }
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
@@ -151,6 +163,36 @@ class RedBullTests(modBus: IEventBus) {
         helper.level.server.playerList.remove(player)
       }
     }
+  }
+
+  /**
+   * Lies [player] down in a red bed next to them. The bed's own rule would wait for the night; this one lets them
+   * sleep at any hour, so only caffeine stands in the way.
+   */
+  private fun sleep(helper: GameTestHelper, player: ServerPlayer): Either<Player.BedSleepingProblem, Unit> {
+    val head = BlockPos(1, 1, 3)
+    val bed = Blocks.BED.red().defaultBlockState().setValue(AbstractBedBlock.FACING, Direction.NORTH)
+    helper.setBlock(head.south(), bed.setValue(AbstractBedBlock.PART, BedPart.FOOT))
+    helper.setBlock(head, bed.setValue(AbstractBedBlock.PART, BedPart.HEAD))
+    val anytime = BedRule(BedRule.Rule.ALWAYS, BedRule.Rule.ALWAYS, false, false, Optional.empty())
+    return player.startSleepInBed(Blocks.BED.red() as AbstractBedBlock, helper.getBlockState(head), anytime, helper.absolutePos(head))
+  }
+
+  private fun key(component: Component?) = (component?.contents as? TranslatableContents)?.key
+
+  /** Caffeine keeps a player awake; without it the same bed takes them. */
+  private fun bed(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    player.drink(Items.can(can("sea_blue")!!))
+    val refused = sleep(helper, player)
+    helper.assertTrue(key(refused.left().orElse(null)?.message) == "redbull.sleepless", "a caffeinated player stays awake, not $refused")
+    helper.assertTrue(!player.isSleeping, "awake")
+    Caffeines.reset(player)
+    val allowed = sleep(helper, player)
+    helper.assertTrue(allowed.right().isPresent && player.isSleeping, "without caffeine the bed takes them, not $allowed")
+    player.stopSleeping()
+    helper.level.server.playerList.remove(player)
+    helper.succeed()
   }
 
   private fun bottles(helper: GameTestHelper) {
