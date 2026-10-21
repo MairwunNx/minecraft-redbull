@@ -34,6 +34,12 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
 
+## How it looks
+
+<p align="center"><img alt="A Red Bull can in hand, and a hotbar of cans, bottles, taurine, and a crumpled can" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png" width="640"></p>
+<p align="center"><img alt="The inventory with the Caffeine II and Wiiings effects" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png" width="640"></p>
+<p align="center"><img alt="The /redbull collection: 8 of 26 cans, the rest question marks" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png" width="640"></p>
+
 ## How to make a can
 
 1. **Bull bile.** An adult cow or mooshroom you kill drops it with a 5% chance, 2% more per level of Looting.

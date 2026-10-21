@@ -34,6 +34,12 @@ Red Bull работает на Moonlands — моём сервере со сло
 - 📖 **Коллекция:** `/redbull` показывает все банки, которые у вас были, и знаки вопроса на месте остальных.
 - 🌍 **Каждый читает на своём языке:** английский, русский, немецкий, испанский и португальский — в ресурс-паке, который плагин отправляет при входе, или внутри модов.
 
+## Как это выглядит
+
+<p align="center"><img alt="Банка Red Bull в руке и хотбар с банками, бутылками, таурином и мятой банкой" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png" width="640"></p>
+<p align="center"><img alt="Инвентарь с эффектами «Кофеин II» и «Крылья»" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png" width="640"></p>
+<p align="center"><img alt="Коллекция /redbull: 8 из 26 банок, остальные со знаками вопроса" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png" width="640"></p>
+
 ## Как сделать банку
 
 1. **Бычья желчь.** Взрослая корова или грибная корова, убитая вами, роняет её с шансом 5 %, и ещё 2 % за каждый уровень «Добычи».
