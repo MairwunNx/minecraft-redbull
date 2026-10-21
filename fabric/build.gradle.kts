@@ -1,6 +1,7 @@
 plugins {
   kotlin("jvm")
   id("net.fabricmc.fabric-loom")
+  id("com.modrinth.minotaur")
 }
 
 val minecraft = "26.3"
@@ -81,4 +82,24 @@ val core = project(":core")
 tasks.jar {
   dependsOn(core.tasks.named("classes"))
   from(core.layout.buildDirectory.dir("classes/kotlin/main"))
+}
+
+// `./gradlew modrinth` with MODRINTH_TOKEN set uploads this jar next to Paper's, as the Fabric version of the same
+// project; the release workflow runs it when asked to. Paper's module syncs the description.
+modrinth {
+  token = providers.environmentVariable("MODRINTH_TOKEN")
+  projectId = "minecraft-redbull"
+  versionNumber = project.version.toString()
+  versionName = "Red Bull ${project.version} for Fabric"
+  versionType = "release"
+  uploadFile.set(tasks.jar)
+  gameVersions.addAll(minecraft)
+  loaders.addAll("fabric")
+  // The release workflow writes the notes to a file; a local upload falls back to the GitHub release.
+  changelog = (findProperty("changelogFile") as String?)?.let { rootProject.file(it).readText() }
+    ?: "https://github.com/MairwunNx/minecraft-redbull/releases/tag/v${project.version}"
+  dependencies {
+    required.project("fabric-api")
+    required.project("fabric-language-kotlin")
+  }
 }

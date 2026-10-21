@@ -69,12 +69,14 @@ jobs:
         run: ./gradlew build -PreleaseVersion="$VERSION"
       - name: Publish the GitHub release
         # The Paper jar, and redbull.jar too, so releases/latest/download/redbull.jar always fetches the newest one.
-        # The pack under the name the plugin builds its default URL from. A NeoForge or Fabric module adds its jar here.
+        # The pack under the name the plugin builds its default URL from. The Fabric mod, which carries its assets.
+        # A NeoForge module adds its jar here.
         run: |
           cp "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar
           cp paper/build/pack/redbull-pack.zip "paper/build/pack/redbull-pack-$VERSION.zip"
           gh release create "v$VERSION" --target "$GITHUB_SHA" --title "Red Bull $VERSION" --notes-file "$NOTES" \
-            "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar "paper/build/pack/redbull-pack-$VERSION.zip"
+            "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar "paper/build/pack/redbull-pack-$VERSION.zip" \
+            "fabric/build/libs/redbull-fabric-$VERSION.jar"
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Publish to Modrinth
