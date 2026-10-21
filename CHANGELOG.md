@@ -1,6 +1,6 @@
 # Changelog
 
-The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub and, once they're on, the stores.
+The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub and, once they’re on, the stores.
 
 ## 1.0.0
 
