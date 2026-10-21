@@ -1,6 +1,6 @@
 # Red Bull: notes for AI agents
 
-A Paper 26.3 plugin that brings 26 real Red Bull cans into survival: bull bile from cows brews into crude taurine, a furnace evaporates it into taurine, a crafting table fills a can; cans with wings let the player glide; caffeine builds up, and above 100 the heart gives out. The owner, a Red Bull fan, dedicated it to the drink; the name stays “Red Bull”. README.md is the shop window and, without a wiki yet, the manual; README.RU.md is its Russian copy; MODRINTH.md is the store page. Moonlands, the owner's server (MairwunNx/minecraft), is where it runs.
+A Paper 26.3 plugin and a Fabric 26.3 mod that bring 26 real Red Bull cans into survival: bull bile from cows brews into crude taurine, a furnace evaporates it into taurine, a crafting table fills a can; cans with wings let the player glide; caffeine builds up, and above 100 the heart gives out. The owner, a Red Bull fan, dedicated it to the drink; the name stays “Red Bull”. README.md is the shop window and, without a wiki yet, the manual; README.RU.md is its Russian copy; MODRINTH.md is the store page. Moonlands, the owner's server (MairwunNx/minecraft), is where it runs.
 
 ## Talking to the owner
 
@@ -11,7 +11,7 @@ A Paper 26.3 plugin that brings 26 real Red Bull cans into survival: bull bile f
 
 ## How it fits together
 
-Two modules: `core` holds what every platform shares, `paper` is the Paper plugin.
+Three modules: `core` holds what every platform shares, `paper` is the Paper plugin, `fabric` is the Fabric mod.
 
 | File | What it does |
 |---|---|
@@ -31,6 +31,17 @@ Two modules: `core` holds what every platform shares, `paper` is the Paper plugi
 | `paper/…/Menu.kt` | The `/redbull` chest: a player's collection with question marks, or every item to take for admins |
 | `paper/…/RedBullCommand.kt` | `/redbull` for everyone; `/redbull give` and `/redbull caffeine` for `redbull.admin` |
 | `paper/src/pack/` | `pack.mcmeta` and the pack icon; the `pack` Gradle task zips them with core's assets |
+| `fabric/…/RedBullItems.kt` | Registers every item under its asset's id (`redbull:original`, `redbull:crumpled_original`, `redbull:empty_can`), with its components as defaults, and the creative tab |
+| `fabric/…/ItemTypes.kt` | `CanItem` adds caffeine and wings to a drink, `BottleItem` the bottles' moo and bull mode, `WingedCanItem` crumples a spent winged can from `inventoryTick` |
+| `fabric/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, and the bottles; a tick queue for what comes later |
+| `fabric/…/Caffeines.kt` | Caffeine in a data attachment: saved with the player, synced to them alone, dropped on death |
+| `fabric/…/Heart.kt` | Jitters and crash every two seconds, as on Paper, and the level written back for the HUD |
+| `fabric/…/Loot.kt` | Bull bile and chest cans as loot pools in the game's JSON, built from core and read through `LootPool.CODEC` |
+| `fabric/…/mixin/MilkMixin.java` | Milk takes caffeine away; Fabric has no event for a finished drink |
+| `fabric/src/client/…/RedBullClient.kt` | The caffeine meter beside the hotbar |
+| `fabric/src/generator/…/Recipes.kt` | Writes every recipe and the `crumpled_cans` tag as data from core; the `generateData` task runs it before each build |
+| `fabric/src/main/resources/` | `fabric.mod.json`, the bottles' item definitions (the game's potion model, tinted), and the `overdose` damage type with its tags |
+| `fabric/src/gametest/` | Game tests on a real server, and a client test that screenshots the HUD |
 
 ## Rules that keep it working
 
@@ -43,16 +54,21 @@ Two modules: `core` holds what every platform shares, `paper` is the Paper plugi
 - Nothing loops over every online player but `Heart`, which reads two numbers each: the collection and the winged cans run on events, so hundreds of players cost little.
 - `HEALING` (16 s) caps anything that restores health, and `STRENGTH_II` (3 min) caps Strength II; `CansTest` holds every can to them.
 - A drink leaves a crumpled can of its flavour (`crumpled_<id>`, drawn by `scripts/textures.py`); a winged can keeps its flavour to crumple into.
-- Overdose kills with `setHealth(0)`, which dies without a totem check; the death message is set in `PlayerDeathEvent`.
-- Caffeine lives in the player's persistent data and wears off by play time (`PLAY_ONE_MINUTE` counts ticks), so it waits while they're offline.
+- Overdose kills with `setHealth(0)`, which dies without a totem check; the death message is set in `PlayerDeathEvent`. On Fabric it's the `redbull:overdose` damage type: `bypasses_invulnerability` skips the totem, and its `message_id` names the death `death.attack.redbull.overdose`.
+- Caffeine lives in the player's persistent data and wears off by play time (`PLAY_ONE_MINUTE` counts ticks), so it waits while they're offline. On Fabric it's the `redbull:caffeine` attachment, on the same clock.
+- On Fabric every item is its own item, not a potion. Cans and bottles carry `potion_contents` for their effects and tooltip; a can's `use_remainder` is its crumpled can, and a drink with wings returns the winged can instead, which leaves no crumpled one. The game applies the effects and food; `CanItem` and `BottleItem` add the rest.
+- Fabric recipes are data. Nothing writes them by hand: change `Cans.kt` or `Recipes.kt` in `fabric/src/generator`. A water bottle in a recipe is Fabric's `fabric:components` ingredient; brewing is the game's own `minecraft:brewing` recipe type since 26.3.
 
-## Adding NeoForge or Fabric
+## Adding NeoForge
 
-The build is ready for them. Add a module next to `paper` (`include("neoforge")` in `settings.gradle.kts`), depend on `project(":core")`, and take the assets from core's resources. Give it Minotaur's `modrinth` block with its loader: `./gradlew modrinth` in the release runs every module's. Add its jar to “Publish the GitHub release” in `release.yml`, its version keys to “Versions”, and a smoke check to “Checking a change”.
+Fabric shows the way. Add a module next to `paper` and `fabric` (`include("neoforge")` in `settings.gradle.kts`), depend on `project(":core")`, and add core's resources as a resource folder, as `fabric/build.gradle.kts` does; core's classes go into the jar. Register every item under its asset's id, as `RedBullItems` does, and reuse the generated recipes: NeoForge reads the same data, so the generator can move to a shared place. Give the module Minotaur's `modrinth` block with its loader: `./gradlew modrinth` in the release runs every module's. Add its jar to “Publish the GitHub release” in `release.yml` and to the artifacts in `build.yml`, its version keys to “Versions”, and a smoke check to “Checking a change”.
+
+The Fabric mod has neither `config.yml` nor `/redbull` yet: the overdose, wings, and loot can't be switched off, and there is no collection screen or admin command. `/give` and `/item` hand out any item by its id.
 
 ## Building and testing
 
 - `./gradlew build` runs the tests and builds `paper/build/libs/redbull-<version>.jar`, shaded and relocated under `ru.mairwunnx.redbull.libs`, and `paper/build/pack/redbull-pack.zip`. JDK 25; Gradle provisions it through the foojay resolver.
+- It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with core's classes and assets inside, and runs the Fabric game tests on a real server (`./gradlew :fabric:runGameTest`): drinking, wings, milk, the overdose through a totem, bull mode, every crafting recipe, brewing, both furnaces, bile from cows, and chest loot by biome.
 - There is no MockBukkit for Paper 26.3; tests cover `core`. The rest runs on a real Paper.
 
 ## Checking a change
@@ -62,7 +78,12 @@ The build is ready for them. Add a module next to `paper` (`include("neoforge")`
    ```sh
    python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
    ```
-3. Drinking, flying, and dying need a game client: after a release reaches Moonlands, the owner tries them.
+3. A real Fabric server with the mod and its dependencies from Modrinth:
+   ```sh
+   python3 -I .claude/scripts/fabric_smoke.py --game 26.3 --mod fabric/build/libs/redbull-fabric-dev.jar --modrinth fabric-api --modrinth fabric-language-kotlin --expect "Red Bull dev is on: 26 cans, 23 recipes"
+   ```
+4. The HUD on a real client: `./gradlew :fabric:runClientGameTest` opens a game window, fills the hotbar, and saves `fabric/build/run/clientGameTest/screenshots/0000_redbull-hud.png`.
+5. Drinking, flying, and dying on Paper, and flying on Fabric, need a player: after a release reaches Moonlands, the owner tries the plugin.
 
 ## Autopilot
 
@@ -73,20 +94,21 @@ The build is ready for them. Add a module next to `paper` (`include("neoforge")`
 Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.claude/skills/`, the same files in every project of the family):
 
 - The game: `io.papermc.paper:paper-api` (twice in `paper/build.gradle.kts`), `gameVersions` (Modrinth) and `platformVersions` (Hangar) there, `api-version` in `paper/src/main/resources/paper-plugin.yml`, and `min_format`/`max_format` in `paper/src/pack/pack.mcmeta` (the game's `resource_major` in its `version.json`).
-- Java: `jvmToolchain` in both modules, the foojay resolver in `settings.gradle.kts`, and CI's `setup-java`.
+- Fabric: `minecraft`, `loader`, `fabricApi`, and `fabricKotlin` at the top of `fabric/build.gradle.kts` (the game version also goes into `fabric.mod.json` and Modrinth's `gameVersions` from there); Loom in the root `build.gradle.kts`. `fabric_smoke.py` takes the newest stable loader.
+- Java: `jvmToolchain` in every module, the foojay resolver in `settings.gradle.kts`, and CI's `setup-java`.
 - Gradle in `gradle/wrapper/gradle-wrapper.properties`; Kotlin and the Gradle plugins in the root `build.gradle.kts`; libraries in each module's `dependencies`.
 
 ## Releasing and Moonlands
 
 1. Keep a `## X.Y.Z` section in CHANGELOG.md, written for server owners. After a change that reaches what the project ships, add it in the same push: under the topmost section while that version isn't released (`gh release view vX.Y.Z` fails), or under a new section with the next version.
-2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches `redbull-X.Y.Z.jar`, `redbull.jar`, and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
+2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches `redbull-X.Y.Z.jar`, `redbull.jar`, `redbull-pack-X.Y.Z.zip`, and the Fabric mod `redbull-fabric-X.Y.Z.jar`. Nothing in the repo holds the version; local and CI builds are `dev`.
 3. Its `deploy` job ships the jar to Moonlands through `ship-plugin.yml`, which points the Red Bull line in `minecraft/extras/jars.txt` at it.
 
 ## Stores
 
 Both are on since 1.1.0 (2026-10-21), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true`, then check the version on each store.
 
-- **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads the jar and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
+- **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads both jars, Paper's and Fabric's (which requires Fabric API and Fabric Language Kotlin), and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
 - **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. `./gradlew publishPluginPublicationToHangar` uploads each version; it took the first one, 1.1.0, too, which older Hangar projects of the family had to upload on the website. The page came from MODRINTH.md; Hangar doesn't sync it, so edit it and the icon on the site.
 
 The tokens are the `MODRINTH_TOKEN` and `HANGAR_TOKEN` secrets, also in `~/.secrets/cloud.env`. Never put them in the repo.
