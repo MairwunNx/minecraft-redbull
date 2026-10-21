@@ -29,7 +29,11 @@ import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.level.GameType
+import net.minecraft.server.permissions.LevelBasedPermissionSet
+import net.minecraft.server.players.NameAndId
+import ru.mairwunnx.redbull.neoforge.Collected
 import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
@@ -39,6 +43,7 @@ import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
+import ru.mairwunnx.redbull.neoforge.Menu
 import ru.mairwunnx.redbull.neoforge.Settings
 import ru.mairwunnx.redbull.neoforge.Wings
 import java.util.Optional
@@ -65,6 +70,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("wings_gone") { -> Consumer(::wingsGone) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
+    functions.register("menu") { -> Consumer(::menu) }
     functions.register(modBus)
   }
 
@@ -320,6 +326,34 @@ class RedBullTests(modBus: IEventBus) {
     val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area).map { Items.id(it.item) }
     helper.assertTrue(Ids.BULL_BILE in drops, "a cow a player killed drops bile, dropped $drops")
     helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  /** A player sees their collection and takes nothing; an admin takes one with a click, a stack with Shift. */
+  private fun menu(helper: GameTestHelper) {
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    val player = Survivor.join(helper)
+    Collected.record(player, listOf(Items.can(can("cherry")!!)))
+    Menu.open(player)
+    val collection = player.containerMenu as? Menu.View ?: throw helper.assertionException("no collection menu open")
+    helper.assertTrue(Items.id(collection.getSlot(cherry).item) == "cherry", "a can the player held")
+    helper.assertTrue(collection.getSlot(if (cherry == 0) 1 else 0).item.hoverName.string == "???", "a can they haven't")
+    helper.assertTrue(collection.getSlot(27).item.isEmpty, "no ingredients for players")
+    collection.clicked(cherry, 0, ContainerInput.QUICK_MOVE, player)
+    helper.assertTrue(player.inventory.isEmpty, "nothing to take for players")
+
+    val admin = Survivor.join(helper)
+    helper.level.server.playerList.op(NameAndId(admin.gameProfile), Optional.of(LevelBasedPermissionSet.GAMEMASTER), Optional.of(false))
+    Menu.open(admin)
+    val menu = admin.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
+    val extras = (27..31).map { Items.id(menu.getSlot(it).item) }
+    helper.assertTrue(extras == listOf("empty_can", "crumpled_original", "bull_bile", "crude_taurine", "taurine"), "the ingredients' row, not $extras")
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, admin)
+    menu.clicked(31, 0, ContainerInput.QUICK_MOVE, admin)
+    helper.assertTrue(admin.inventory.countItem(Items.cans.getValue("cherry").get()) == 1, "one can with a click")
+    helper.assertTrue(admin.inventory.countItem(Items.taurine.get()) == 64, "a stack of taurine with Shift")
+    helper.level.server.playerList.deop(NameAndId(admin.gameProfile))
+    listOf(player, admin).forEach { helper.level.server.playerList.remove(it) }
     helper.succeed()
   }
 

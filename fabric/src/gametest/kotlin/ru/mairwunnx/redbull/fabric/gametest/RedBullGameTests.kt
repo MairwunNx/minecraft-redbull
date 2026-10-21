@@ -448,7 +448,9 @@ class RedBullGameTests {
     val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
     val cherry = CANS.indexOfFirst { it.id == "cherry" }
     menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
-    menu.clicked(28, 0, ContainerInput.QUICK_MOVE, player)
+    val extras = (27..31).map { RedBullItems.idOf(menu.getSlot(it).item.item) }
+    equal(helper, extras, listOf("empty_can", "crumpled_original", "bull_bile", "crude_taurine", "taurine"), "the ingredients' row")
+    menu.clicked(31, 0, ContainerInput.QUICK_MOVE, player)
     equal(helper, player.inventory.countItem(can("cherry")), 1, "one can with a click")
     equal(helper, player.inventory.countItem(RedBullItems.taurine), 64, "a stack of taurine with Shift")
     helper.assertTrue(menu.carried.isEmpty, "nothing on the cursor")

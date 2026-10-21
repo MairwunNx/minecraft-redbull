@@ -2,7 +2,9 @@ package ru.mairwunnx.redbull.neoforge
 
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
 import net.minecraft.sounds.SoundEvents
@@ -26,7 +28,8 @@ import ru.mairwunnx.redbull.core.Ids
  */
 object Menu {
   private const val ROWS = 4
-  private val EXTRAS = listOf(Ids.EMPTY_CAN, Ids.TAURINE, Ids.BULL_BILE, Ids.CRUDE_TAURINE)
+  /** The admin's bottom row, in Paper's order: the way to a can, the empty can first, taurine last. */
+  private val EXTRAS = listOf(Ids.EMPTY_CAN, CANS.first().crumpled, Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE)
 
   fun admin(player: ServerPlayer) = player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
 
@@ -35,10 +38,7 @@ object Menu {
     val collected = Collected.of(player)
     val container = SimpleContainer(9 * ROWS)
     CANS.forEachIndexed { slot, can -> container.setItem(slot, if (admin || can.id in collected) Items.can(can) else locked()) }
-    if (admin) {
-      val extras = EXTRAS.mapNotNull(Items::create) + CANS.first().let(Items::crumpled)
-      extras.forEachIndexed { index, item -> container.setItem(27 + index, item) }
-    }
+    if (admin) EXTRAS.mapNotNull(Items::create).forEachIndexed { index, item -> container.setItem(27 + index, item) }
     val title = if (admin) Component.translatable("redbull.menu.admin")
     else Component.translatable("redbull.menu.collection", collected.count { it in CANS.map { can -> can.id } }, CANS.size)
     player.openMenu(SimpleMenuProvider({ id, inventory, _ -> View(id, inventory, container, admin) }, title))
@@ -50,7 +50,7 @@ object Menu {
     set(DataComponents.MAX_STACK_SIZE, 1)
   }
 
-  private class View(id: Int, inventory: Inventory, private val menu: SimpleContainer, private val admin: Boolean) :
+  class View(id: Int, inventory: Inventory, private val menu: SimpleContainer, private val admin: Boolean) :
     ChestMenu(MenuType.GENERIC_9x4, id, inventory, menu, ROWS) {
 
     override fun clicked(slotIndex: Int, buttonNum: Int, containerInput: ContainerInput, player: Player) {
@@ -59,7 +59,9 @@ object Menu {
       val taken = Items.id(shown)?.let(Items::create) ?: return
       taken.count = if (containerInput == ContainerInput.QUICK_MOVE) taken.maxStackSize else 1
       RedBullCommand.hand(player, taken)
-      player.level().playSound(null, player.x, player.y, player.z, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5f, 1.2f)
+      // Only the admin hears it, as on Paper.
+      val sound = BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.ITEM_PICKUP)
+      player.connection.send(ClientboundSoundPacket(sound, SoundSource.PLAYERS, player.x, player.y, player.z, 0.5f, 1.2f, player.random.nextLong()))
     }
 
     override fun quickMoveStack(player: Player, slotIndex: Int): ItemStack = ItemStack.EMPTY

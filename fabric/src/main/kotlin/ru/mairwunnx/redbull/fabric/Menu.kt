@@ -2,7 +2,9 @@ package ru.mairwunnx.redbull.fabric
 
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permissions
 import net.minecraft.sounds.SoundEvents
@@ -26,7 +28,8 @@ import ru.mairwunnx.redbull.core.Ids
  */
 object Menu {
   private const val ROWS = 4
-  private val EXTRAS = listOf(Ids.EMPTY_CAN, Ids.TAURINE, Ids.BULL_BILE, Ids.CRUDE_TAURINE, CANS.first().crumpled)
+  /** The admin's bottom row, in Paper's order: the way to a can, the empty can first, taurine last. */
+  private val EXTRAS = listOf(Ids.EMPTY_CAN, CANS.first().crumpled, Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE)
 
   fun admin(player: ServerPlayer) = player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
 
@@ -58,7 +61,9 @@ object Menu {
       val taken = shown.copy()
       taken.count = if (containerInput == ContainerInput.QUICK_MOVE) taken.maxStackSize else 1
       RedBullCommand.hand(player, taken)
-      player.level().playSound(null, player.x, player.y, player.z, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.5f, 1.2f)
+      // Only the admin hears it, as on Paper.
+      val sound = BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.ITEM_PICKUP)
+      player.connection.send(ClientboundSoundPacket(sound, SoundSource.PLAYERS, player.x, player.y, player.z, 0.5f, 1.2f, player.random.nextLong()))
     }
 
     override fun quickMoveStack(player: Player, slotIndex: Int): ItemStack = ItemStack.EMPTY
