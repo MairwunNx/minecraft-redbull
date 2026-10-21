@@ -292,11 +292,13 @@ class RedBullTests(modBus: IEventBus) {
       player.doTick()
       player.fly(helper, x = 1.5 + index * 8, height = 40.0)
     }
-    winged.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
-    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    val bare = Survivor.join(helper)
+    bare.fly(helper, x = 17.5, height = 40.0)
+    listOf(winged, bare).forEach { it.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20)) }
+    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying() && bare.tryToStartFallFlying(), "all glide")
     var ticks = 0
     helper.onEachTick {
-      listOf(winged, plain).filter { !it.isRemoved }.forEach {
+      listOf(winged, plain, bare).filter { !it.isRemoved }.forEach {
         it.setOnGround(false)
         it.doTick()
       }
@@ -309,8 +311,10 @@ class RedBullTests(modBus: IEventBus) {
       helper.assertTrue(wear == 0, "an elytra worn with Wings keeps every point, not $wear lost")
       helper.assertTrue(plain.getItemBySlot(EquipmentSlot.CHEST).damageValue > 0, "an elytra alone wears")
       // Sculk hears the glide every half a second, Wings or not.
-      helper.assertTrue(winged.glides == winged.fallFlyingTicks / 10, "${winged.glides} vibrations in ${winged.fallFlyingTicks} ticks")
-      listOf(winged, plain).forEach { helper.level.server.playerList.remove(it) }
+      listOf(winged, bare).forEach {
+        helper.assertTrue(it.glides == it.fallFlyingTicks / 10, "${it.glides} vibrations in ${it.fallFlyingTicks} ticks")
+      }
+      listOf(winged, plain, bare).forEach { helper.level.server.playerList.remove(it) }
     }
   }
 

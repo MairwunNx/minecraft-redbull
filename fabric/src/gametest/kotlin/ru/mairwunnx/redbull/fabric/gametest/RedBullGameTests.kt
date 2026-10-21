@@ -155,6 +155,22 @@ class RedBullGameTests {
     helper.succeed()
   }
 
+  /** Sculk hears a glide on Wings alone every half a second, as it hears an elytra. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsAloneSendsVibrations(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+    }
+    helper.succeedWhen {
+      helper.assertTrue(player.fallFlyingTicks >= 60, "three seconds of flight")
+      equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
+    }
+  }
+
   /** The game wears a glider every second of flight; Wings take an elytra's place, so it keeps every point. */
   @GameTest(maxTicks = 100)
   fun glidingOnWingsWearsNothing(helper: GameTestHelper) {
