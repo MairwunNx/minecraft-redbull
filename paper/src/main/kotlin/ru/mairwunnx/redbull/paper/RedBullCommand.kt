@@ -11,7 +11,7 @@ import java.util.Locale
  * `/redbull` opens the menu of cans for every player. `/redbull give <item> [player] [amount]` hands out any
  * of our items, and `/redbull caffeine [player]` shows a player's caffeine and stage; both need [ADMIN].
  */
-class RedBullCommand(private val menu: Menu) : BasicCommand {
+class RedBullCommand(private val plugin: RedBullPlugin, private val menu: Menu) : BasicCommand {
   override fun execute(source: CommandSourceStack, args: Array<String>) {
     val sender = source.sender
     if (args.isEmpty()) {
@@ -26,6 +26,7 @@ class RedBullCommand(private val menu: Menu) : BasicCommand {
         val target = player(source, args.getOrNull(2)) ?: return usage(source)
         val amount = args.getOrNull(3)?.toIntOrNull()?.coerceIn(1, 64) ?: 1
         repeat(amount) { target.inventory.addItem(item.clone()).values.forEach { target.world.dropItem(target.location, it) } }
+        plugin.handed(target, item)
         sender.sendMessage(Texts.text("redbull.command.given", Component.text(amount), item.effectiveName(), target.name()))
       }
       "caffeine" -> {

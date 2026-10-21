@@ -94,6 +94,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
 
   private fun wings(event: PlayerItemConsumeEvent, player: Player, can: Can) {
     event.replacement = Items.wingedCan(can.wings, System.currentTimeMillis() + WINGS_GRACE_MILLIS)
+    plugin.wings.watch(player)
     player.velocity = player.velocity.setY(0.9)
     player.world.playSound(player.location, Sound.ENTITY_BREEZE_JUMP, SoundCategory.PLAYERS, 0.8f, 1.2f)
     player.sendActionBar(Texts.text("redbull.wings").color(NamedTextColor.AQUA))

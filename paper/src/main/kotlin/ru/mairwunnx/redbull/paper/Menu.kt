@@ -63,6 +63,7 @@ class Menu(private val plugin: RedBullPlugin) : Listener {
     val taken = Items.id(item)?.let(Items::create) ?: return
     val stack = taken.asQuantity(if (event.isShiftClick) taken.maxStackSize else 1)
     player.inventory.addItem(stack).values.forEach { player.world.dropItem(player.location, it) }
+    plugin.handed(player, stack)
     player.playSound(player.location, Sound.ENTITY_ITEM_PICKUP, 0.5f, 1.2f)
   }
 

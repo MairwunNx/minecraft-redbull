@@ -2,25 +2,55 @@ package ru.mairwunnx.redbull.paper
 
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityPickupItemEvent
+import org.bukkit.event.inventory.CraftItemEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.PlayerItemConsumeEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 /**
- * The cans a player has ever held, in their persistent data. A can counts however it reached the inventory:
- * crafted, looted, picked up, or given. Every two seconds is soon enough, and it catches all of these at once.
+ * The cans a player has ever held, in their persistent data. A can counts the moment it reaches them: picked
+ * up, crafted, drunk, given, or taken from a chest, which shows when they close it. Nothing runs between those
+ * events, so a full server costs no more than an empty one.
  */
-class Collected(private val plugin: RedBullPlugin) {
+class Collected : Listener {
   fun of(player: Player): Set<String> =
     player.persistentDataContainer.get(KEY, PersistentDataType.LIST.strings()).orEmpty().toSet()
 
-  fun tick() {
-    for (player in plugin.server.onlinePlayers) {
-      val held = player.inventory.contents.mapNotNullTo(mutableSetOf()) { Items.canOf(it)?.id }
-      val known = of(player)
-      if (!known.containsAll(held)) {
-        player.persistentDataContainer.set(KEY, PersistentDataType.LIST.strings(), (known + held).sorted())
-      }
+  fun record(player: Player, items: Iterable<ItemStack?>) {
+    val ids = items.mapNotNullTo(mutableSetOf()) { Items.canOf(it)?.id }
+    if (ids.isEmpty()) return
+    val known = of(player)
+    if (!known.containsAll(ids)) {
+      player.persistentDataContainer.set(KEY, PersistentDataType.LIST.strings(), (known + ids).sorted())
     }
   }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  fun onPickup(event: EntityPickupItemEvent) {
+    (event.entity as? Player)?.let { record(it, listOf(event.item.itemStack)) }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  fun onCraft(event: CraftItemEvent) {
+    (event.whoClicked as? Player)?.let { record(it, listOf(event.recipe.result)) }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  fun onDrink(event: PlayerItemConsumeEvent) = record(event.player, listOf(event.item))
+
+  @EventHandler
+  fun onClose(event: InventoryCloseEvent) {
+    (event.player as? Player)?.let { record(it, it.inventory.contents.asList()) }
+  }
+
+  @EventHandler
+  fun onJoin(event: PlayerJoinEvent) = record(event.player, event.player.inventory.contents.asList())
 
   companion object {
     private val KEY = NamespacedKey("redbull", "collected")

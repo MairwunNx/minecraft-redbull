@@ -1,15 +1,19 @@
 package ru.mairwunnx.redbull.paper
 
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import ru.mairwunnx.redbull.core.CANS
+import ru.mairwunnx.redbull.core.Ids
 
 class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
-  val collected = Collected(this)
+  val collected = Collected()
+  val wings = Wings(this)
 
   private val recipes by lazy { Recipes(server) }
   private val tasks = mutableListOf<BukkitTask>()
@@ -20,15 +24,13 @@ class RedBullPlugin : JavaPlugin(), Listener {
     Items.ids.forEach { Items.create(it)!!.serializeAsBytes() }
     recipes.register()
 
-    val wings = Wings(this)
     val heart = Heart(this)
     val pack = Pack(this)
     val menu = Menu(this)
-    listOf(this, Drinks(this), wings, Loot(this), pack, menu).forEach { server.pluginManager.registerEvents(it, this) }
-    registerCommand("redbull", "Open your Red Bull collection; admins also give items and check caffeine", RedBullCommand(menu))
+    listOf(this, Drinks(this), wings, collected, Loot(this), pack, menu).forEach { server.pluginManager.registerEvents(it, this) }
+    registerCommand("redbull", "Open your Red Bull collection; admins also give items and check caffeine", RedBullCommand(this, menu))
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
-    tasks += server.scheduler.runTaskTimer(this, Runnable { collected.tick() }, 40L, 40L)
 
     val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
@@ -38,6 +40,12 @@ class RedBullPlugin : JavaPlugin(), Listener {
     tasks.forEach { it.cancel() }
     tasks.clear()
     recipes.unregister()
+  }
+
+  /** An item handed to a player outside the game's own ways: it joins their collection, and a winged can is watched. */
+  fun handed(player: Player, item: ItemStack) {
+    collected.record(player, listOf(item))
+    if (Items.id(item) == Ids.WINGED_CAN) wings.watch(player)
   }
 
   /** Players find every recipe in their recipe book. */
