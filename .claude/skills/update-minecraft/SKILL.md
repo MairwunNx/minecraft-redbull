@@ -10,7 +10,7 @@ Move this project to Minecraft `$ARGUMENTS`, or to the newest release if no vers
 
 ## 1. Which project, which version
 
-- **A plugin or mod:** a `build.gradle.kts` that builds against Paper, Spigot, Fabric, or NeoForge. Follow “Plugins and mods”.
+- **A plugin or mod:** a `build.gradle.kts` that builds against Paper, Spigot, Fabric, or NeoForge, in one module or in several (`paper/`, `fabric/`, `neoforge/` next to a shared `core/`). Follow “Plugins and mods”.
 - **Moonlands:** a `compose.yaml` with `PAPER_BUILD`. Follow “Moonlands”.
 - **Anything else** (minecraft-mcp, minecraft-exporter, minecraft-grafana, Allay's backend) has no game version. Say so and stop.
 
@@ -29,7 +29,7 @@ When something isn't ready, say what's missing and stop. Nothing changes; the ne
 
 ### 2. Is everything ready?
 
-Check every platform the project builds for, as above, and the Java the game needs (`javaVersion.majorVersion` in the version's JSON). Then the plugins or mods it needs on a server, like PlaceholderAPI, on Modrinth for the new version. One project builds for one game version, so every target must be ready before any moves.
+Check every platform the project builds for, as above, and the Java the game needs (`javaVersion.majorVersion` in the version's JSON). Then the plugins or mods it needs on a server, like PlaceholderAPI, on Modrinth for the new version. One project builds for one game version, so every target must be ready before any moves. A project with a module per platform ships one version to all of them: it moves only when every platform it builds for is ready, Fabric Language Kotlin included when a Fabric module is written in Kotlin.
 
 ### 3. Read what changed
 
@@ -39,9 +39,10 @@ Read the platform's announcement for the version (papermc.io/news, the Spigot fo
 
 CLAUDE.md's “Versions” section lists them. Then search for the old version (`git grep -n "26\.3"`) to catch the rest:
 
-- the API dependency: `paper-api` with the newest beta or stable build of the new version, `spigot-api`, Fabric's `minecraft`, loader, and Fabric API, NeoForge
+- the API dependency: `paper-api` with the newest beta or stable build of the new version, `spigot-api`, Fabric's `minecraft`, loader, and Fabric API, NeoForge. With a module per platform, each module's `build.gradle.kts` keeps its own
 - the descriptor: `api-version` in `paper-plugin.yml` or `plugin.yml`, `depends` in `fabric.mod.json`, `neoforge.mods.toml`
-- the stores: `gameVersions` for Modrinth and `platformVersions` for Hangar in `build.gradle.kts`
+- the stores: `gameVersions` for Modrinth and `platformVersions` for Hangar, in every module that publishes
+- a resource pack's `pack.mcmeta` (`min_format` and `max_format`, from `resource_major` in the game's `version.json`), where the project ships one
 - the Java toolchain and CI's `setup-java`, when the game needs a newer Java
 - tests that spell out version strings
 - texts: README.md, README.RU.md, MODRINTH.md, and CLAUDE.md where they name the version
@@ -56,7 +57,7 @@ Dependencies that move with the game, like Fabric API or a PlaceholderAPI built 
 
 ### 6. Check
 
-Run the whole check in CLAUDE.md's “Checking a change” on the **new** version, including the run on a real server. A plugin that loads but logs an error doesn't pass. If something can only be checked in a game client, list it in the report.
+Run the whole check in CLAUDE.md's “Checking a change” on the **new** version, including the run on a real server. With several platforms, that's every one: `paper_smoke.py` for Paper, `fabric_smoke.py` for Fabric, the game tests and a dev server for NeoForge, as CLAUDE.md lists. A plugin that loads but logs an error doesn't pass. If something can only be checked in a game client, list it in the report.
 
 ### 7. Changelog, commit, report
 
@@ -73,7 +74,7 @@ A world opened by a newer game can't go back to the older one, so nothing change
 - **Paper:** the newest `BETA` or `STABLE` build for the version.
 - **Java:** what the game needs, and an `itzg/minecraft-server` tag with that Java (`-java25`).
 - **Each line of `minecraft/extras/plugins.txt`:** a Modrinth version for the new game version and the `paper` loader. That includes the datapack, with the `datapack` loader.
-- **Each jar in `minecraft/extras/jars.txt`,** the owner's plugins: a GitHub release built for the new version (its changelog says “Runs on Paper 26.4”, or its jar's `paper-plugin.yml` names the `api-version`). Each plugin's own autopilot moves and releases it.
+- **Each jar in `minecraft/extras/jars.txt`,** the owner's plugins: a GitHub release built for the new version (a release with jars for several platforms counts by its Paper jar) (its changelog says “Runs on Paper 26.4”, or its jar's `paper-plugin.yml` names the `api-version`). Each plugin's own autopilot moves and releases it.
 
 Make a table: each plugin, its version now, the version for the new game, or “none yet”. Any “none yet” blocks the move: report the table and stop, and the next run asks again. Only the owner can agree to drop a plugin.
 
