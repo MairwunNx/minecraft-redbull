@@ -27,7 +27,9 @@ Two modules: `core` holds what every platform shares, `paper` is the Paper plugi
 | `paper/…/Heart.kt` | Jitters and crash every two seconds: hunger, heartbeats, warnings |
 | `paper/…/Loot.kt` | Bull bile from cows, cans in chests by biome |
 | `paper/…/Pack.kt` | Sends the resource pack on join |
-| `paper/…/RedBullCommand.kt` | `/redbull give` and `/redbull caffeine`, for `redbull.admin` |
+| `paper/…/Collected.kt` | The cans each player has ever held, in their persistent data; read from the inventory every two seconds |
+| `paper/…/Menu.kt` | The `/redbull` chest: a player's collection with question marks, or every item to take for admins |
+| `paper/…/RedBullCommand.kt` | `/redbull` for everyone; `/redbull give` and `/redbull caffeine` for `redbull.admin` |
 | `paper/src/pack/` | `pack.mcmeta` and the pack icon; the `pack` Gradle task zips them with core's assets |
 
 ## Rules that keep it working
