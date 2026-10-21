@@ -34,6 +34,14 @@ class AssetsTest {
     }
   }
 
+  /** The game names a death `<key>.player` when something hurt the player shortly before; the mods die that way. */
+  @Test
+  fun `every death message has a twin for a death in a fight`() {
+    val english = keys("en_us")
+    english.filter { it.startsWith("death.attack.") && !it.endsWith(".player") }
+      .forEach { assertTrue("$it.player" in english, "$it.player is missing") }
+  }
+
   @Test
   fun `every language has the same keys`() {
     val english = keys("en_us")

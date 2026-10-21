@@ -52,9 +52,13 @@ class RedBullMod(modBus: IEventBus, container: ModContainer) {
         it.id().identifier().namespace == MOD_ID && it.value().type == RecipeType.CRAFTING
       })
     }
+    // As Paper and Fabric say it: the version, the cans, the crafting recipes, and here the items too.
     bus.on<ServerStartedEvent> { event ->
-      val recipes = event.server.recipeManager.recipes.count { it.id().identifier().namespace == MOD_ID }
-      LOGGER.info("Red Bull is on: {} cans, {} items, {} recipes", CANS.size, Items.all.size, recipes)
+      val recipes = event.server.recipeManager.recipes.count {
+        it.id().identifier().namespace == MOD_ID && it.value().type == RecipeType.CRAFTING
+      }
+      val version = container.modInfo.version
+      LOGGER.info("Red Bull {} is on: {} cans, {} recipes, {} items", version, CANS.size, recipes, Items.all.size)
     }
   }
 

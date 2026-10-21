@@ -61,11 +61,8 @@ object Drinks {
     caffeine(player, rules.drinkCrudeTaurine(Caffeines.now(player), Caffeines.clock(player)))
   }
 
-  /** Milk takes some caffeine; the milk itself clears the effect right after, so it comes back a tick later. */
-  fun milk(player: ServerPlayer) {
-    Caffeines.set(player, rules.milk(Caffeines.now(player), Caffeines.clock(player)))
-    schedule(1) { if (!player.hasDisconnected() && player.isAlive) Caffeines.refresh(player) }
-  }
+  /** Milk takes some caffeine, once it took every effect: the Caffeine effect shows what's left. */
+  fun milk(player: ServerPlayer) = Caffeines.set(player, rules.milk(Caffeines.now(player), Caffeines.clock(player)))
 
   /** Writes the new caffeine; false when it was one drink too many and the player is about to die. */
   private fun caffeine(player: ServerPlayer, drink: Drink): Boolean {

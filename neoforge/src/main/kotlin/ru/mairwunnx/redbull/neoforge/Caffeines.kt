@@ -2,6 +2,7 @@ package ru.mairwunnx.redbull.neoforge
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -17,6 +18,7 @@ import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
 import net.neoforged.neoforge.registries.NeoForgeRegistries
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Rules
 import ru.mairwunnx.redbull.core.effectLevel
 import ru.mairwunnx.redbull.core.secondsLeft
@@ -37,9 +39,6 @@ import java.util.function.Supplier
 object Caffeines {
   val rules = Rules()
 
-  /** Coffee brown. */
-  private const val COLOR = 0x6F4E37
-
   private val ATTACHMENTS = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MOD_ID)
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
@@ -57,7 +56,7 @@ object Caffeines {
   }
 
   val EFFECT: DeferredHolder<MobEffect, MobEffect> = EFFECTS.register("caffeine") { ->
-    object : MobEffect(MobEffectCategory.NEUTRAL, COLOR) {}
+    object : MobEffect(MobEffectCategory.NEUTRAL, Colors.CAFFEINE) {}
   }
 
   fun register(bus: IEventBus) {
@@ -65,8 +64,8 @@ object Caffeines {
     EFFECTS.register(bus)
   }
 
-  /** What a bed answers a caffeinated player, in the action bar. */
-  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+  /** What a bed answers a caffeinated player, in the action bar, yellow as on Paper. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless").withStyle(ChatFormatting.YELLOW))
 
   fun listen(bus: IEventBus) {
     bus.on<CanPlayerSleepEvent> { event ->

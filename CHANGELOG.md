@@ -4,17 +4,16 @@ The “Release” workflow takes the notes for a version from its section here, 
 
 ## 1.2.0
 
-- 🛬 **A soft landing on Paper too:** when a winged can runs out mid-glide, Slow Falling sets the player down.
-- 😵 **Caffeine keeps you awake:** with any caffeine in you, the bed says “The caffeine won’t let you sleep.” On every platform.
-- 🧩 **Red Bull for NeoForge 26.3:** the same 26 cans, recipes, chests, caffeine, wings, and `/redbull` collection as a mod, `redbull-neoforge-1.2.0.jar`. The items are real items with their textures and names built in, so players need no resource pack, and Kotlin ships inside the jar.
-- ☕ **Caffeine is an effect on NeoForge:** Caffeine I while calm, II in the jitters, III in the crash, and its timer says when the caffeine wears off. Milk or `/effect clear` take it off for a moment; it comes back while there’s caffeine in you.
-- ⚙️ NeoForge’s settings live in `config/redbull.toml`: the overdose, the wings, and the loot multipliers, as in Paper’s `config.yml`.
-- 🪽 **Wings are an effect on NeoForge:** a can with wings launches you and gives Wiiings for its seconds, and you glide as with an elytra, wearing nothing, not even the elytra you have on. The can crumples as any other, and wings that end mid-flight leave 5 seconds of Slow Falling. The mod’s cans and ingredients sit in their own creative tab.
-- 🧵 **Red Bull for Fabric 26.3:** the same 26 cans, recipes, loot, caffeine, and wings as a mod, `redbull-fabric-1.2.0.jar`. It needs Fabric API and Fabric Language Kotlin, and no resource pack: the textures and the five languages are inside.
-- ☕ **Caffeine is an effect on Fabric too,** as on NeoForge: Caffeine I, II, or III by the stage, for as long as it takes to wear off.
-- 📖 **`/redbull` on Fabric too:** the collection for every player, the admins' menu, and `/redbull give` and `/redbull caffeine` for operators. The collection survives death.
-- ⚙️ The Fabric mod reads `config/redbull.toml` with NeoForge's switches: the overdose, the wings, and the loot multipliers. It writes the defaults when the file is missing and reads it again on `/reload`.
-- 🪽 **Wings are an effect on Fabric:** a can with wings still throws you upward, then gives Wings for as many seconds as the can has. Jump in the air to glide as with an elytra, wearing nothing; if Wings run out mid-flight, Slow Falling sets you down. The can leaves its crumpled can, and there’s no winged can on Fabric anymore.
+- 🧩 **Red Bull is a mod now, for NeoForge and Fabric 26.3:** the same 26 cans, recipes, chests, caffeine, wings, and `/redbull` collection as the plugin, in `redbull-neoforge-1.2.0.jar` and `redbull-fabric-1.2.0.jar`. Install it on the client and the server. The NeoForge mod needs nothing else, since Kotlin ships inside; the Fabric mod needs Fabric API and Fabric Language Kotlin.
+- 🥫 **Real items, no resource pack:** in the mods every can, crumpled can, and ingredient is an item of its own, with its texture, name, and five languages inside (Mexico and Portugal read Spain’s and Brazil’s texts). `/give` hands any of them out by id, like `redbull:original`, and they sit in their own Red Bull tab of the creative inventory.
+- ☕ **Caffeine is an effect in the mods:** Caffeine I while calm, II in the jitters, III in the crash, and its timer says when the caffeine wears off, so you see when the next can is safe. Milk takes 20 caffeine and every effect, then Caffeine shows what’s left; `/effect clear` takes it off until the next heartbeat.
+- 🪽 **Wiiings is an effect in the mods:** a can with wings still throws you upward, then gives Wiiings for as many seconds as the can has. Jump in the air, and you glide as with an elytra, wearing nothing out, not even the elytra you have on; sculk still hears you fly. The can crumples like any other, so the mods have no winged can. When the wings run out, or milk takes them mid-flight, “Your wings are gone.” Taken on the ground, they go quietly.
+- 🛬 **A soft landing everywhere:** when the wings run out mid-glide, 5 seconds of Slow Falling set you down. On Paper that’s the winged can’s last flight.
+- 😵 **Caffeine keeps you awake:** with any caffeine in you, the bed says “The caffeine won’t let you sleep.” Everywhere.
+- 📖 **`/redbull` in the mods too:** the collection for every player, which survives death; operators take any item from the same menu, and use `/redbull give` and `/redbull caffeine`.
+- 🗺️ **Cans in every chest of their biomes in the mods,** the game’s, another mod’s, or a data pack’s, as on Paper.
+- 💀 **An overdose kills through a totem in the mods too,** and chat says the heart “gave out after one Red Bull too many,” even when it stops in the middle of a fight.
+- ⚙️ **`config/redbull.toml` in the mods:** the overdose, the wings, and the loot multipliers, as in Paper’s `config.yml` without the pack. Fabric writes the defaults when the file is missing and reads it on start and on `/reload`; NeoForge reads it again whenever you save it.
 
 ## 1.1.1
 

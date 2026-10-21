@@ -35,6 +35,7 @@ import net.minecraft.server.players.NameAndId
 import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -74,14 +75,33 @@ class RedBullGameTests {
     return player.getItemInHand(InteractionHand.MAIN_HAND).finishUsingItem(player.level(), player)
   }
 
+  /** A player who remembers the keys of the action bar's messages, as the client would have shown them. */
+  private class Survivor(server: net.minecraft.server.MinecraftServer, level: net.minecraft.server.level.ServerLevel, cookie: CommonListenerCookie) :
+    ServerPlayer(server, level, cookie.gameProfile(), cookie.clientInformation()) {
+    val overlays = mutableListOf<String?>()
+
+    /** How many times the glide sent out its vibration. */
+    var glides = 0
+
+    override fun gameEvent(event: net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>) {
+      if (event.`is`(net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE)) glides++
+      super.gameEvent(event)
+    }
+
+    override fun sendOverlayMessage(message: Component) {
+      overlays += (message.contents as? TranslatableContents)?.key
+      super.sendOverlayMessage(message)
+    }
+  }
+
   /**
    * A survival player on an embedded connection, with a name of their own for commands. The game's own mock player is always in creative, where nothing
    * is used up and caffeine can't kill; and the game protects a player whose client is still loading from all harm.
    */
-  private fun player(helper: GameTestHelper): ServerPlayer {
+  private fun player(helper: GameTestHelper): Survivor {
     val server = helper.level.server
     val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
-    val player = ServerPlayer(server, helper.level, cookie.gameProfile(), cookie.clientInformation())
+    val player = Survivor(server, helper.level, cookie)
     val connection = Connection(PacketFlow.SERVERBOUND)
     EmbeddedChannel(connection)
     server.playerList.placeNewPlayer(connection, player, cookie)
@@ -119,7 +139,7 @@ class RedBullGameTests {
   }
 
   /** A player in the air, as one who jumped off a cliff. */
-  private fun airborne(helper: GameTestHelper): ServerPlayer = player(helper).apply {
+  private fun airborne(helper: GameTestHelper): Survivor = player(helper).apply {
     val above = helper.absoluteVec(Vec3(1.5, 40.0, 1.5))
     teleportTo(above.x, above.y, above.z)
     setOnGround(false)
@@ -133,6 +153,22 @@ class RedBullGameTests {
     helper.assertTrue(player.tryToStartFallFlying(), "gliding on Wings")
     helper.assertTrue(player.isFallFlying, "in flight")
     helper.succeed()
+  }
+
+  /** Sculk hears a glide on Wings alone every half a second, as it hears an elytra. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsAloneSendsVibrations(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+    }
+    helper.succeedWhen {
+      helper.assertTrue(player.fallFlyingTicks >= 60, "three seconds of flight")
+      equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
+    }
   }
 
   /** The game wears a glider every second of flight; Wings take an elytra's place, so it keeps every point. */
@@ -152,6 +188,8 @@ class RedBullGameTests {
       helper.assertTrue(ticks >= 60, "three seconds of flight")
       helper.assertTrue(player.isFallFlying, "still gliding after $ticks ticks")
       equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
+      // The game sends it every half a second of flight, as with an elytra alone.
+      equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
     }
   }
 
@@ -167,6 +205,7 @@ class RedBullGameTests {
     helper.succeedWhen {
       helper.assertFalse(player.hasEffect(Wings.WINGS), "Wings ran out")
       equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "five seconds of Slow Falling")
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "what Wings say when they run out: ${player.overlays}")
     }
   }
 
@@ -177,6 +216,20 @@ class RedBullGameTests {
     player.removeEffect(Wings.WINGS)
     helper.runAfterDelay(2) {
       helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling without a flight")
+      helper.assertFalse("redbull.wings.gone" in player.overlays, "a message for Wings taken on the ground")
+      helper.succeed()
+    }
+  }
+
+  @GameTest
+  fun wingsTakenAwayMidFlightSayGoodbye(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    drink(player, Items.MILK_BUCKET)
+    helper.runAfterDelay(2) {
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "what Wings taken mid-flight say: ${player.overlays}")
+      helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling after Wings taken mid-flight")
       helper.succeed()
     }
   }
@@ -213,15 +266,13 @@ class RedBullGameTests {
     val player = player(helper)
     drink(player, can("original"))
     drink(player, Items.MILK_BUCKET)
-    helper.runAfterDelay(2) {
-      equal(helper, caffeine(player), 10.0, "caffeine after milk")
-      val shown = player.getEffect(Caffeines.EFFECT)
-      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
-      player.removeAllEffects()
-      helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
-      // The heart beats every two seconds and puts the effect back.
-      helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
-    }
+    equal(helper, caffeine(player), 10.0, "caffeine after milk")
+    val shown = player.getEffect(Caffeines.EFFECT)
+    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine right after milk, not $shown")
+    player.removeAllEffects()
+    helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
+    // The heart beats every two seconds and puts the effect back.
+    helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
   }
 
   /**
@@ -247,6 +298,8 @@ class RedBullGameTests {
     drink(player, can("sea_blue"))
     val refused = sleep(helper, player)
     equal(helper, key(refused.left().orElse(null)?.message), "redbull.sleepless", "what the bed says")
+    equal(helper, refused.left().orElse(null)?.message?.style?.color,
+      net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW), "its colour")
     helper.assertFalse(player.isSleeping, "asleep with caffeine")
     Caffeines.reset(player)
     val allowed = sleep(helper, player)
@@ -263,6 +316,21 @@ class RedBullGameTests {
     Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
     drink(player, can("red"))
     helper.succeedWhen { helper.assertTrue(player.isDeadOrDying, "the overdose, totem or not") }
+  }
+
+  /** Hurt shortly before, a player dies by the game's `.player` message, which needs its own text. */
+  @GameTest
+  fun anOverdoseInAFightHasItsMessage(helper: GameTestHelper) {
+    val player = player(helper)
+    val zombie = helper.spawn(EntityTypes.ZOMBIE, BlockPos(1, 2, 1))
+    player.hurtServer(helper.level, helper.level.damageSources().mobAttack(zombie), 1f)
+    val overdose = helper.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+      .getOrThrow(ResourceKey.create(Registries.DAMAGE_TYPE, RedBullItems.id("overdose")))
+    val message = key(net.minecraft.world.damagesource.DamageSource(overdose).getLocalizedDeathMessage(player))
+    equal(helper, message, "death.attack.redbull.overdose.player", "the death message's key")
+    val english = RedBullGameTests::class.java.getResource("/assets/redbull/lang/en_us.json")!!.readText()
+    helper.assertTrue("\"$message\":" in english, "$message has a text")
+    helper.succeed()
   }
 
   /** The switches of `config/redbull.toml`; the test puts the defaults back before anything else drinks. */
@@ -413,7 +481,9 @@ class RedBullGameTests {
     val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
     val cherry = CANS.indexOfFirst { it.id == "cherry" }
     menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
-    menu.clicked(28, 0, ContainerInput.QUICK_MOVE, player)
+    val extras = (27..31).map { RedBullItems.idOf(menu.getSlot(it).item.item) }
+    equal(helper, extras, listOf("empty_can", "crumpled_original", "bull_bile", "crude_taurine", "taurine"), "the ingredients' row")
+    menu.clicked(31, 0, ContainerInput.QUICK_MOVE, player)
     equal(helper, player.inventory.countItem(can("cherry")), 1, "one can with a click")
     equal(helper, player.inventory.countItem(RedBullItems.taurine), 64, "a stack of taurine with Shift")
     helper.assertTrue(menu.carried.isEmpty, "nothing on the cursor")
@@ -444,6 +514,17 @@ class RedBullGameTests {
     helper.succeed()
   }
 
+  @GameTest
+  fun theCreativeTabListsEveryItem(helper: GameTestHelper) {
+    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValueOrThrow(RedBullItems.TAB)
+    tab.buildContents(CreativeModeTab.ItemDisplayParameters(helper.level.enabledFeatures(), false, helper.level.registryAccess()))
+    val shown = tab.displayItems.map { RedBullItems.idOf(it.item) }
+    val expected = CANS.map { it.id } + CANS.map { it.crumpled } + listOf("empty_can", "bull_bile", "crude_taurine", "taurine")
+    equal(helper, shown, expected, "the creative tab")
+    equal(helper, RedBullItems.idOf(tab.iconItem.item), "original", "the tab's icon")
+    helper.succeed()
+  }
+
   /** The test runs wherever the server put it: cans of that biome turn up in its chests, and no other can does. */
   @GameTest
   fun chestsHoldCansOfTheirBiome(helper: GameTestHelper) {
@@ -451,11 +532,13 @@ class RedBullGameTests {
     val origin = helper.absoluteVec(Vec3.atCenterOf(BlockPos(1, 2, 1)))
     val biome = level.getBiome(BlockPos.containing(origin)).unwrapKey().orElseThrow().identifier().toString()
     val local = CANS.filter { biome in (it.chests?.biomes ?: emptyList()) }.map { it.id }.toSet()
-    val key = ResourceKey.create(Registries.LOOT_TABLE, Identifier.withDefaultNamespace("chests/simple_dungeon"))
-    val table: LootTable = level.server.reloadableRegistries().getLootTable(key)
     val params = LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, origin).create(LootContextParamSets.CHEST)
-    val found = (1..300).flatMap { table.getRandomItems(params) }.mapNotNull { RedBullItems.canOf(it)?.id }.toSet()
-    equal(helper, found, local, "cans in 300 dungeon chests in $biome")
+    // A dungeon's chest, and a crate of another mod's: cans turn up in any chest, as on Paper and NeoForge.
+    for (id in listOf(Identifier.withDefaultNamespace("chests/simple_dungeon"), Identifier.parse("redbull-gametest:chests/crate"))) {
+      val table: LootTable = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, id))
+      val found = (1..300).flatMap { table.getRandomItems(params) }.mapNotNull { RedBullItems.canOf(it)?.id }.toSet()
+      equal(helper, found, local, "cans in 300 chests of $id in $biome")
+    }
     helper.succeed()
   }
 }

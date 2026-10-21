@@ -86,7 +86,8 @@ tasks.processResources {
   val properties = mapOf("version" to version, "neoforge" to neoforgeVersion, "minecraft" to minecraft)
   inputs.properties(properties)
   filesMatching("META-INF/neoforge.mods.toml") { expand(properties) }
-  from(rootProject.file("paper/src/pack/pack.png")) { rename { "redbull.png" } }
+  // The mod list shows the store's icon, as Fabric's does.
+  from(rootProject.file("media/icon.png")) { rename { "redbull.png" } }
   // The game has no fallback between dialects: Mexico and Portugal get Spain's and Brazil's texts.
   val lang = core.layout.projectDirectory.dir("src/main/resources/assets/redbull/lang")
   from(lang.file("es_es.json")) { into("assets/redbull/lang"); rename { "es_mx.json" } }

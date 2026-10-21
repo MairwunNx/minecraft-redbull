@@ -27,6 +27,7 @@ import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Effect
 import ru.mairwunnx.redbull.core.Ids.BULL_BILE
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Ids.CRUDE_TAURINE
 import ru.mairwunnx.redbull.core.Ids.CRUMPLED_CAN
 import ru.mairwunnx.redbull.core.Ids.EMPTY_CAN
@@ -46,8 +47,8 @@ object Items {
   private val FLAVOUR = NamespacedKey("redbull", "flavour")
 
   private val DRINK_SOUND = Key.key("minecraft:item.honey_bottle.drink")
-  private val BILE_COLOR = Color.fromRGB(0x9FB230)
-  private val CRUDE_COLOR = Color.fromRGB(0xEFE3B0)
+  private val BILE_COLOR = Color.fromRGB(Colors.BILE)
+  private val CRUDE_COLOR = Color.fromRGB(Colors.CRUDE_TAURINE)
 
   fun id(item: ItemStack?): String? =
     item?.takeUnless { it.isEmpty }?.persistentDataContainer?.get(ITEM, PersistentDataType.STRING)

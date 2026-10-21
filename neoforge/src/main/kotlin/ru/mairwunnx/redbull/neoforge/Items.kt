@@ -26,6 +26,7 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Can
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Effect
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.can
@@ -46,9 +47,6 @@ object Items {
   private fun simple(name: String, properties: (Item.Properties) -> Item.Properties): DeferredItem<Item> =
     ITEMS.registerSimpleItem(name, UnaryOperator { properties(it) })
 
-  private const val BILE_COLOR = 0x9FB230
-  private const val CRUDE_COLOR = 0xEFE3B0
-
   val crumpled: Map<String, DeferredItem<Item>> = CANS.associate { can ->
     can.id to simple(can.crumpled) {
       it.stacksTo(64)
@@ -65,10 +63,10 @@ object Items {
 
   val taurine: DeferredItem<Item> = simple(Ids.TAURINE) { it.stacksTo(64).hint(Ids.TAURINE) }
 
-  val bile: DeferredItem<Item> = simple(Ids.BULL_BILE) { bottle(it, Ids.BULL_BILE, BILE_COLOR, Bottles.BILE) }
+  val bile: DeferredItem<Item> = simple(Ids.BULL_BILE) { bottle(it, Ids.BULL_BILE, Colors.BILE, Bottles.BILE) }
 
   val crudeTaurine: DeferredItem<Item> =
-    simple(Ids.CRUDE_TAURINE) { bottle(it, Ids.CRUDE_TAURINE, CRUDE_COLOR, Bottles.CRUDE_TAURINE) }
+    simple(Ids.CRUDE_TAURINE) { bottle(it, Ids.CRUDE_TAURINE, Colors.CRUDE_TAURINE, Bottles.CRUDE_TAURINE) }
 
   /** Every item, in the order the collection and `/redbull give` list them. */
   val all: List<DeferredItem<Item>>

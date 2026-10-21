@@ -3,7 +3,7 @@
   "id": "redbull",
   "version": "${version}",
   "name": "Red Bull",
-  "description": "26 real Red Bull cans in survival: brew taurine from bull bile, fill cans, glide on wings, and mind the caffeine.",
+  "description": "26 real Red Bull cans in survival: bull bile from cows brews into crude taurine, a furnace evaporates it into taurine, and a crafting table fills a can. Cans with wings let you glide; caffeine builds up, and above 100 the heart gives out.",
   "authors": ["MairwunNx"],
   "contact": {
     "homepage": "https://modrinth.com/mod/minecraft-redbull",

@@ -17,7 +17,7 @@ object Settings {
   var overdose = true
     private set
 
-  /** Cans with wings launch the player and let them glide. */
+  /** Cans with wings launch the player and give the Wings effect to glide with. */
   var wings = true
     private set
 
@@ -32,7 +32,7 @@ object Settings {
   private val DEFAULTS = """
     |# Four cans too fast, and the heart gives out. Off: caffeine still builds up, but nobody dies.
     |overdose = true
-    |# Cans with wings launch the player and let them glide.
+    |# Cans with wings launch the player and give the Wings effect to glide with.
     |wings = true
     |
     |[loot]

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
+import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -16,6 +17,7 @@ import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.entity.player.Player
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Rules
 import ru.mairwunnx.redbull.core.effectLevel
 import ru.mairwunnx.redbull.core.secondsLeft
@@ -36,9 +38,6 @@ import ru.mairwunnx.redbull.core.sleepless
 object Caffeines {
   val rules = Rules()
 
-  /** Coffee brown. */
-  private const val COLOR = 0x6F4E37
-
   private val CODEC: Codec<Caffeine> = RecordCodecBuilder.create { instance ->
     instance.group(
       Codec.DOUBLE.fieldOf("level").forGetter(Caffeine::level),
@@ -49,11 +48,11 @@ object Caffeines {
   val CAFFEINE: AttachmentType<Caffeine> = AttachmentRegistry.create(RedBullItems.id("caffeine")) { it.persistent(CODEC) }
 
   val EFFECT: Holder<MobEffect> = Registry.registerForHolder(
-    BuiltInRegistries.MOB_EFFECT, RedBullItems.id("caffeine"), object : MobEffect(MobEffectCategory.NEUTRAL, COLOR) {},
+    BuiltInRegistries.MOB_EFFECT, RedBullItems.id("caffeine"), object : MobEffect(MobEffectCategory.NEUTRAL, Colors.CAFFEINE) {},
   )
 
-  /** What a bed answers a caffeinated player, in the action bar. */
-  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+  /** What a bed answers a caffeinated player, in the action bar, yellow as on Paper. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless").withStyle(ChatFormatting.YELLOW))
 
   fun init() {
     EntitySleepEvents.ALLOW_SLEEPING.register { player, _ ->

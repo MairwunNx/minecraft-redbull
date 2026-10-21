@@ -29,7 +29,11 @@ import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.level.GameType
+import net.minecraft.server.permissions.LevelBasedPermissionSet
+import net.minecraft.server.players.NameAndId
+import ru.mairwunnx.redbull.neoforge.Collected
 import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
@@ -39,6 +43,7 @@ import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
+import ru.mairwunnx.redbull.neoforge.Menu
 import ru.mairwunnx.redbull.neoforge.Settings
 import ru.mairwunnx.redbull.neoforge.Wings
 import java.util.Optional
@@ -62,8 +67,10 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
     functions.register("elytra") { -> Consumer(::elytra) }
+    functions.register("wings_gone") { -> Consumer(::wingsGone) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
+    functions.register("menu") { -> Consumer(::menu) }
     functions.register(modBus)
   }
 
@@ -72,6 +79,22 @@ class RedBullTests(modBus: IEventBus) {
     helper.level.server, helper.level, GameProfile(UUID.randomUUID(), "redbull-test"),
     net.minecraft.server.level.ClientInformation.createDefault(),
   ) {
+    /** The keys of the action bar's messages, as the client would have shown them. */
+    val overlays = mutableListOf<String?>()
+
+    override fun sendOverlayMessage(message: Component) {
+      overlays += (message.contents as? TranslatableContents)?.key
+      super.sendOverlayMessage(message)
+    }
+
+    /** How many times the glide sent out its vibration. */
+    var glides = 0
+
+    override fun gameEvent(event: net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>) {
+      if (event.`is`(net.minecraft.world.level.gameevent.GameEvent.ELYTRA_GLIDE)) glides++
+      super.gameEvent(event)
+    }
+
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
     fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
       val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
@@ -153,17 +176,15 @@ class RedBullTests(modBus: IEventBus) {
     val player = Survivor.join(helper)
     player.drink(Items.can(can("original")!!))
     player.drink(ItemStack(Vanilla.MILK_BUCKET))
-    helper.runAfterDelay(2) {
-      helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
-      val shown = player.getEffect(Caffeines.EFFECT)
-      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
-      player.removeAllEffects()
-      helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
-      // The heart beats every two seconds and puts the effect back.
-      helper.succeedWhen {
-        helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
-        helper.level.server.playerList.remove(player)
-      }
+    helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
+    val shown = player.getEffect(Caffeines.EFFECT)
+    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine right after milk, not $shown")
+    player.removeAllEffects()
+    helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
+    // The heart beats every two seconds and puts the effect back.
+    helper.succeedWhen {
+      helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
+      helper.level.server.playerList.remove(player)
     }
   }
 
@@ -188,6 +209,8 @@ class RedBullTests(modBus: IEventBus) {
     player.drink(Items.can(can("sea_blue")!!))
     val refused = sleep(helper, player)
     helper.assertTrue(key(refused.left().orElse(null)?.message) == "redbull.sleepless", "a caffeinated player stays awake, not $refused")
+    val color = refused.left().orElse(null)?.message?.style?.color
+    helper.assertTrue(color == net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW), "in yellow, not $color")
     helper.assertTrue(!player.isSleeping, "awake")
     Caffeines.reset(player)
     val allowed = sleep(helper, player)
@@ -232,7 +255,28 @@ class RedBullTests(modBus: IEventBus) {
     helper.runAfterDelay(10) {
       helper.assertTrue(!player.hasEffect(Wings.EFFECT), "the wings are over")
       helper.assertTrue(player.getEffect(MobEffects.SLOW_FALLING)?.duration in 80..100, "wings that end mid-glide leave Slow Falling")
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "wings that run out say so, not ${player.overlays}")
       helper.level.server.playerList.remove(player)
+      helper.succeed()
+    }
+  }
+
+  /** Wings taken on the ground go quietly; taken mid-glide, they say so and leave Slow Falling. */
+  private fun wingsGone(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    walker.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    walker.removeEffect(Wings.EFFECT)
+    val glider = Survivor.join(helper)
+    glider.fly(helper, height = 40.0)
+    glider.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(glider.tryToStartFallFlying(), "wings glide")
+    glider.drink(ItemStack(Vanilla.MILK_BUCKET))
+    helper.runAfterDelay(2) {
+      helper.assertTrue("redbull.wings.gone" !in walker.overlays, "wings taken on the ground say nothing, not ${walker.overlays}")
+      helper.assertTrue(!walker.hasEffect(MobEffects.SLOW_FALLING), "no Slow Falling without a flight")
+      helper.assertTrue("redbull.wings.gone" in glider.overlays, "wings taken mid-glide say so, not ${glider.overlays}")
+      helper.assertTrue(glider.hasEffect(MobEffects.SLOW_FALLING), "wings taken mid-glide leave Slow Falling")
+      listOf(walker, glider).forEach { helper.level.server.playerList.remove(it) }
       helper.succeed()
     }
   }
@@ -250,11 +294,13 @@ class RedBullTests(modBus: IEventBus) {
       player.doTick()
       player.fly(helper, x = 1.5 + index * 8, height = 40.0)
     }
-    winged.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
-    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    val bare = Survivor.join(helper)
+    bare.fly(helper, x = 17.5, height = 40.0)
+    listOf(winged, bare).forEach { it.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20)) }
+    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying() && bare.tryToStartFallFlying(), "all glide")
     var ticks = 0
     helper.onEachTick {
-      listOf(winged, plain).filter { !it.isRemoved }.forEach {
+      listOf(winged, plain, bare).filter { !it.isRemoved }.forEach {
         it.setOnGround(false)
         it.doTick()
       }
@@ -266,7 +312,11 @@ class RedBullTests(modBus: IEventBus) {
       val wear = winged.getItemBySlot(EquipmentSlot.CHEST).damageValue
       helper.assertTrue(wear == 0, "an elytra worn with Wings keeps every point, not $wear lost")
       helper.assertTrue(plain.getItemBySlot(EquipmentSlot.CHEST).damageValue > 0, "an elytra alone wears")
-      listOf(winged, plain).forEach { helper.level.server.playerList.remove(it) }
+      // Sculk hears the glide every half a second, Wings or not.
+      listOf(winged, bare).forEach {
+        helper.assertTrue(it.glides == it.fallFlyingTicks / 10, "${it.glides} vibrations in ${it.fallFlyingTicks} ticks")
+      }
+      listOf(winged, plain, bare).forEach { helper.level.server.playerList.remove(it) }
     }
   }
 
@@ -282,6 +332,34 @@ class RedBullTests(modBus: IEventBus) {
     val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area).map { Items.id(it.item) }
     helper.assertTrue(Ids.BULL_BILE in drops, "a cow a player killed drops bile, dropped $drops")
     helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  /** A player sees their collection and takes nothing; an admin takes one with a click, a stack with Shift. */
+  private fun menu(helper: GameTestHelper) {
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    val player = Survivor.join(helper)
+    Collected.record(player, listOf(Items.can(can("cherry")!!)))
+    Menu.open(player)
+    val collection = player.containerMenu as? Menu.View ?: throw helper.assertionException("no collection menu open")
+    helper.assertTrue(Items.id(collection.getSlot(cherry).item) == "cherry", "a can the player held")
+    helper.assertTrue(collection.getSlot(if (cherry == 0) 1 else 0).item.hoverName.string == "???", "a can they haven't")
+    helper.assertTrue(collection.getSlot(27).item.isEmpty, "no ingredients for players")
+    collection.clicked(cherry, 0, ContainerInput.QUICK_MOVE, player)
+    helper.assertTrue(player.inventory.isEmpty, "nothing to take for players")
+
+    val admin = Survivor.join(helper)
+    helper.level.server.playerList.op(NameAndId(admin.gameProfile), Optional.of(LevelBasedPermissionSet.GAMEMASTER), Optional.of(false))
+    Menu.open(admin)
+    val menu = admin.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
+    val extras = (27..31).map { Items.id(menu.getSlot(it).item) }
+    helper.assertTrue(extras == listOf("empty_can", "crumpled_original", "bull_bile", "crude_taurine", "taurine"), "the ingredients' row, not $extras")
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, admin)
+    menu.clicked(31, 0, ContainerInput.QUICK_MOVE, admin)
+    helper.assertTrue(admin.inventory.countItem(Items.cans.getValue("cherry").get()) == 1, "one can with a click")
+    helper.assertTrue(admin.inventory.countItem(Items.taurine.get()) == 64, "a stack of taurine with Shift")
+    helper.level.server.playerList.deop(NameAndId(admin.gameProfile))
+    listOf(player, admin).forEach { helper.level.server.playerList.remove(it) }
     helper.succeed()
   }
 

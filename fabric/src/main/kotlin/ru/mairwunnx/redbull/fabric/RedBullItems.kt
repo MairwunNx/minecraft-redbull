@@ -27,6 +27,7 @@ import net.minecraft.world.item.component.UseRemainder
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Can
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Effect
 import ru.mairwunnx.redbull.core.Ids
 import java.util.Optional
@@ -36,31 +37,31 @@ import java.util.Optional
  * `redbull:empty_can`. Data components give each its purpose, as on Paper, but here they're the item's defaults.
  */
 object RedBullItems {
-  /** Bottles tint the game's potion model, as on Paper. */
-  private const val BILE_COLOR = 0x9FB230
-  private const val CRUDE_COLOR = 0xEFE3B0
-
   /** Registered first: every can names its crumpled can as what the drink leaves. */
   val crumpled: Map<String, Item> = CANS.associate { it.id to crumpled(it) }
   val cans: Map<String, CanItem> = CANS.associate { it.id to can(it) }
 
   val emptyCan: Item = register(Ids.EMPTY_CAN, ::Item, hint(Ids.EMPTY_CAN).stacksTo(16))
   val taurine: Item = register(Ids.TAURINE, ::Item, hint(Ids.TAURINE))
-  val bile: BottleItem = bottle(Ids.BULL_BILE, BILE_COLOR, Bottles.BILE)
-  val crudeTaurine: BottleItem = bottle(Ids.CRUDE_TAURINE, CRUDE_COLOR, Bottles.CRUDE_TAURINE)
+  val bile: BottleItem = bottle(Ids.BULL_BILE, Colors.BILE, Bottles.BILE)
+  val crudeTaurine: BottleItem = bottle(Ids.CRUDE_TAURINE, Colors.CRUDE_TAURINE, Bottles.CRUDE_TAURINE)
 
-  /** Every item, in the order the creative tab lists them. */
+  /** Every item, in the order `/redbull give` suggests them. */
   val all: List<Item> get() =
     cans.values.toList() + listOf(emptyCan, taurine, bile, crudeTaurine) + crumpled.values
 
+  /** `redbull:redbull` in the creative inventory: the cans, their crumpled cans, then the ingredients. */
+  val TAB: ResourceKey<CreativeModeTab> = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
+
   fun init() {
-    val key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
     val tab = FabricCreativeModeTab.builder()
       .title(Component.translatable("itemGroup.redbull"))
       .icon { ItemStack(cans.getValue("original")) }
-      .displayItems { _, output -> all.forEach(output::accept) }
+      .displayItems { _, output ->
+        (cans.values + crumpled.values + listOf(emptyCan, bile, crudeTaurine, taurine)).forEach(output::accept)
+      }
       .build()
-    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, tab)
+    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TAB, tab)
   }
 
   fun canOf(stack: ItemStack): Can? = (stack.item as? CanItem)?.can
