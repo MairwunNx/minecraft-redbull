@@ -7,12 +7,14 @@ I’m a fan of Red Bull—the best energy drinks in the world. They give me ener
   <a href="https://modrinth.com/plugin/minecraft-redbull"><img alt="Modrinth" src="https://img.shields.io/modrinth/dt/minecraft-redbull?logo=modrinth&label=Modrinth&color=00AF5C"></a>
   <a href="https://hangar.papermc.io/MairwunNx/RedBull"><img alt="Hangar" src="https://img.shields.io/hangar/dt/RedBull?label=Hangar&color=1E88E5"></a>
   <img alt="Paper 26.3" src="https://img.shields.io/badge/Paper-26.3-F7CF0D">
+  <img alt="Fabric 26.3" src="https://img.shields.io/badge/Fabric-26.3-DBD0B4">
+  <img alt="NeoForge 26.3" src="https://img.shields.io/badge/NeoForge-26.3-D7742F">
   <img alt="Java 25" src="https://img.shields.io/badge/Java-25-E76F00">
   <a href="https://github.com/MairwunNx/minecraft-redbull/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/MairwunNx/minecraft-redbull/build.yml?branch=master&label=build"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/MairwunNx/minecraft-redbull"></a>
 </p>
 
-🥫 **Red Bull** brings 26 real cans into survival on Paper servers. You brew taurine from bull bile, fill cans at a crafting table, hunt the rarest editions in chests, and fly on their wiiings. Four cans too fast, and your heart gives out.
+🥫 **Red Bull** brings 26 real cans into survival, as a plugin for Paper servers or a mod for Fabric and NeoForge. You brew taurine from bull bile, fill cans at a crafting table, hunt the rarest editions in chests, and fly on their wiiings. Four cans too fast, and your heart gives out.
 
 [Русская версия](https://github.com/MairwunNx/minecraft-redbull/blob/master/README.RU.md)
 
@@ -27,10 +29,10 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 🥫 **26 real cans:** Original, Sugarfree, Zero, and the Editions from Red to Spring, each with its own buffs, a flavour, and a slogan.
 - 🧪 **A chemistry chain:** cows drop bull bile, a brewing stand turns it into crude taurine, a furnace evaporates that into taurine, and a crafting table fills an empty can.
 - 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else.
-- 🪽 **Real wiiings:** a can with wings launches you, and the empty can in your hand glides like an elytra for a few seconds.
-- 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you.
+- 🪽 **Real wiiings:** a can with wings launches you and lets you glide like an elytra for a few seconds.
+- 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you. Caffeine also keeps you out of bed.
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
-- 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese come in the resource pack, which the plugin sends on join.
+- 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
 
 ## How to make a can
 
@@ -87,7 +89,10 @@ Type `/redbull` to open your collection: every can you have ever held, crafted, 
 
 ## Wiiings
 
-A can with wings throws you upward as you finish it and leaves a winged can in your hand. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. The winged can works only in your main hand, and switching away drops you. After a minute, or once its flight runs out, it crumples.
+A can with wings throws you upward as you finish it. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. If the wings run out in the air, Slow Falling sets you down gently.
+
+- **In the mods,** the can gives you the Wings effect, with its icon and timer among your other effects. Elytra you wear don’t wear out while it carries you.
+- **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. After a minute, or once its flight runs out, it crumples.
 
 ## Crumpled cans
 
@@ -104,15 +109,21 @@ Each can adds 30 caffeine, and caffeine wears off by one point every six seconds
 | 75–100 | The crash: when a can’s buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. Your heart pounds. |
 | Over 100 | Your heart gives out. No totem saves you. |
 
+Any caffeine at all keeps you out of bed. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
+
 A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
 
 ## Get started
 
-1. Download the jar from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25.
-2. Restart the server. Players get the resource pack when they join; without it the cans show the missing texture.
-3. Type `/redbull`, take a can, and drink it.
+**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances.
 
-`config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances. `/redbull give <item> [player] [amount]` and `/redbull caffeine [player]` need `redbull.admin`.
+**Fabric.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) with [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) for Minecraft 26.3, on the client and on the server.
+
+**NeoForge.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-neoforge.jar) for NeoForge 26.3, on the client and on the server. It needs nothing else.
+
+The mods need no resource pack: their textures and languages are inside. Their settings live in `config/redbull.toml`, with the same switches as the plugin's, the pack aside.
+
+Then type `/redbull`, take a can, and drink it. `/redbull give <item> [player] [amount]` and `/redbull caffeine [player]` need `redbull.admin` on Paper and operator rights in the mods.
 
 ## Credits
 
