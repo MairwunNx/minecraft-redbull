@@ -21,6 +21,7 @@ import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.Stage
 import ru.mairwunnx.redbull.core.WINGS_GRACE_MILLIS
 import ru.mairwunnx.redbull.core.crash
+import ru.mairwunnx.redbull.core.crashDelay
 import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
@@ -83,13 +84,12 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
     return false
   }
 
-  /** After the buffs, the crash: slower and weaker for as long again. */
+  /** After the buffs, the crash: a minute slower and weaker. */
   private fun crashLater(player: Player, can: Can) {
-    val delay = can.effects.maxOf { it.seconds } * 20L
     plugin.server.scheduler.runTaskLater(plugin, Runnable {
       if (!player.isOnline || player.isDead) return@Runnable
-      crash(can).mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
-    }, delay)
+      crash().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
+    }, crashDelay(can) * 20L)
   }
 
   private fun wings(event: PlayerItemConsumeEvent, player: Player, can: Can) {

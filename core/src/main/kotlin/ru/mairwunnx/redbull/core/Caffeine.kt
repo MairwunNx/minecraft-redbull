@@ -42,8 +42,12 @@ fun Rules.drinkCrudeTaurine(before: Caffeine, clock: Long) =
 
 fun Rules.milk(before: Caffeine, clock: Long) = before.plus(-milk, clock, this).let { it.copy(level = it.level.coerceAtLeast(0.0)) }
 
-/** The crash after a can drunk in the crash stage: as long as its longest buff, starting when the buffs end. */
-fun crash(can: Can): List<Effect> {
-  val seconds = can.effects.maxOf { it.seconds }.coerceAtLeast(10)
-  return listOf(Effect("minecraft:slowness", seconds, 1), Effect("minecraft:weakness", seconds, 0))
-}
+const val CRASH_SECONDS = 60
+const val CRASH_DELAY_LIMIT = 180
+
+/** The crash after a can drunk in the crash stage: a minute slower and weaker. */
+fun crash(): List<Effect> =
+  listOf(Effect("minecraft:slowness", CRASH_SECONDS, 1), Effect("minecraft:weakness", CRASH_SECONDS, 0))
+
+/** The crash comes when the can's longest buff ends, but no later than three minutes after the drink. */
+fun crashDelay(can: Can): Int = can.effects.maxOf { it.seconds }.coerceAtMost(CRASH_DELAY_LIMIT)

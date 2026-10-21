@@ -64,9 +64,10 @@ class CaffeineTest {
   }
 
   @Test
-  fun `the crash lasts as long as the longest buff`() {
-    val crash = crash(can("purple")!!)
-    assertEquals(listOf(30, 30), crash.map { it.seconds })
-    assertEquals(listOf("minecraft:slowness", "minecraft:weakness"), crash.map { it.id })
+  fun `the crash lasts a minute and comes when the buffs end, three minutes at most`() {
+    assertEquals(listOf(60, 60), crash().map { it.seconds })
+    assertEquals(listOf("minecraft:slowness", "minecraft:weakness"), crash().map { it.id })
+    assertEquals(90, crashDelay(can("summer")!!))
+    assertEquals(180, crashDelay(can("blue")!!))
   }
 }
