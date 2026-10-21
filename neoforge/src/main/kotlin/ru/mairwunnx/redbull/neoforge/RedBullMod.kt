@@ -33,13 +33,16 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
     container.registerConfig(ModConfig.Type.LOCAL, Settings.SPEC, "$MOD_ID.toml")
     Items.register(modBus)
     Caffeines.register(modBus)
+    Collected.register(modBus)
     Loot.register(modBus)
 
     val bus = NeoForge.EVENT_BUS
     Drinks.listen(bus)
     Wings.listen(bus)
     Heart.listen(bus)
+    Collected.listen(bus)
     Later.listen(bus)
+    RedBullCommand.listen(bus)
     // Players find every crafting recipe in their recipe book.
     bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->
       val player = event.entity as? ServerPlayer ?: return@on
