@@ -27,6 +27,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else.
 - 🪽 **Real wiiings:** a can with wings launches you, and the empty can in your hand glides like an elytra for a few seconds.
 - 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you.
+- 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese come in the resource pack, which the plugin sends on join.
 
 ## How to make a can
@@ -47,36 +48,40 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last at least as long. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
-| Energy Drink | sugar, blue dye | Speed II and Haste I for 30 s | 8 s |
-| Sugarfree | honeycomb, light blue dye | Speed I for 30 s | 6 s |
-| Zero | taurine, light blue dye | Speed II and Haste I for 30 s | 8 s |
-| Red Edition | melon slice, red dye | Strength I for 20 s | 8 s |
-| Red Edition Sugarfree | melon slice, red dye | Strength I for 15 s | 6 s |
-| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 10 s | 6 s |
-| Green Edition | cactus flower, green dye; swamps and lush caves | Luck for 3 min, Speed I for 20 s | 8 s |
-| Cherry Edition | pink petals, red dye; cherry groves | Luck for 3 min, Speed II for 20 s | 12 s |
-| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 30 s | 10 s |
-| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 30 s | 8 s |
-| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 8 s | 8 s |
-| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 30 s | 10 s |
-| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 30 s | 12 s |
-| Amber Edition | sweet berries, orange dye; savannas | Haste II for 30 s | 8 s |
-| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 30 s | 6 s |
-| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 60 s | 8 s |
-| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 30 s | 6 s |
-| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 30 s | 8 s |
-| Sea Blue Edition | sea pickle, cyan dye; oceans | Dolphin’s Grace and Conduit Power for 30 s | — |
-| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 30 s | 8 s |
-| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 60 s | 6 s |
-| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision for 60 s, Speed I for 30 s | 8 s |
-| Ruby Edition | only in Nether chests, 8% | Fire Resistance for 90 s, Strength II for 10 s | — |
-| Summer Edition | only in badlands chests, 5% | Speed III for 15 s | 15 s |
-| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling for 30 s, Resistance I for 15 s | 15 s |
-| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 30 s | 30 s |
+| Energy Drink | sugar, blue dye | Speed II and Haste I for 3 min | 8 s |
+| Sugarfree | honeycomb, light blue dye | Speed I for 3 min | 6 s |
+| Zero | taurine, light blue dye | Speed II and Haste I for 3 min | 8 s |
+| Red Edition | melon slice, red dye | Strength I for 2 min | 8 s |
+| Red Edition Sugarfree | melon slice, red dye | Strength I for 90 s | 6 s |
+| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 45 s | 6 s |
+| Green Edition | cactus flower, green dye; swamps and lush caves | Luck for 10 min, Speed I for 3 min | 8 s |
+| Cherry Edition | pink petals, red dye; cherry groves | Luck for 10 min, Speed II for 2 min | 12 s |
+| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 3 min | 10 s |
+| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 3 min | 8 s |
+| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 30 s | 8 s |
+| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 4 min | 10 s |
+| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 3 min | 12 s |
+| Amber Edition | sweet berries, orange dye; savannas | Haste II for 3 min | 8 s |
+| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 3 min | 6 s |
+| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 5 min | 8 s |
+| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 3 min | 6 s |
+| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 3 min | 8 s |
+| Sea Blue Edition | sea pickle, cyan dye; oceans | Dolphin’s Grace and Conduit Power for 3 min | — |
+| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 3 min | 8 s |
+| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 8 min | 6 s |
+| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision for 8 min, Speed I for 3 min | 8 s |
+| Ruby Edition | only in Nether chests, 8% | Fire Resistance for 8 min, Strength II for 90 s | — |
+| Summer Edition | only in badlands chests, 5% | Speed III for 90 s | 15 s |
+| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling for 3 min, Resistance I for 2 min | 15 s |
+| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 4 min | 30 s |
+
+## Your collection
+
+Type `/redbull` to open your collection: every can you have ever held, crafted, found, or been given, and an empty can with question marks for the rest. The title counts how many of the 26 you have. Admins see every can and ingredient there and take one with a click, or a stack with Shift.
 
 ## Wiiings
 
@@ -90,7 +95,7 @@ Each can adds 30 caffeine, and caffeine wears off by one point every six seconds
 |---|---|
 | 0–49 | Nothing. |
 | 50–74 | Jitters: you get hungry faster and hear your heart now and then. |
-| 75–100 | The crash: when a can’s buffs end, Slowness II and Weakness I follow for as long again. Your heart pounds. |
+| 75–100 | The crash: when a can’s buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. Your heart pounds. |
 | Over 100 | Your heart gives out. No totem saves you. |
 
 A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
@@ -99,7 +104,7 @@ A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and cr
 
 1. Download [redbull.jar](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25.
 2. Restart the server. Players get the resource pack when they join; without it the cans show the missing texture.
-3. Give yourself a can with `/redbull give original` and drink it.
+3. Type `/redbull`, take a can, and drink it.
 
 `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances. `/redbull give <item> [player] [amount]` and `/redbull caffeine [player]` need `redbull.admin`.
 
