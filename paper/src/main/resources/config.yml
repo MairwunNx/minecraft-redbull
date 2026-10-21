@@ -1,0 +1,21 @@
+# Red Bull's settings. Every key has a default; delete one to get it back.
+
+resource_pack:
+  # Send players the pack with the cans' textures and names when they join.
+  enabled: true
+  # Where players download the pack. Empty: the pack attached to this version's GitHub release.
+  url: ""
+  # Kick players who decline the pack. Without it the cans show the missing texture and English names.
+  required: false
+
+# Four cans too fast, and the heart gives out. Off: caffeine still builds up, but nobody dies.
+overdose: true
+
+# Cans with wings launch the player and leave a winged can to glide with.
+wings: true
+
+loot:
+  # Multiplies the chance that a cow drops bull bile (5%, plus 2% per Looting level).
+  bile: 1.0
+  # Multiplies each can's chance to turn up in a chest of its biomes.
+  chests: 1.0
