@@ -5,7 +5,8 @@
   "name": "Red Bull game tests",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["ru.mairwunnx.redbull.fabric.gametest.RedBullGameTests"]
+    "fabric-gametest": ["ru.mairwunnx.redbull.fabric.gametest.RedBullGameTests"],
+    "fabric-client-gametest": ["ru.mairwunnx.redbull.fabric.gametest.RedBullClientGameTest"]
   },
   "depends": {
     "redbull": "*"

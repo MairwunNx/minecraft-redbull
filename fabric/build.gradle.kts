@@ -21,14 +21,15 @@ loom {
   }
 }
 
-// Game tests drink, craft, brew, and loot on a real server: `./gradlew :fabric:runGameTest`. They live in
-// `src/gametest` as a mod of their own, so the release jar doesn't carry them.
+// Game tests drink, craft, brew, and loot on a real server with every build (`./gradlew :fabric:runGameTest`);
+// `./gradlew :fabric:runClientGameTest` opens a game window and screenshots the HUD. They live in `src/gametest`
+// as a mod of their own, so the release jar doesn't carry them.
 fabricApi {
   configureTests {
     createSourceSet = true
     modId = "redbull-gametest"
     enableGameTests = true
-    enableClientGameTests = false
+    enableClientGameTests = true
     eula = true
   }
 }
