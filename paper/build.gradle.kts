@@ -73,7 +73,7 @@ tasks.assemble { dependsOn(tasks.shadowJar) }
 // `./gradlew modrinth` with MODRINTH_TOKEN set; the release workflow runs it when asked to.
 modrinth {
   token = providers.environmentVariable("MODRINTH_TOKEN")
-  projectId = "redbull"
+  projectId = "minecraft-redbull"
   versionNumber = project.version.toString()
   versionName = "Red Bull ${project.version} for Paper"
   versionType = "release"

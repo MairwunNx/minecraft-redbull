@@ -79,12 +79,17 @@ Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.c
 ## Releasing and Moonlands
 
 1. Keep a `## X.Y.Z` section in CHANGELOG.md, written for server owners. After a change that reaches what the project ships, add it in the same push: under the topmost section while that version isn't released (`gh release view vX.Y.Z` fails), or under a new section with the next version.
-2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z`, with the store switches “Stores” allows. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches `redbull-X.Y.Z.jar`, `redbull.jar`, and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
+2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches `redbull-X.Y.Z.jar`, `redbull.jar`, and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
 3. Its `deploy` job ships the jar to Moonlands through `ship-plugin.yml`, which points the Red Bull line in `minecraft/extras/jars.txt` at it.
 
 ## Stores
 
-Not yet: the owner tests each version on Moonlands first and says when a store gets it. Until then every release, the autopilot's too, runs with `modrinth` and `hangar` off. When the owner says so, create the Modrinth project `redbull` through the API and the Hangar project `MairwunNx/RedBull` (the first Hangar version goes through the website), as Moonlands' CLAUDE.md describes, add their badges to the READMEs, and change this section to say which switches to turn on. The tokens are the `MODRINTH_TOKEN` and `HANGAR_TOKEN` secrets.
+Both are on since 1.1.0 (2026-10-21), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true`, then check the version on each store.
+
+- **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads the jar and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
+- **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. Hangar takes a project's first version only through its website, so the owner uploaded 1.1.0 there; `./gradlew publishPluginPublicationToHangar` uploads every later one. The page came from MODRINTH.md; Hangar doesn't sync it, so edit it and the icon on the site.
+
+The tokens are the `MODRINTH_TOKEN` and `HANGAR_TOKEN` secrets, also in `~/.secrets/cloud.env`. Never put them in the repo.
 
 ## Commits
 
