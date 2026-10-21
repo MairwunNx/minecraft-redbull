@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
 /**
@@ -23,13 +24,12 @@ import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
  * a few seconds of Slow Falling to land with.
  */
 object Wings {
-  private const val COLOR = 0x8FD8FF
   private const val LANDING_TICKS = SOFT_LANDING_SECONDS * 20
 
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
   val EFFECT: DeferredHolder<MobEffect, MobEffect> = EFFECTS.register("wings") { ->
-    object : MobEffect(MobEffectCategory.BENEFICIAL, COLOR) {}
+    object : MobEffect(MobEffectCategory.BENEFICIAL, Colors.WINGS) {}
       .addAttributeModifier(NeoForgeMod.GLIDING_FLIGHT, id("wings"), 1.0, AttributeModifier.Operation.ADD_VALUE)
   }
 

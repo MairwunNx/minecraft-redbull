@@ -30,3 +30,15 @@ const val SOFT_LANDING_SECONDS = 5
 
 /** A winged can lasts this long after the drink, flown or not; flying wears it out sooner. */
 const val WINGS_GRACE_MILLIS = 60_000L
+
+/** The colours every platform shares: the bottles' tint and the effects' particles and icons' frames. */
+object Colors {
+  const val BILE = 0x9FB230
+  const val CRUDE_TAURINE = 0xEFE3B0
+
+  /** Coffee brown. */
+  const val CAFFEINE = 0x6F4E37
+
+  /** The sky a winged can promises. */
+  const val WINGS = 0x8FD8FF
+}

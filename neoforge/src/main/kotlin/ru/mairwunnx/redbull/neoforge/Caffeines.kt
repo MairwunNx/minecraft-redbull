@@ -17,6 +17,7 @@ import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
 import net.neoforged.neoforge.registries.NeoForgeRegistries
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.Rules
 import ru.mairwunnx.redbull.core.effectLevel
 import ru.mairwunnx.redbull.core.secondsLeft
@@ -37,9 +38,6 @@ import java.util.function.Supplier
 object Caffeines {
   val rules = Rules()
 
-  /** Coffee brown. */
-  private const val COLOR = 0x6F4E37
-
   private val ATTACHMENTS = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MOD_ID)
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
@@ -57,7 +55,7 @@ object Caffeines {
   }
 
   val EFFECT: DeferredHolder<MobEffect, MobEffect> = EFFECTS.register("caffeine") { ->
-    object : MobEffect(MobEffectCategory.NEUTRAL, COLOR) {}
+    object : MobEffect(MobEffectCategory.NEUTRAL, Colors.CAFFEINE) {}
   }
 
   fun register(bus: IEventBus) {

@@ -13,6 +13,7 @@ import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.LivingEntity
+import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
 /**
@@ -22,11 +23,10 @@ import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
  * If Wings run out mid-flight, Slow Falling sets the player down.
  */
 object Wings {
-  private const val COLOR = 0x7FD8FF
   private const val SLOW_FALLING_TICKS = SOFT_LANDING_SECONDS * 20
 
   val WINGS: Holder<MobEffect> = Registry.registerForHolder(
-    BuiltInRegistries.MOB_EFFECT, RedBullItems.id("wings"), object : MobEffect(MobEffectCategory.BENEFICIAL, COLOR) {},
+    BuiltInRegistries.MOB_EFFECT, RedBullItems.id("wings"), object : MobEffect(MobEffectCategory.BENEFICIAL, Colors.WINGS) {},
   )
 
   fun init() {
