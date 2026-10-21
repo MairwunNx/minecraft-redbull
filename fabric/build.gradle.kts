@@ -75,6 +75,10 @@ tasks.processResources {
     expand(versions)
   }
   from(rootProject.file("media/icon.png")) { into("assets/redbull") }
+  // The game has no fallback between dialects: Mexico and Portugal get Spain's and Brazil's texts, as on NeoForge.
+  val lang = project(":core").layout.projectDirectory.dir("src/main/resources/assets/redbull/lang")
+  from(lang.file("es_es.json")) { into("assets/redbull/lang"); rename { "es_mx.json" } }
+  from(lang.file("pt_br.json")) { into("assets/redbull/lang"); rename { "pt_pt.json" } }
 }
 
 // Core is plain Kotlin, not a mod: its classes go into the mod's jar. Fabric Language Kotlin brings Kotlin itself.
