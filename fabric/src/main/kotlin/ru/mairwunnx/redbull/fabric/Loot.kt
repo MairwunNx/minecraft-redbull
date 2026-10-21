@@ -26,15 +26,18 @@ object Loot {
       if (!source.isBuiltin) return@register
       val id = key.identifier().toString()
       when {
-        id in COWS -> table.pool(pool(registries, bile()))
+        id in COWS -> if (Settings.bile > 0) table.pool(pool(registries, bile(Settings.bile)))
         key.identifier().namespace == "minecraft" && key.identifier().path.startsWith("chests/") ->
-          CANS.mapNotNull(::chest).forEach { table.pool(pool(registries, it)) }
+          if (Settings.chests > 0) CANS.mapNotNull { chest(it, Settings.chests) }.forEach { table.pool(pool(registries, it)) }
       }
     }
   }
 
-  /** 5% from an adult killed by a player, plus 2% per Looting level, as `random_chance_with_enchanted_bonus` counts it. */
-  private fun bile() = item("redbull:${Ids.BULL_BILE}", allOf(
+  /**
+   * 5% from an adult killed by a player, plus 2% per Looting level, as `random_chance_with_enchanted_bonus` counts
+   * it; `loot.bile` in the settings multiplies every part.
+   */
+  private fun bile(times: Double) = item("redbull:${Ids.BULL_BILE}", allOf(
     obj("type" to "minecraft:killed_by_player"),
     obj(
       "type" to "minecraft:entity_properties",
@@ -44,21 +47,21 @@ object Loot {
     obj(
       "type" to "minecraft:random_chance_with_enchanted_bonus",
       "enchantment" to "minecraft:looting",
-      "unenchanted_chance" to Bile.chance(0),
+      "unenchanted_chance" to Bile.chance(0) * times,
       "enchanted_chance" to obj(
         "type" to "minecraft:linear",
-        "base" to Bile.chance(1),
-        "per_level_above_first" to Bile.PER_LOOTING,
+        "base" to Bile.chance(1) * times,
+        "per_level_above_first" to Bile.PER_LOOTING * times,
       ),
     ),
   ))
 
-  /** A can in a chest of one of its biomes, at its chance. The chest's position is the loot's origin. */
-  private fun chest(can: Can): JsonObject? {
+  /** A can in a chest of one of its biomes, at its chance times `loot.chests`. The chest's position is the loot's origin. */
+  private fun chest(can: Can, times: Double): JsonObject? {
     val chests = can.chests ?: return null
     return item("redbull:${can.id}", allOf(
       obj("type" to "minecraft:location_check", "predicate" to obj("biomes" to array(chests.biomes))),
-      obj("type" to "minecraft:random_chance", "chance" to chests.chance),
+      obj("type" to "minecraft:random_chance", "chance" to chests.chance * times),
     ))
   }
 

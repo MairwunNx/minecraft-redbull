@@ -42,6 +42,7 @@ import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.RedBullItems
+import ru.mairwunnx.redbull.fabric.Settings
 import java.util.UUID
 
 /** What a player does with Red Bull on a real server: drink, craft, brew, smelt, and find. */
@@ -126,6 +127,25 @@ class RedBullGameTests {
     Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
     drink(player, can("red"))
     helper.succeedWhen { helper.assertTrue(player.isDeadOrDying, "the overdose, totem or not") }
+  }
+
+  /** The switches of `config/redbull.toml`; the test puts the defaults back before anything else drinks. */
+  @GameTest
+  fun settingsSwitchTheOverdoseOff(helper: GameTestHelper) {
+    try {
+      Settings.read("overdose = false # nobody dies\nwings = off\n\n[loot]\nbile = 2.5\nchests = 500\n")
+      equal(helper, Settings.wings, true, "a switch set to nonsense")
+      equal(helper, Settings.bile, 2.5, "loot.bile")
+      equal(helper, Settings.chests, 1.0, "loot.chests out of range")
+      val player = player(helper)
+      Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
+      drink(player, can("red"))
+      equal(helper, caffeine(player), Caffeines.rules.limit, "caffeine past the limit without the overdose")
+    } finally {
+      Settings.read("")
+    }
+    equal(helper, Settings.overdose, true, "the default")
+    helper.succeed()
   }
 
   @GameTest

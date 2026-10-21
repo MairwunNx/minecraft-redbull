@@ -53,7 +53,7 @@ object Drinks {
     val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
     if (!caffeine(player, drink)) return null
     if (drink.stage == Stage.CRASH) crashLater(player, can)
-    return if (can.wings > 0) wings(player, can) else null
+    return if (Settings.wings && can.wings > 0) wings(player, can) else null
   }
 
   fun bile(player: ServerPlayer) = bottle(player, bile, crude)
@@ -67,7 +67,7 @@ object Drinks {
 
   /** Writes the new caffeine; false when it was one drink too many and the player is about to die. */
   private fun caffeine(player: ServerPlayer, drink: Drink): Boolean {
-    if (!drink.fatal || player.isCreative || player.isSpectator) {
+    if (!drink.fatal || !Settings.overdose || player.isCreative || player.isSpectator) {
       Caffeines.set(player, drink.caffeine.copy(level = drink.caffeine.level.coerceAtMost(rules.limit)))
       return true
     }
