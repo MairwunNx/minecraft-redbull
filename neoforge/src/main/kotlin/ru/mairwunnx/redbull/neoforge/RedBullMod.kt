@@ -33,6 +33,7 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
     container.registerConfig(ModConfig.Type.LOCAL, Settings.SPEC, "$MOD_ID.toml")
     Items.register(modBus)
     Caffeines.register(modBus)
+    Loot.register(modBus)
 
     val bus = NeoForge.EVENT_BUS
     Drinks.listen(bus)
