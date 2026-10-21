@@ -1,0 +1,102 @@
+name: Release
+
+# Run by hand: Actions → Release → Run workflow, with the new version.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version, like 2.0.0"
+        required: true
+      changelog:
+        description: "Changelog in Markdown; leave empty to take the version's section from CHANGELOG.md"
+        required: false
+      modrinth:
+        description: "Also publish to Modrinth (needs the MODRINTH_TOKEN secret)"
+        type: boolean
+        default: false
+      hangar:
+        description: "Also publish to Hangar (needs the HANGAR_TOKEN secret)"
+        type: boolean
+        default: false
+      moonlands:
+        description: "Ship the release to Moonlands (needs the FAMILY_ACTIONS_TOKEN secret)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      CHANGELOG: ${{ inputs.changelog }}
+      # Outside the repo files, but in the workspace, where Gradle finds it by a relative path.
+      NOTES: release-notes.md
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the version
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::$VERSION isn't a version like 2.0.0"; exit 1; }
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::v$VERSION is already released"; exit 1
+          fi
+      - name: Write the release notes
+        shell: python
+        run: |
+          import os, re, sys
+          version, typed = os.environ["VERSION"], os.environ["CHANGELOG"].strip()
+          if typed:
+              notes = typed
+          else:
+              text = open("CHANGELOG.md", encoding="utf-8").read()
+              match = re.search(rf"^## {re.escape(version)}\s*$(.*?)(?=^## |\Z)", text, re.M | re.S)
+              notes = match.group(1).strip() if match else ""
+          if not notes:
+              sys.exit(f"::error::No changelog: add a “## {version}” section to CHANGELOG.md or fill the changelog field")
+          open(os.environ["NOTES"], "w", encoding="utf-8").write(notes + "\n")
+          print(notes)
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build and test
+        run: ./gradlew build -PreleaseVersion="$VERSION"
+      - name: Publish the GitHub release
+        # The Paper jar, and redbull.jar too, so releases/latest/download/redbull.jar always fetches the newest one.
+        # The pack under the name the plugin builds its default URL from. A NeoForge or Fabric module adds its jar here.
+        run: |
+          cp "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar
+          cp paper/build/pack/redbull-pack.zip "paper/build/pack/redbull-pack-$VERSION.zip"
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "Red Bull $VERSION" --notes-file "$NOTES" \
+            "paper/build/libs/redbull-$VERSION.jar" paper/build/libs/redbull.jar "paper/build/pack/redbull-pack-$VERSION.zip"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Publish to Modrinth
+        if: inputs.modrinth
+        # Minotaur reads the project while it runs, which the configuration cache doesn't allow.
+        run: ./gradlew modrinth -PreleaseVersion="$VERSION" -PchangelogFile="$NOTES" --no-configuration-cache
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      - name: Publish to Hangar
+        if: inputs.hangar
+        run: ./gradlew publishPluginPublicationToHangar -PreleaseVersion="$VERSION" -PchangelogFile="$NOTES" --no-configuration-cache
+        env:
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+
+  deploy:
+    needs: release
+    if: inputs.moonlands
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ship to Moonlands
+        # Moonlands' “Ship a release” workflow puts the new jar on the server, unless it's built for another game version.
+        run: gh workflow run ship-plugin.yml -R MairwunNx/minecraft -f repo="$GITHUB_REPOSITORY" -f version="$VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.FAMILY_ACTIONS_TOKEN }}
+          VERSION: ${{ inputs.version }}
