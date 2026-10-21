@@ -19,6 +19,7 @@ object RedBullMod : ModInitializer {
   override fun onInitialize() {
     RedBullItems.init()
     Caffeines.CAFFEINE
+    Loot.init()
 
     ServerTickEvents.END_SERVER_TICK.register { server ->
       Drinks.tick(server)
