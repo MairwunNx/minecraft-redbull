@@ -89,7 +89,7 @@ tasks.jar {
 modrinth {
   token = providers.environmentVariable("MODRINTH_TOKEN")
   projectId = "minecraft-redbull"
-  versionNumber = project.version.toString()
+  versionNumber = "${project.version}+fabric"
   versionName = "Red Bull ${project.version} for Fabric"
   versionType = "release"
   uploadFile.set(tasks.jar)
