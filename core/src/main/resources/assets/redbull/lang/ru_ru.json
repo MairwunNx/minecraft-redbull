@@ -105,5 +105,6 @@
   "redbull.menu.locked": "Сделайте или найдите эту банку, чтобы увидеть её.",
   "item.redbull.crumpled_can": "Мятая банка",
   "item.redbull.crumpled_can.hint": "Переплавьте обратно в железные самородки.",
-  "effect.redbull.wings": "Крылья"
+  "effect.redbull.wings": "Крылья",
+  "itemGroup.redbull": "Red Bull"
 }

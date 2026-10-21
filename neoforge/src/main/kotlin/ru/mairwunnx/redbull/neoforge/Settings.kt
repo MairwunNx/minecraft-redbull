@@ -11,7 +11,7 @@ object Settings {
     .define("overdose", true)
 
   val wings: ModConfigSpec.BooleanValue = builder
-    .comment("Cans with wings launch the player and leave a winged can to glide with.")
+    .comment("Cans with wings launch the player and give the Wings effect to glide with.")
     .define("wings", true)
 
   val bile: ModConfigSpec.DoubleValue

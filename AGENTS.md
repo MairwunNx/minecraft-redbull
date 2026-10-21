@@ -32,16 +32,17 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `paper/…/RedBullCommand.kt` | `/redbull` for everyone; `/redbull give` and `/redbull caffeine` for `redbull.admin` |
 | `paper/src/pack/` | `pack.mcmeta` and the pack icon; the `pack` Gradle task zips them with core's assets |
 | `neoforge/…/RedBullMod.kt` | The `@Mod` entry: registers everything, hands recipes to the recipe book on join, logs “Red Bull is on” |
-| `neoforge/…/Items.kt` | Every item as a real item under its asset's name (`redbull:original`, `redbull:crumpled_original`, …), with components; the `flavour` and `expires` components of a winged can |
+| `neoforge/…/Items.kt` | Every item as a real item under its asset's name (`redbull:original`, `redbull:crumpled_original`, …), with components, and the `redbull:redbull` creative tab |
 | `neoforge/…/Caffeines.kt` | Caffeine in a data attachment, saved, synced to the player's own client, dropped on death |
-| `neoforge/…/Drinks.kt`, `Wings.kt`, `Heart.kt` | The same as Paper's, on NeoForge's events; `Later.kt` runs the crash and the overdose ticks later |
+| `neoforge/…/Drinks.kt`, `Heart.kt` | The same as Paper's, on NeoForge's events; `Later.kt` runs the crash and the overdose ticks later |
+| `neoforge/…/Wings.kt` | The `redbull:wings` effect a can with wings gives instead of a winged can, and Slow Falling when it ends mid-glide |
 | `neoforge/…/Loot.kt` | Two global loot modifiers, `redbull:bull_bile` and `redbull:cans`, switched on in `data/redbull/loot_modifiers/` |
 | `neoforge/…/Collected.kt`, `Menu.kt`, `RedBullCommand.kt` | The collection in an attachment kept through death, the `/redbull` chest, and the command; admin is operator level 2 |
 | `neoforge/…/Settings.kt` | `config/redbull.toml`: Paper's `config.yml` without the pack |
 | `neoforge/…/client/CaffeineHud.kt` | The caffeine meter: ten small cans above the hunger bar |
 | `neoforge/src/data/` | Writes every recipe and the `crumpled_cans` tag from `Cans.kt` into `build/generated/data` on each build |
 | `neoforge/src/main/resources/` | `neoforge.mods.toml`, the overdose damage type and its tags, the loot modifiers, and the tinted bottles' item definitions |
-| `neoforge/src/gametest/` | A dev-only mod with game tests: drinking, the overdose, milk, the bottles, wings, and bile |
+| `neoforge/src/gametest/` | A dev-only mod with game tests: drinking, the overdose, milk, the bottles, wings, landing, bile, and the creative tab |
 | `fabric/…/RedBullItems.kt` | Registers every item under its asset's id (`redbull:original`, `redbull:crumpled_original`, `redbull:empty_can`), with its components as defaults, and the creative tab |
 | `fabric/…/ItemTypes.kt` | `CanItem` adds caffeine and wings to a drink, `BottleItem` the bottles' moo and bull mode, `WingedCanItem` crumples a spent winged can from `inventoryTick` |
 | `fabric/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, and the bottles; a tick queue for what comes later |
@@ -76,6 +77,7 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 
 - Items are real items, so no resource pack: the jar carries core's assets, plus `es_mx` and `pt_pt` copies of the Spanish and Portuguese texts. A can is drunk through its `consumable` and `potion_contents` components and leaves its crumpled can through `use_remainder`. Bull bile and crude taurine draw the game's potion model, tinted by their `potion_contents` colour.
 - Recipes are data. Since 26.x brewing is a recipe type too (`minecraft:brewing`), so bile into a water bottle is one more JSON file. The water bottle in a can's recipe is a `neoforge:components` ingredient. `Recipes.kt` in `src/data` writes them all from `Cans.kt`; don't write recipe JSON by hand.
+- Wings are the `redbull:wings` effect, not a winged can, for as many seconds as the can has wings. The effect adds NeoForge's `gliding_flight` attribute, which `LivingEntity.canGlide` checks on the server and on the client, so the player glides as with an elytra and no item wears. Wings that end mid-glide leave 5 seconds of Slow Falling, a tick later: the game is still walking the effects when one ends.
 - Overdose deals the `redbull:overdose` damage type, tagged `bypasses_invulnerability` and the like, so no totem saves the player and the game writes `death.attack.redbull.overdose` itself.
 - Chest cans go to any table under `chests/`, by the biome at the loot's origin. `/loot` takes the command's position as the origin, so test a biome with `execute positioned`.
 - The dev run's version is `0.0.0-dev`, since FML rejects `dev`.
@@ -99,11 +101,11 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
    ```sh
    python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
    ```
-3. NeoForge's game tests: drinking, caffeine, the overdose and its death message, milk, bull mode, a winged can crumpling, and bile from a cow, on a real server. It ends with “All 5 required tests passed”:
+3. NeoForge's game tests: drinking, caffeine, the overdose and its death message, milk, bull mode, gliding on the Wings effect and only with it, Slow Falling when it ends mid-glide, no winged can, bile from a cow, and the creative tab, on a real server. It ends with “All 7 required tests passed”:
    ```sh
    ./gradlew :neoforge:runGameTestServer
    ```
-   `./gradlew :neoforge:runServer` starts a dev server in `neoforge/run/`; it logs “Red Bull is on: 26 cans, 57 items, 27 recipes” once every recipe parsed.
+   `./gradlew :neoforge:runServer` starts a dev server in `neoforge/run/`; it logs “Red Bull is on: 26 cans, 56 items, 27 recipes” once every recipe parsed.
 4. A real Fabric server with the mod and its dependencies from Modrinth:
    ```sh
    python3 -I .claude/scripts/fabric_smoke.py --game 26.3 --mod fabric/build/libs/redbull-fabric-dev.jar --modrinth fabric-api --modrinth fabric-language-kotlin --expect "Red Bull dev is on: 26 cans, 23 recipes"

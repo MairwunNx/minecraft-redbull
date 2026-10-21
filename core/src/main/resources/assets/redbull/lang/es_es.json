@@ -105,5 +105,6 @@
   "redbull.menu.locked": "Fabrica o encuentra esta lata para verla.",
   "item.redbull.crumpled_can": "Lata aplastada",
   "item.redbull.crumpled_can.hint": "Fúndela de nuevo en pepitas de hierro.",
-  "effect.redbull.wings": "Alas"
+  "effect.redbull.wings": "Alas",
+  "itemGroup.redbull": "Red Bull"
 }

@@ -1,19 +1,15 @@
 package ru.mairwunnx.redbull.neoforge
 
-import com.mojang.serialization.Codec
 import net.minecraft.ChatFormatting
-import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
-import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.util.Unit
 import net.minecraft.world.effect.MobEffectInstance
-import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.food.FoodProperties
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
@@ -23,8 +19,8 @@ import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.UseRemainder
-import net.minecraft.world.item.equipment.Equippable
 import net.neoforged.bus.api.IEventBus
+import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.Bottles
@@ -45,15 +41,7 @@ import net.minecraft.world.item.Items as Vanilla
  */
 object Items {
   private val ITEMS = DeferredRegister.createItems(MOD_ID)
-  private val COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MOD_ID)
-
-  /** The can a winged can was before it was drunk, to crumple into. */
-  val FLAVOUR: java.util.function.Supplier<DataComponentType<String>> =
-    COMPONENTS.registerComponentType("flavour") { it.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8) }
-
-  /** When an unflown winged can crumples, in epoch milliseconds. */
-  val EXPIRES: java.util.function.Supplier<DataComponentType<Long>> =
-    COMPONENTS.registerComponentType("expires") { it.persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG) }
+  private val TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID)
 
   private fun simple(name: String, properties: (Item.Properties) -> Item.Properties): DeferredItem<Item> =
     ITEMS.registerSimpleItem(name, UnaryOperator { properties(it) })
@@ -75,17 +63,6 @@ object Items {
 
   val emptyCan: DeferredItem<Item> = simple(Ids.EMPTY_CAN) { it.stacksTo(16).hint(Ids.EMPTY_CAN) }
 
-  /**
-   * The can after a drink with wings: a glider held in the main hand. The game wears a glider by one point per
-   * second of flight and stops one point before it breaks; [wingedCan] sets the points per can.
-   */
-  val wingedCan: DeferredItem<Item> = simple(Ids.WINGED_CAN) {
-    it.durability(CANS.first().wings + 1)
-      .component(DataComponents.GLIDER, Unit.INSTANCE)
-      .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.MAINHAND).setSwappable(false).build())
-      .hint(Ids.WINGED_CAN)
-  }
-
   val taurine: DeferredItem<Item> = simple(Ids.TAURINE) { it.stacksTo(64).hint(Ids.TAURINE) }
 
   val bile: DeferredItem<Item> = simple(Ids.BULL_BILE) { bottle(it, Ids.BULL_BILE, BILE_COLOR, Bottles.BILE) }
@@ -95,11 +72,22 @@ object Items {
 
   /** Every item, in the order the collection and `/redbull give` list them. */
   val all: List<DeferredItem<Item>>
-    get() = cans.values + listOf(emptyCan, wingedCan, taurine, bile, crudeTaurine) + crumpled.values
+    get() = cans.values + listOf(emptyCan, taurine, bile, crudeTaurine) + crumpled.values
+
+  /** `redbull:redbull` in the creative inventory: the cans, their crumpled cans, then the ingredients. */
+  val tab: DeferredHolder<CreativeModeTab, CreativeModeTab> = TABS.register("redbull") { ->
+    CreativeModeTab.builder()
+      .title(Component.translatable("itemGroup.$MOD_ID"))
+      .icon { ItemStack(cans.getValue("original").get()) }
+      .displayItems { _, output ->
+        (cans.values + crumpled.values + listOf(emptyCan, bile, crudeTaurine, taurine)).forEach { output.accept(it.get()) }
+      }
+      .build()
+  }
 
   fun register(bus: IEventBus) {
     ITEMS.register(bus)
-    COMPONENTS.register(bus)
+    TABS.register(bus)
   }
 
   /** The id of one of our items, like `original` or `bull_bile`; null for anything else. */
@@ -109,24 +97,11 @@ object Items {
 
   fun canOf(stack: ItemStack): Can? = id(stack)?.let(::can)
 
-  fun create(id: String): ItemStack? = when (id) {
-    Ids.WINGED_CAN -> wingedCan(CANS.first())
-    else -> all.firstOrNull { it.id.path == id }?.let { ItemStack(it.get()) }
-  }
+  fun create(id: String): ItemStack? = all.firstOrNull { it.id.path == id }?.let { ItemStack(it.get()) }
 
   fun can(can: Can): ItemStack = ItemStack(cans.getValue(can.id).get())
 
   fun crumpled(can: Can): ItemStack = ItemStack(crumpled.getValue(can.id).get())
-
-  /** A fresh winged can of [flavour]: as many seconds of flight as the can has wings, and a minute of grace. */
-  fun wingedCan(flavour: Can, expires: Long = System.currentTimeMillis() + ru.mairwunnx.redbull.core.WINGS_GRACE_MILLIS) =
-    ItemStack(wingedCan.get()).apply {
-      set(DataComponents.MAX_DAMAGE, flavour.wings.coerceAtLeast(1) + 1)
-      set(FLAVOUR.get(), flavour.id)
-      set(EXPIRES.get(), expires)
-    }
-
-  fun flavourOf(stack: ItemStack): Can = stack.get(FLAVOUR.get())?.let(::can) ?: CANS.first()
 
   fun effect(effect: Effect): MobEffectInstance? =
     BuiltInRegistries.MOB_EFFECT.get(Identifier.parse(effect.id)).map { MobEffectInstance(it, effect.seconds * 20, effect.amplifier) }

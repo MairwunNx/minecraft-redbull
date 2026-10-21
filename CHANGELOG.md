@@ -7,6 +7,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 - 🧩 **Red Bull for NeoForge 26.3:** the same 26 cans, recipes, chests, caffeine, wings, and `/redbull` collection as a mod, `redbull-neoforge-1.2.0.jar`. The items are real items with their textures and names built in, so players need no resource pack, and Kotlin ships inside the jar.
 - 🥤 **A caffeine meter** on NeoForge: a row of ten small cans above the hunger bar while there’s caffeine in you, trembling in the jitters and shaking in the crash.
 - ⚙️ NeoForge’s settings live in `config/redbull.toml`: the overdose, the wings, and the loot multipliers, as in Paper’s `config.yml`.
+- 🪽 **Wings are an effect on NeoForge:** a can with wings launches you and gives Wiiings for its seconds, and you glide as with an elytra, wearing nothing. The can crumples as any other, and wings that end mid-flight leave 5 seconds of Slow Falling. The mod’s cans and ingredients sit in their own creative tab.
 - 🧵 **Red Bull for Fabric 26.3:** the same 26 cans, recipes, loot, caffeine, and wings as a mod, `redbull-fabric-1.2.0.jar`. It needs Fabric API and Fabric Language Kotlin, and no resource pack: the textures and the five languages are inside.
 - 🫀 **A caffeine meter beside the hotbar** on Fabric clients: a can with a bar that fills up to the limit, blue while calm, yellow in the jitters, red in the crash.
 - The Fabric mod has no `config.yml` or `/redbull` yet; `/give` hands out any item by its id, like `redbull:original`.
