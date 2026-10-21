@@ -9,8 +9,8 @@ import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Wings
 
 /**
- * A real client in a fresh world, with cans and bottles in the hotbar and caffeine in the jitters: the caffeine
- * meter reaches the client and draws beside the hotbar, and Wings show their icon on the HUD and in the inventory.
+ * A real client in a fresh world, with cans and bottles in the hotbar and caffeine in the jitters: Caffeine II and
+ * Wings reach the client and show their icons on the HUD and in the inventory.
  * `./gradlew :fabric:runClientGameTest` opens a game window and saves the screenshots in
  * `fabric/build/run/clientGameTest/screenshots`.
  */
@@ -25,8 +25,8 @@ class RedBullClientGameTest : FabricClientGameTest {
         Caffeines.set(player, Caffeine(60.0, Caffeines.clock(player)))
       }
       context.waitTicks(20)
-      val level = context.computeOnClient<Double?, RuntimeException> { it.player?.getAttached(Caffeines.CAFFEINE)?.level }
-      check(level != null && level > 55.0) { "the client sees caffeine $level" }
+      val level = context.computeOnClient<Int?, RuntimeException> { it.player?.getEffect(Caffeines.EFFECT)?.amplifier }
+      check(level == 1) { "the client sees Caffeine at level $level, not II" }
       context.takeScreenshot("redbull-hud")
 
       // Wings reach the client too, which asks them whether its player may glide: the icon shows with the others.

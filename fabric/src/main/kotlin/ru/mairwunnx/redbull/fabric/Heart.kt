@@ -13,8 +13,8 @@ import java.util.UUID
 
 /**
  * What a player feels as caffeine builds up. In the jitters they get hungry faster and hear their heart now and
- * then; in the crash stage it pounds, and the action bar warns that one more can could be the last. It also writes
- * back what wore off, so the HUD meter of each caffeinated player follows within two seconds.
+ * then; in the crash stage it pounds, and the action bar warns that one more can could be the last. It also keeps
+ * the Caffeine effect in line, should milk or a command have taken it.
  */
 object Heart {
   private val stages = mutableMapOf<UUID, Stage>()
@@ -26,7 +26,7 @@ object Heart {
     ticks++
     for (player in server.playerList.players) {
       val caffeine = Caffeines.now(player)
-      if ((player.getAttached(Caffeines.CAFFEINE)?.level ?: 0.0) > 0.0) Caffeines.set(player, caffeine)
+      Caffeines.refresh(player)
       val stage = caffeine.stage(Caffeines.rules)
       val before = stages.put(player.uuid, stage) ?: Stage.CALM
       if (stage > before) warn(player, stage)

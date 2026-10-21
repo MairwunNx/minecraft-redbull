@@ -180,6 +180,40 @@ class RedBullGameTests {
     helper.succeed()
   }
 
+  /** The Caffeine effect follows the cans: a level per stage, and as long as the caffeine takes to wear off. */
+  @GameTest
+  fun caffeineShowsAsAnEffect(helper: GameTestHelper) {
+    val player = player(helper)
+    // 30 points a can, a point every 6 seconds: 3 minutes a can.
+    listOf("original", "sugarfree", "zero").forEachIndexed { index, id ->
+      drink(player, can(id))
+      val shown = player.getEffect(Caffeines.EFFECT)
+      equal(helper, shown?.amplifier, index, "the level after ${index + 1} cans")
+      equal(helper, shown?.duration, (index + 1) * 3 * 60 * 20, "the duration after ${index + 1} cans")
+      helper.assertTrue(shown?.isVisible == false && shown.showIcon(), "an icon and no particles")
+    }
+    Caffeines.reset(player)
+    helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "the effect without caffeine")
+    helper.succeed()
+  }
+
+  /** Milk takes 20 caffeine and every effect; the effect comes back for what's left, and after `/effect clear` too. */
+  @GameTest(maxTicks = 100)
+  fun caffeineComesBackAfterMilk(helper: GameTestHelper) {
+    val player = player(helper)
+    drink(player, can("original"))
+    drink(player, Items.MILK_BUCKET)
+    helper.runAfterDelay(2) {
+      equal(helper, caffeine(player), 10.0, "caffeine after milk")
+      val shown = player.getEffect(Caffeines.EFFECT)
+      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
+      player.removeAllEffects()
+      helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
+      // The heart beats every two seconds and puts the effect back.
+      helper.succeedWhen { equal(helper, player.getEffect(Caffeines.EFFECT)?.amplifier, 0, "Caffeine after the next beat") }
+    }
+  }
+
   @GameTest
   fun oneCanTooManyKills(helper: GameTestHelper) {
     val player = player(helper)

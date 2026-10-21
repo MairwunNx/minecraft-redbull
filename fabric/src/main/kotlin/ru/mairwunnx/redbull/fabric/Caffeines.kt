@@ -3,22 +3,35 @@ package ru.mairwunnx.redbull.fabric
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
-import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
-import net.minecraft.network.codec.ByteBufCodecs
-import net.minecraft.network.codec.StreamCodec
+import net.minecraft.core.Holder
+import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.stats.Stats
+import net.minecraft.world.effect.MobEffect
+import net.minecraft.world.effect.MobEffectCategory
+import net.minecraft.world.effect.MobEffectInstance
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.core.Rules
+import ru.mairwunnx.redbull.core.effectLevel
+import ru.mairwunnx.redbull.core.secondsLeft
+import ru.mairwunnx.redbull.core.sleepless
 
 /**
  * A player's caffeine lives in a data attachment: the level and the play-time tick it was measured at. It's saved
- * with the player and synced to them alone, for the HUD meter. Death drops it, since the attachment isn't copied to
- * the respawned player. The clock is ticks played, so caffeine waits while they're away.
+ * with the player. Death drops it, since the attachment isn't copied to the respawned player. The clock is ticks
+ * played, so caffeine waits while they're away.
+ *
+ * The `redbull:caffeine` effect shows it: Caffeine I calm, II in the jitters, III in the crash, for as long as the
+ * caffeine takes to wear off. It only shows; everything else reads the attachment. Milk or `/effect clear` may take
+ * the effect off, and the next [refresh] puts it back.
  */
 object Caffeines {
   val rules = Rules()
+
+  /** Coffee brown. */
+  private const val COLOR = 0x6F4E37
 
   private val CODEC: Codec<Caffeine> = RecordCodecBuilder.create { instance ->
     instance.group(
@@ -27,15 +40,11 @@ object Caffeines {
     ).apply(instance, ::Caffeine)
   }
 
-  private val STREAM_CODEC: StreamCodec<io.netty.buffer.ByteBuf, Caffeine> = StreamCodec.composite(
-    ByteBufCodecs.DOUBLE, Caffeine::level,
-    ByteBufCodecs.VAR_LONG, Caffeine::at,
-    ::Caffeine,
-  )
+  val CAFFEINE: AttachmentType<Caffeine> = AttachmentRegistry.create(RedBullItems.id("caffeine")) { it.persistent(CODEC) }
 
-  val CAFFEINE: AttachmentType<Caffeine> = AttachmentRegistry.create(RedBullItems.id("caffeine")) {
-    it.persistent(CODEC).syncWith(STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
-  }
+  val EFFECT: Holder<MobEffect> = Registry.registerForHolder(
+    BuiltInRegistries.MOB_EFFECT, RedBullItems.id("caffeine"), object : MobEffect(MobEffectCategory.NEUTRAL, COLOR) {},
+  )
 
   fun clock(player: ServerPlayer): Long = player.stats.getValue(Stats.CUSTOM, Stats.PLAY_TIME).toLong()
 
@@ -43,9 +52,29 @@ object Caffeines {
   fun now(player: ServerPlayer): Caffeine =
     (player.getAttached(CAFFEINE) ?: Caffeine()).now(clock(player), rules)
 
+  /** Writes [caffeine] as of now and shows it. */
   fun set(player: ServerPlayer, caffeine: Caffeine) {
-    player.setAttached(CAFFEINE, caffeine)
+    player.setAttached(CAFFEINE, caffeine.now(clock(player), rules))
+    refresh(player)
   }
 
   fun reset(player: ServerPlayer) = set(player, Caffeine(0.0, clock(player)))
+
+  /**
+   * Puts the effect in line with the caffeine: its level and the time left, or no effect at all without caffeine.
+   * It replaces the effect outright, since the game's own merge never lowers a level or shortens a duration.
+   */
+  fun refresh(player: ServerPlayer) {
+    val caffeine = now(player)
+    if (!caffeine.sleepless()) {
+      if (player.hasEffect(EFFECT)) player.removeEffect(EFFECT)
+      return
+    }
+    val level = caffeine.effectLevel(rules)
+    val ticks = caffeine.secondsLeft(rules) * 20
+    val shown = player.getEffect(EFFECT)
+    // The effect counts down as caffeine wears off, so a beat changes nothing but the second it rounds to.
+    if (shown != null && shown.amplifier == level && kotlin.math.abs(shown.duration - ticks) <= 20) return
+    player.forceAddEffect(MobEffectInstance(EFFECT, ticks, level, false, false, true), null)
+  }
 }

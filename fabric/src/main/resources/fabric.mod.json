@@ -14,8 +14,7 @@
   "icon": "assets/redbull/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.RedBullMod" }],
-    "client": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.client.RedBullClient" }]
+    "main": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.RedBullMod" }]
   },
   "mixins": ["redbull.mixins.json"],
   "depends": {

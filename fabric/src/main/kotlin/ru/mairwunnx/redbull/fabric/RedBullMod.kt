@@ -20,6 +20,7 @@ object RedBullMod : ModInitializer {
     Settings.load()
     RedBullItems.init()
     Caffeines.CAFFEINE
+    Caffeines.EFFECT
     Loot.init()
     Wings.init()
     Collected.init()
