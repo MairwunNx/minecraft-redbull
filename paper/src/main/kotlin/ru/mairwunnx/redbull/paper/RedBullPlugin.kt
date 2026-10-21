@@ -21,7 +21,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
 
     val wings = Wings(this)
     val heart = Heart(this)
-    listOf(this, Drinks(this), wings).forEach { server.pluginManager.registerEvents(it, this) }
+    listOf(this, Drinks(this), wings, Loot(this)).forEach { server.pluginManager.registerEvents(it, this) }
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
 
