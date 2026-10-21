@@ -12,6 +12,9 @@ val core = project(":core")
 evaluationDependsOn(core.path)
 val coreMain: SourceSet = core.sourceSets.main.get()
 
+// `data`: writes the recipes from core's cans as the game's JSON; see Recipes.kt there.
+val data: SourceSet = sourceSets.create("data")
+
 neoForge {
   version = neoforgeVersion
 
@@ -39,12 +42,25 @@ neoForge {
 dependencies {
   // core's classes go into the jar itself (see tasks.jar), so it isn't a library at runtime.
   compileOnly(project(":core"))
+  "dataImplementation"(project(":core"))
   // Kotlin ships inside the jar, so players need no Kotlin mod; NeoForge picks the newest copy if another mod has one.
   jarJar("org.jetbrains.kotlin:kotlin-stdlib:${getKotlinPluginVersion()}") { isTransitive = false }
 }
 
 kotlin {
   jvmToolchain(25)
+}
+
+val generateData by tasks.registering(JavaExec::class) {
+  val out = layout.buildDirectory.dir("generated/data")
+  classpath = data.runtimeClasspath
+  mainClass = "ru.mairwunnx.redbull.neoforge.data.RecipesKt"
+  outputs.dir(out)
+  argumentProviders += CommandLineArgumentProvider { listOf(out.get().asFile.absolutePath) }
+}
+
+sourceSets.main {
+  resources.srcDir(generateData)
 }
 
 tasks.processResources {

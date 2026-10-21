@@ -2,6 +2,8 @@ package ru.mairwunnx.redbull.neoforge
 
 import com.mojang.logging.LogUtils
 import net.minecraft.resources.Identifier
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.crafting.RecipeType
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.Event
 import net.neoforged.bus.api.IEventBus
@@ -9,6 +11,7 @@ import net.neoforged.fml.ModContainer
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.config.ModConfig
 import net.neoforged.neoforge.common.NeoForge
+import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import org.slf4j.Logger
 import ru.mairwunnx.redbull.core.CANS
@@ -31,7 +34,17 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
     Items.register(modBus)
 
     val bus = NeoForge.EVENT_BUS
-    bus.on<ServerStartedEvent> { LOGGER.info("Red Bull is on: {} cans, {} items", CANS.size, Items.all.size) }
+    // Players find every crafting recipe in their recipe book.
+    bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->
+      val player = event.entity as? ServerPlayer ?: return@on
+      player.awardRecipes(player.level().server.recipeManager.recipes.filter {
+        it.id().identifier().namespace == MOD_ID && it.value().type == RecipeType.CRAFTING
+      })
+    }
+    bus.on<ServerStartedEvent> { event ->
+      val recipes = event.server.recipeManager.recipes.count { it.id().identifier().namespace == MOD_ID }
+      LOGGER.info("Red Bull is on: {} cans, {} items, {} recipes", CANS.size, Items.all.size, recipes)
+    }
   }
 
   companion object {
