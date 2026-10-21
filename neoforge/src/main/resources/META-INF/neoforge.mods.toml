@@ -1,0 +1,27 @@
+license = "MIT"
+issueTrackerURL = "https://github.com/MairwunNx/minecraft-redbull/issues"
+
+[[mods]]
+modId = "redbull"
+version = "${version}"
+displayName = "Red Bull"
+displayURL = "https://github.com/MairwunNx/minecraft-redbull"
+iconFile = "redbull.png"
+authors = "MairwunNx"
+description = '''
+26 real Red Bull cans in survival: bull bile from cows brews into crude taurine, a furnace evaporates it into taurine, and a crafting table fills a can. Cans with wings let you glide; caffeine builds up, and above 100 the heart gives out.
+'''
+
+[[dependencies.redbull]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.redbull]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${minecraft}]"
+ordering = "NONE"
+side = "BOTH"
