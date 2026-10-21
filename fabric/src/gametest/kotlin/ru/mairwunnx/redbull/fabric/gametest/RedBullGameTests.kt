@@ -16,7 +16,13 @@ import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.inventory.ContainerInput
+import net.minecraft.server.players.NameAndId
+import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.Item
@@ -41,7 +47,12 @@ import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.fabric.Caffeines
+import ru.mairwunnx.redbull.fabric.Collected
+import ru.mairwunnx.redbull.fabric.Menu
 import ru.mairwunnx.redbull.fabric.RedBullItems
+import ru.mairwunnx.redbull.fabric.Settings
+import ru.mairwunnx.redbull.fabric.Wings
+import java.util.Optional
 import java.util.UUID
 
 /** What a player does with Red Bull on a real server: drink, craft, brew, smelt, and find. */
@@ -54,12 +65,12 @@ class RedBullGameTests {
   }
 
   /**
-   * A survival player on an embedded connection. The game's own mock player is always in creative, where nothing
+   * A survival player on an embedded connection, with a name of their own for commands. The game's own mock player is always in creative, where nothing
    * is used up and caffeine can't kill; and the game protects a player whose client is still loading from all harm.
    */
   private fun player(helper: GameTestHelper): ServerPlayer {
     val server = helper.level.server
-    val cookie = CommonListenerCookie.createInitial(GameProfile(UUID.randomUUID(), "test-player"), false)
+    val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
     val player = ServerPlayer(server, helper.level, cookie.gameProfile(), cookie.clientInformation())
     val connection = Connection(PacketFlow.SERVERBOUND)
     EmbeddedChannel(connection)
@@ -87,25 +98,76 @@ class RedBullGameTests {
   }
 
   @GameTest
-  fun wingsLaunchAndLeaveAWingedCan(helper: GameTestHelper) {
+  fun wingsLaunchAndLeaveTheCrumpledCan(helper: GameTestHelper) {
     val player = player(helper)
     val left = drink(player, can("original"))
-    equal(helper, left.item, RedBullItems.wingedCan, "what a can with wings leaves")
-    equal(helper, left.get(DataComponents.MAX_DAMAGE), 9, "eight seconds of flight and the last point")
-    equal(helper, left.get(RedBullItems.FLAVOUR), "original", "the flavour to crumple into")
+    equal(helper, left.item, RedBullItems.crumpled.getValue("original"), "what a can with wings leaves")
+    equal(helper, player.getEffect(Wings.WINGS)?.duration, 8 * 20, "eight seconds of Wings")
     helper.assertTrue(player.deltaMovement.y > 0.5, "the launch")
+    helper.assertFalse(BuiltInRegistries.ITEM.containsKey(RedBullItems.id("winged_can")), "no winged can left")
     helper.succeed()
   }
 
+  /** A player in the air, as one who jumped off a cliff. */
+  private fun airborne(helper: GameTestHelper): ServerPlayer = player(helper).apply {
+    val above = helper.absoluteVec(Vec3(1.5, 40.0, 1.5))
+    teleportTo(above.x, above.y, above.z)
+    setOnGround(false)
+  }
+
   @GameTest
-  fun spentWingedCanCrumples(helper: GameTestHelper) {
-    val player = player(helper)
-    val winged = RedBullItems.wingedCan(CANS.first { it.id == "cherry" }, System.currentTimeMillis() - 1)
-    player.inventory.setItem(3, winged)
-    // A mock player has no client to tick it; a real one ticks its inventory every tick.
-    helper.onEachTick(player::doTick)
+  fun wingsLetPlayersGlide(helper: GameTestHelper) {
+    val player = airborne(helper)
+    helper.assertFalse(player.tryToStartFallFlying(), "gliding without an elytra or Wings")
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding on Wings")
+    helper.assertTrue(player.isFallFlying, "in flight")
+    helper.succeed()
+  }
+
+  /** The game wears a glider every second of flight; Wings take an elytra's place, so it keeps every point. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsWearsNothing(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    var ticks = 0
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+      ticks++
+    }
     helper.succeedWhen {
-      equal(helper, player.inventory.getItem(3).item, RedBullItems.crumpled.getValue("cherry"), "slot 3")
+      helper.assertTrue(ticks >= 60, "three seconds of flight")
+      helper.assertTrue(player.isFallFlying, "still gliding after $ticks ticks")
+      equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
+    }
+  }
+
+  @GameTest(maxTicks = 100)
+  fun wingsRunningOutMidFlightSlowTheFall(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    helper.onEachTick {
+      player.setOnGround(false)
+      player.doTick()
+    }
+    helper.succeedWhen {
+      helper.assertFalse(player.hasEffect(Wings.WINGS), "Wings ran out")
+      equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "five seconds of Slow Falling")
+    }
+  }
+
+  @GameTest
+  fun wingsTakenAwayOnTheGroundLeaveNothing(helper: GameTestHelper) {
+    val player = player(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    player.removeEffect(Wings.WINGS)
+    helper.runAfterDelay(2) {
+      helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling without a flight")
+      helper.succeed()
     }
   }
 
@@ -126,6 +188,29 @@ class RedBullGameTests {
     Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
     drink(player, can("red"))
     helper.succeedWhen { helper.assertTrue(player.isDeadOrDying, "the overdose, totem or not") }
+  }
+
+  /** The switches of `config/redbull.toml`; the test puts the defaults back before anything else drinks. */
+  @GameTest
+  fun settingsSwitchTheOverdoseOff(helper: GameTestHelper) {
+    try {
+      Settings.read("overdose = false # nobody dies\nwings = off\n\n[loot]\nbile = 2.5\nchests = 500\n")
+      equal(helper, Settings.wings, true, "a switch set to nonsense")
+      equal(helper, Settings.bile, 2.5, "loot.bile")
+      equal(helper, Settings.chests, 1.0, "loot.chests out of range")
+      val player = player(helper)
+      Caffeines.set(player, Caffeine(80.0, Caffeines.clock(player)))
+      drink(player, can("red"))
+      equal(helper, caffeine(player), Caffeines.rules.limit, "caffeine past the limit without the overdose")
+      Settings.read("wings = false")
+      val other = player(helper)
+      drink(other, can("original"))
+      helper.assertFalse(other.hasEffect(Wings.WINGS) || other.deltaMovement.y > 0.5, "wings switched off")
+    } finally {
+      Settings.read("")
+    }
+    equal(helper, Settings.overdose, true, "the default")
+    helper.succeed()
   }
 
   @GameTest
@@ -203,6 +288,85 @@ class RedBullGameTests {
       val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area) { it.item.`is`(RedBullItems.bile) }
       helper.assertTrue(drops.isNotEmpty(), "bull bile at ${Bile.chance(3)} a cow")
     }
+  }
+
+  @GameTest
+  fun cansJoinTheCollectionAsTheyArrive(helper: GameTestHelper) {
+    val player = player(helper)
+    drink(player, can("sea_blue"))
+    ItemStack(can("cherry")).onCraftedBy(player, 1)
+    val dropped = ItemEntity(helper.level, player.x, player.y, player.z, ItemStack(can("summer")))
+    dropped.setNoPickUpDelay()
+    helper.level.addFreshEntity(dropped)
+    dropped.playerTouch(player)
+    player.inventory.setItem(20, ItemStack(can("zero")))
+    player.doCloseContainer()
+    equal(helper, Collected.of(player), setOf("sea_blue", "cherry", "summer", "zero"), "drunk, crafted, picked up, and taken")
+
+    // Death keeps it: the respawned player is a new entity that copies the attachment.
+    val respawned = helper.level.server.playerList.respawn(player, false, Entity.RemovalReason.KILLED)
+    equal(helper, Collected.of(respawned), Collected.of(player), "the collection after death")
+    helper.succeed()
+  }
+
+  @GameTest
+  fun collectionShowsWhatThePlayerHeld(helper: GameTestHelper) {
+    val player = player(helper)
+    Collected.add(player, setOf("cherry"))
+    Menu.open(player)
+    val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no collection menu open")
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    equal(helper, menu.getSlot(cherry).item.item, can("cherry"), "a can the player held")
+    val other = menu.getSlot(if (cherry == 0) 1 else 0).item
+    equal(helper, other.item, RedBullItems.emptyCan, "a can they haven't")
+    equal(helper, other.hoverName.string, "???", "its name")
+    helper.assertTrue(menu.getSlot(27).item.isEmpty, "no ingredients for players")
+
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
+    menu.clicked(cherry, 0, ContainerInput.QUICK_MOVE, player)
+    helper.assertTrue(player.inventory.isEmpty && menu.carried.isEmpty, "nothing to take for players")
+    equal(helper, menu.getSlot(cherry).item.item, can("cherry"), "the can stays")
+    helper.succeed()
+  }
+
+  @GameTest
+  fun adminsTakeFromTheMenu(helper: GameTestHelper) {
+    val player = player(helper)
+    helper.level.server.playerList.op(NameAndId(player.gameProfile), Optional.of(LevelBasedPermissionSet.GAMEMASTER), Optional.of(false))
+    helper.assertTrue(Menu.admin(player), "an operator is an admin")
+    Menu.open(player)
+    val menu = player.containerMenu as? Menu.View ?: throw helper.assertionException("no admin menu open")
+    val cherry = CANS.indexOfFirst { it.id == "cherry" }
+    menu.clicked(cherry, 0, ContainerInput.PICKUP, player)
+    menu.clicked(28, 0, ContainerInput.QUICK_MOVE, player)
+    equal(helper, player.inventory.countItem(can("cherry")), 1, "one can with a click")
+    equal(helper, player.inventory.countItem(RedBullItems.taurine), 64, "a stack of taurine with Shift")
+    helper.assertTrue(menu.carried.isEmpty, "nothing on the cursor")
+    helper.assertTrue("cherry" in Collected.of(player), "a taken can joins the collection")
+    helper.level.server.playerList.deop(NameAndId(player.gameProfile))
+    helper.succeed()
+  }
+
+  @GameTest
+  fun commandsGiveAndShowCaffeine(helper: GameTestHelper) {
+    val player = player(helper)
+    val server = helper.level.server
+    val dispatcher = server.commands.dispatcher
+    val console = server.createCommandSourceStack().withSuppressedOutput()
+    equal(helper, dispatcher.execute("redbull give cherry ${player.plainTextName} 3", console), 3, "the cans given")
+    equal(helper, player.inventory.countItem(can("cherry")), 3, "cherry cans in the inventory")
+    helper.assertTrue("cherry" in Collected.of(player), "a given can joins the collection")
+    equal(helper, dispatcher.execute("redbull give winged_can ${player.plainTextName}", console), 0, "the winged can is gone")
+
+    Caffeines.set(player, Caffeine(42.5, Caffeines.clock(player)))
+    equal(helper, dispatcher.execute("redbull caffeine ${player.plainTextName}", console), 42, "caffeine")
+
+    val own = player.createCommandSourceStack().withSuppressedOutput()
+    val refused = runCatching { dispatcher.execute("redbull give cherry", own) }.isFailure
+    helper.assertTrue(refused, "a player without operator rights gives nothing")
+    equal(helper, dispatcher.execute("redbull", own), 1, "anyone opens the collection")
+    helper.assertTrue(player.containerMenu is Menu.View, "the collection is open")
+    helper.succeed()
   }
 
   /** The test runs wherever the server put it: cans of that biome turn up in its chests, and no other can does. */

@@ -17,9 +17,13 @@ object RedBullMod : ModInitializer {
   private val log = LoggerFactory.getLogger("Red Bull")
 
   override fun onInitialize() {
+    Settings.load()
     RedBullItems.init()
     Caffeines.CAFFEINE
     Loot.init()
+    Wings.init()
+    Collected.init()
+    RedBullCommand.init()
 
     ServerTickEvents.END_SERVER_TICK.register { server ->
       Drinks.tick(server)
@@ -30,6 +34,8 @@ object RedBullMod : ModInitializer {
     // Players find every recipe in their recipe book.
     ServerPlayConnectionEvents.JOIN.register { handler, _, server -> handler.player.awardRecipes(crafting(server)) }
     ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> Drinks.forget(handler.player.uuid) }
+    // `/reload` reads the settings again before the loot tables, which take the multipliers, load anew.
+    ServerLifecycleEvents.START_DATA_PACK_RELOAD.register { _, _ -> Settings.load() }
     ServerLifecycleEvents.SERVER_STARTED.register { server ->
       val version = FabricLoader.getInstance().getModContainer("redbull").map { it.metadata.version.friendlyString }.orElse("dev")
       log.info("Red Bull $version is on: ${CANS.size} cans, ${crafting(server).size} recipes, ${RedBullItems.all.size} items")
