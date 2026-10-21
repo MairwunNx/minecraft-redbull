@@ -1,6 +1,8 @@
 # Red Bull
 
-Я фанат Red Bull — лучших энергетиков в мире. Они дают мне силы и настроение на весь день, поэтому я посвятил им этот плагин.
+<p align="center"><img alt="Red Bull: 26 настоящих банок для Paper, Fabric и NeoForge" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/social-preview.png" width="100%"></p>
+
+Я фанат Red Bull — лучших энергетиков в мире. Они дают мне силы и настроение на весь день, поэтому я посвятил им этот проект.
 
 <p align="center">
   <a href="https://github.com/MairwunNx/minecraft-redbull/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/MairwunNx/minecraft-redbull?label=release"></a>
@@ -18,8 +20,6 @@
 
 [English version](https://github.com/MairwunNx/minecraft-redbull/blob/master/README.md)
 
-<p align="center"><img alt="Все банки Red Bull и ингредиенты в сундуке" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/cans.png" width="704"></p>
-
 [![Играйте на Moonlands: чистая ваниль, сложные мобы, ИИ, приваты. ru.minecraft.mairwunnx.com](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/og-adv-image.ru.png)](https://minecraft.mairwunnx.com)
 
 Red Bull работает на Moonlands — моём сервере со сложным выживанием для друзей. Заходите на `ru.minecraft.mairwunnx.com` из России или на `minecraft.mairwunnx.com` откуда угодно, добудьте желчь и заработайте первую банку.
@@ -34,11 +34,14 @@ Red Bull работает на Moonlands — моём сервере со сло
 - 📖 **Коллекция:** `/redbull` показывает все банки, которые у вас были, и знаки вопроса на месте остальных.
 - 🌍 **Каждый читает на своём языке:** английский, русский, немецкий, испанский и португальский — в ресурс-паке, который плагин отправляет при входе, или внутри модов.
 
-## Как это выглядит
+## Скриншоты
 
-<p align="center"><img alt="Банка Red Bull в руке и хотбар с банками, бутылками, таурином и мятой банкой" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png" width="640"></p>
-<p align="center"><img alt="Инвентарь с эффектами «Кофеин II» и «Крылья»" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png" width="640"></p>
-<p align="center"><img alt="Коллекция /redbull: 8 из 26 банок, остальные со знаками вопроса" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png" width="640"></p>
+| | |
+|:---:|:---:|
+| ![Все банки Red Bull и ингредиенты в сундуке](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/cans.png) | ![Банка в руке и хотбар с банками, бутылками, таурином и мятой банкой](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png) |
+| **Все банки и ингредиенты** | **Банка в руке** |
+| ![Инвентарь с эффектами «Кофеин II» и «Крылья»](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![Коллекция /redbull: 8 из 26 банок, остальные со знаками вопроса](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
+| **Кофеин и крылья в модах** | **Ваша коллекция, `/redbull`** |
 
 ## Как сделать банку
 

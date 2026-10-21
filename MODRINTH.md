@@ -1,10 +1,10 @@
 # Red Bull
 
-I’m a fan of Red Bull—the best energy drinks in the world. They give me energy and a good mood for the whole day, so I dedicated this plugin to them.
+<p align="center"><img alt="Red Bull: 26 real cans for Paper, Fabric, and NeoForge" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/social-preview.png" width="100%"></p>
+
+I’m a fan of Red Bull—the best energy drinks in the world. They give me energy and a good mood for the whole day, so I dedicated this project to them.
 
 🥫 **Red Bull** brings 26 real cans into survival, as a plugin for Paper servers or a mod for Fabric and NeoForge. You brew taurine from bull bile, fill cans at a crafting table, hunt the rarest editions in chests, and fly on their wiiings. Four cans too fast, and your heart gives out.
-
-<p align="center"><img alt="Every Red Bull can and ingredient in a chest" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/cans.png" width="704"></p>
 
 ## What you get
 
@@ -16,11 +16,14 @@ I’m a fan of Red Bull—the best energy drinks in the world. They give me ener
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
 
-## How it looks
+## Screenshots
 
-<p align="center"><img alt="A Red Bull can in hand, and a hotbar of cans, bottles, taurine, and a crumpled can" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png" width="640"></p>
-<p align="center"><img alt="The inventory with the Caffeine II and Wiiings effects" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png" width="640"></p>
-<p align="center"><img alt="The /redbull collection: 8 of 26 cans, the rest question marks" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png" width="640"></p>
+| | |
+|:---:|:---:|
+| ![Every Red Bull can and ingredient in a chest](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/cans.png) | ![A can in hand, and a hotbar of cans, bottles, taurine, and a crumpled can](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/world.png) |
+| **Every can and ingredient** | **A can in hand** |
+| ![The inventory with the Caffeine II and Wiiings effects](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![The /redbull collection: 8 of 26 cans, the rest question marks](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
+| **Caffeine and Wiiings, in the mods** | **Your collection, `/redbull`** |
 
 ## How to make a can
 
