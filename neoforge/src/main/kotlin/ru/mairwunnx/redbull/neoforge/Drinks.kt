@@ -77,7 +77,7 @@ object Drinks {
         val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
         if (!caffeine(player, drink)) return
         if (drink.stage == Stage.CRASH) crashLater(player, can)
-        if (Settings.wings.get() && can.wings > 0) wings(event, player, can)
+        if (Settings.wings.get() && can.wings > 0) wings(player, can)
       }
     }
   }
@@ -106,9 +106,9 @@ object Drinks {
     }
   }
 
-  private fun wings(event: LivingEntityUseItemEvent.Finish, player: ServerPlayer, can: Can) {
-    event.resultStack = Items.wingedCan(can)
-    Wings.watch(player)
+  /** Up into the air, with the Wings effect to glide on; the can still crumples as any other. */
+  private fun wings(player: ServerPlayer, can: Can) {
+    Wings.give(player, can.wings)
     player.setDeltaMovement(player.deltaMovement.x, 0.9, player.deltaMovement.z)
     // The client moves its own player; tell it about the push.
     player.connection.send(ClientboundSetEntityMotionPacket(player))

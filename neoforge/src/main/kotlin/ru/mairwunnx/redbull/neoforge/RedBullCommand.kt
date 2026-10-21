@@ -13,7 +13,6 @@ import net.minecraft.util.Prediction
 import net.minecraft.world.item.ItemStack
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.event.RegisterCommandsEvent
-import ru.mairwunnx.redbull.core.Ids
 import java.util.Locale
 
 /**
@@ -51,10 +50,9 @@ object RedBullCommand {
     }
   }
 
-  /** An item handed to a player outside the game's own ways: it joins their collection, and a winged can is watched. */
+  /** An item handed to a player outside the game's own ways: it joins their collection. */
   fun hand(player: ServerPlayer, item: ItemStack) {
     Collected.record(player, listOf(item))
-    if (Items.id(item) == Ids.WINGED_CAN) Wings.watch(player)
     val stack = item.copy()
     player.inventory.add(stack)
     if (!stack.isEmpty) player.drop(stack, false, Prediction.SERVER_ONLY)

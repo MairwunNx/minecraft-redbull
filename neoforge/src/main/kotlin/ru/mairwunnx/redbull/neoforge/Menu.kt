@@ -26,7 +26,7 @@ import ru.mairwunnx.redbull.core.Ids
  */
 object Menu {
   private const val ROWS = 4
-  private val EXTRAS = listOf(Ids.EMPTY_CAN, Ids.WINGED_CAN, Ids.TAURINE, Ids.BULL_BILE, Ids.CRUDE_TAURINE)
+  private val EXTRAS = listOf(Ids.EMPTY_CAN, Ids.TAURINE, Ids.BULL_BILE, Ids.CRUDE_TAURINE)
 
   fun admin(player: ServerPlayer) = player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
 
@@ -56,7 +56,6 @@ object Menu {
     override fun clicked(slotIndex: Int, buttonNum: Int, containerInput: ContainerInput, player: Player) {
       if (!admin || player !is ServerPlayer || slotIndex !in 0 until menu.containerSize) return
       val shown = menu.getItem(slotIndex).takeUnless { it.isEmpty } ?: return
-      // A fresh item, not the shown one: a winged can's minute starts when it's taken.
       val taken = Items.id(shown)?.let(Items::create) ?: return
       taken.count = if (containerInput == ContainerInput.QUICK_MOVE) taken.maxStackSize else 1
       RedBullCommand.hand(player, taken)

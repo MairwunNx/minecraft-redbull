@@ -3,7 +3,7 @@ package ru.mairwunnx.redbull.neoforge.test
 import com.mojang.authlib.GameProfile
 import io.netty.channel.embedded.EmbeddedChannel
 import net.minecraft.core.BlockPos
-import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.Connection
@@ -11,6 +11,8 @@ import net.minecraft.network.protocol.PacketFlow
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.InteractionHand
+import net.minecraft.resources.Identifier
+import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
@@ -25,6 +27,7 @@ import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
 import ru.mairwunnx.redbull.neoforge.Settings
+import ru.mairwunnx.redbull.neoforge.Wings
 import java.util.UUID
 import java.util.function.Consumer
 import net.minecraft.world.item.Items as Vanilla
@@ -40,6 +43,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("drinks") { -> Consumer(::drinks) }
     functions.register("bottles") { -> Consumer(::bottles) }
     functions.register("wings") { -> Consumer(::wings) }
+    functions.register("landing") { -> Consumer(::landing) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register(modBus)
   }
@@ -49,6 +53,13 @@ class RedBullTests(modBus: IEventBus) {
     helper.level.server, helper.level, GameProfile(UUID.randomUUID(), "redbull-test"),
     net.minecraft.server.level.ClientInformation.createDefault(),
   ) {
+    /** Up in the air above the test's floor, where a jump would spread an elytra. */
+    fun fly(helper: GameTestHelper) {
+      val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(1.5, 10.0, 1.5))
+      teleportTo(at.x, at.y, at.z)
+      setOnGround(false)
+    }
+
     /** Drinks [stack] to the end, as holding the use key would. */
     fun drink(stack: ItemStack) {
       setItemInHand(InteractionHand.MAIN_HAND, stack)
@@ -80,10 +91,10 @@ class RedBullTests(modBus: IEventBus) {
     player.drink(Items.can(can("original")!!))
     helper.assertTrue(level(player) == 30.0, "a can adds 30 caffeine, not ${level(player)}")
     helper.assertTrue(player.hasEffect(MobEffects.SPEED), "the original gives Speed")
-    val winged = player.mainHandItem
-    helper.assertTrue(Items.id(winged) == Ids.WINGED_CAN, "the original leaves a winged can, not $winged")
-    helper.assertTrue(winged.get(DataComponents.MAX_DAMAGE) == 9, "eight seconds of wings")
-    helper.assertTrue(winged.has(DataComponents.GLIDER), "the winged can glides")
+    helper.assertTrue(Items.id(player.mainHandItem) == "crumpled_original", "a can with wings leaves a crumpled can, not ${player.mainHandItem}")
+    helper.assertTrue(player.getEffect(Wings.EFFECT)?.duration == 8 * 20, "the original gives eight seconds of wings")
+    helper.assertTrue(Items.create(Ids.WINGED_CAN) == null, "no winged can is left")
+    helper.assertTrue(!BuiltInRegistries.ITEM.containsKey(Identifier.fromNamespaceAndPath("redbull", Ids.WINGED_CAN)), "no winged can is registered")
 
     player.drink(Items.can(can("sugarfree")!!))
     player.drink(Items.can(can("zero")!!))
@@ -115,12 +126,27 @@ class RedBullTests(modBus: IEventBus) {
 
   private fun wings(helper: GameTestHelper) {
     val player = Survivor.join(helper)
+    player.fly(helper)
+    helper.assertTrue(!player.tryToStartFallFlying(), "no gliding without an elytra or wings")
     player.drink(Items.can(can("cherry")!!))
-    helper.assertTrue(Items.id(player.mainHandItem) == Ids.WINGED_CAN, "cherry has wings")
-    // Its grace runs out now; the next sweep crumples it into a crumpled cherry can.
-    player.mainHandItem.set(Items.EXPIRES.get(), 0L)
-    helper.runAfterDelay(25) {
-      helper.assertTrue(Items.id(player.mainHandItem) == "crumpled_cherry", "a spent winged can crumples, not ${player.mainHandItem}")
+    helper.assertTrue(player.hasEffect(Wings.EFFECT), "cherry has wings")
+    player.fly(helper)
+    helper.assertTrue(player.tryToStartFallFlying() && player.isFallFlying, "wings glide without an elytra")
+    helper.assertTrue(player.inventory.none { it.isDamaged }, "gliding on wings wears nothing")
+    helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  /** Wings that end mid-glide leave Slow Falling. The fake player has no client to tick it, so the test does. */
+  private fun landing(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    player.fly(helper)
+    player.forceAddEffect(MobEffectInstance(Wings.EFFECT, 3), null)
+    helper.assertTrue(player.tryToStartFallFlying(), "wings glide")
+    helper.onEachTick { if (!player.isRemoved) player.doTick() }
+    helper.runAfterDelay(10) {
+      helper.assertTrue(!player.hasEffect(Wings.EFFECT), "the wings are over")
+      helper.assertTrue(player.getEffect(MobEffects.SLOW_FALLING)?.duration in 80..100, "wings that end mid-glide leave Slow Falling")
       helper.level.server.playerList.remove(player)
       helper.succeed()
     }

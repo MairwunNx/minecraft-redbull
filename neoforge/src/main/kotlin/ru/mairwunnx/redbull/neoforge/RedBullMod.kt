@@ -33,6 +33,7 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
   init {
     container.registerConfig(ModConfig.Type.LOCAL, Settings.SPEC, "$MOD_ID.toml")
     Items.register(modBus)
+    Wings.register(modBus)
     Caffeines.register(modBus)
     Collected.register(modBus)
     Loot.register(modBus)

@@ -1,75 +1,67 @@
 package ru.mairwunnx.redbull.neoforge
 
 import net.minecraft.ChatFormatting
-import net.minecraft.core.component.DataComponents
+import net.minecraft.core.Holder
+import net.minecraft.core.registries.Registries
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
+import net.minecraft.world.effect.MobEffect
+import net.minecraft.world.effect.MobEffectCategory
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.neoforged.bus.api.IEventBus
-import net.neoforged.neoforge.event.entity.player.PlayerEvent
-import net.neoforged.neoforge.event.tick.ServerTickEvent
-import java.util.UUID
+import net.neoforged.neoforge.common.NeoForgeMod
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent
+import net.neoforged.neoforge.registries.DeferredHolder
+import net.neoforged.neoforge.registries.DeferredRegister
 
 /**
- * A winged can is spent once its flight wore it down to the last point, or once its grace ran out.
- * A spent can crumples into its flavour's crumpled can, but never under a player still in the air on it.
- * Only players holding a winged can are looked at, so a crowd without wings costs nothing.
+ * `redbull:wings`, the effect a can with wings gives: the player glides as with an elytra, and no item wears.
+ * The effect switches on NeoForge's `gliding_flight` attribute, which `LivingEntity.canGlide` checks on the
+ * server and on the client. Wings that run out mid-flight leave a few seconds of Slow Falling to land with.
  */
 object Wings {
-  /** Watched players, and whether each was gliding a tick ago. */
-  private val watched = mutableMapOf<UUID, Boolean>()
-  private var ticks = 0
+  private const val COLOR = 0x8FD8FF
+  private const val LANDING_TICKS = 5 * 20
 
-  fun watch(player: ServerPlayer) {
-    watched.putIfAbsent(player.uuid, player.isFallFlying)
+  private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
+
+  val EFFECT: DeferredHolder<MobEffect, MobEffect> = EFFECTS.register("wings") { ->
+    object : MobEffect(MobEffectCategory.BENEFICIAL, COLOR) {}
+      .addAttributeModifier(NeoForgeMod.GLIDING_FLIGHT, id("wings"), 1.0, AttributeModifier.Operation.ADD_VALUE)
+  }
+
+  fun register(bus: IEventBus) = EFFECTS.register(bus)
+
+  /** Wings for [seconds]; a longer flight already under way stays. */
+  fun give(player: ServerPlayer, seconds: Int) {
+    player.addEffect(MobEffectInstance(EFFECT, seconds * 20))
   }
 
   fun listen(bus: IEventBus) {
-    bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->
+    bus.on<MobEffectEvent.Expired> { event ->
       val player = event.entity as? ServerPlayer ?: return@on
-      if (player.inventory.any { Items.id(it) == ru.mairwunnx.redbull.core.Ids.WINGED_CAN }) watch(player)
-    }
-    bus.on<PlayerEvent.PlayerLoggedOutEvent> { watched -= it.entity.uuid }
-    bus.on<ServerTickEvent.Post> { event -> tick(event) }
-  }
-
-  /** Every second, and the tick a watched player lands: crumple spent cans, forget players who have none left. */
-  private fun tick(event: ServerTickEvent.Post) {
-    if (watched.isEmpty()) return
-    val second = ++ticks % 20 == 0
-    for ((id, wasGliding) in watched.toMap()) {
-      val player = event.server.playerList.getPlayer(id)
-      if (player == null) {
-        watched -= id
-        continue
-      }
-      val gliding = player.isFallFlying
-      watched[id] = gliding
-      if ((second || (wasGliding && !gliding)) && !sweep(player)) watched -= id
-    }
-  }
-
-  /** True while the player still holds a winged can. */
-  private fun sweep(player: ServerPlayer): Boolean {
-    val inventory = player.inventory
-    val now = System.currentTimeMillis()
-    var left = false
-    for (slot in 0 until inventory.containerSize) {
-      val item = inventory.getItem(slot)
-      if (Items.id(item) != ru.mairwunnx.redbull.core.Ids.WINGED_CAN) continue
-      if (player.isFallFlying || !spent(item, now)) {
-        left = true
-        continue
-      }
-      inventory.setItem(slot, Items.crumpled(Items.flavourOf(item)))
+      if (!wings(event.effectInstance?.effect)) return@on
+      land(player)
       player.sendOverlayMessage(Drinks.text("redbull.wings.gone", ChatFormatting.GRAY))
     }
-    return left
+    // Milk, `/effect clear`, and the like.
+    bus.on<MobEffectEvent.Remove> { event ->
+      val player = event.entity as? ServerPlayer ?: return@on
+      if (wings(event.effect) && event.effectInstance != null) land(player)
+    }
   }
 
-  private fun spent(item: ItemStack, now: Long): Boolean {
-    val expires = item.get(Items.EXPIRES.get()) ?: 0L
-    val max = item.get(DataComponents.MAX_DAMAGE) ?: return true
-    val damage = item.get(DataComponents.DAMAGE) ?: 0
-    return damage >= max - 1 || now >= expires
+  private fun wings(effect: Holder<MobEffect>?) = effect != null && effect.value() == EFFECT.get()
+
+  /**
+   * Slow Falling for a player whose wings end in the air. A tick later: the game is still walking the
+   * player's effects when they end, and adding one there would break its loop.
+   */
+  private fun land(player: ServerPlayer) {
+    if (!player.isFallFlying) return
+    Later.run(1) {
+      if (!player.isRemoved && player.isAlive) player.addEffect(MobEffectInstance(MobEffects.SLOW_FALLING, LANDING_TICKS))
+    }
   }
 }
