@@ -4,6 +4,7 @@ plugins {
   id("com.gradleup.shadow") version "9.6.1" apply false
   id("com.modrinth.minotaur") version "2.10.0" apply false
   id("io.papermc.hangar-publish-plugin") version "0.1.4" apply false
+  id("net.neoforged.moddev") version "2.0.148" apply false
 }
 
 allprojects {
