@@ -100,6 +100,7 @@
   "redbull.command.given": "%3$s bekommt %1$s × %2$s.",
   "redbull.command.unknown": "Diesen Gegenstand gibt es nicht: %1$s",
   "death.attack.redbull.overdose": "Das Herz von %1$s gab nach einem Red Bull zu viel auf",
+  "death.attack.redbull.overdose.player": "Das Herz von %1$s gab nach einem Red Bull zu viel auf",
   "redbull.menu.collection": "Red Bull: %1$s von %2$s Dosen",
   "redbull.menu.admin": "Red Bull: klick zum Nehmen, mit Shift ein Stapel",
   "redbull.menu.locked": "Stell diese Dose her oder finde sie, um sie zu sehen.",

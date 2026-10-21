@@ -300,6 +300,21 @@ class RedBullGameTests {
     helper.succeedWhen { helper.assertTrue(player.isDeadOrDying, "the overdose, totem or not") }
   }
 
+  /** Hurt shortly before, a player dies by the game's `.player` message, which needs its own text. */
+  @GameTest
+  fun anOverdoseInAFightHasItsMessage(helper: GameTestHelper) {
+    val player = player(helper)
+    val zombie = helper.spawn(EntityTypes.ZOMBIE, BlockPos(1, 2, 1))
+    player.hurtServer(helper.level, helper.level.damageSources().mobAttack(zombie), 1f)
+    val overdose = helper.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+      .getOrThrow(ResourceKey.create(Registries.DAMAGE_TYPE, RedBullItems.id("overdose")))
+    val message = key(net.minecraft.world.damagesource.DamageSource(overdose).getLocalizedDeathMessage(player))
+    equal(helper, message, "death.attack.redbull.overdose.player", "the death message's key")
+    val english = RedBullGameTests::class.java.getResource("/assets/redbull/lang/en_us.json")!!.readText()
+    helper.assertTrue("\"$message\":" in english, "$message has a text")
+    helper.succeed()
+  }
+
   /** The switches of `config/redbull.toml`; the test puts the defaults back before anything else drinks. */
   @GameTest
   fun settingsSwitchTheOverdoseOff(helper: GameTestHelper) {

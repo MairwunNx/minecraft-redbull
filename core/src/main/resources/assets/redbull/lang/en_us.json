@@ -100,6 +100,7 @@
   "redbull.command.given": "Gave %1$s × %2$s to %3$s.",
   "redbull.command.unknown": "No such item: %1$s",
   "death.attack.redbull.overdose": "%1$s’s heart gave out after one Red Bull too many",
+  "death.attack.redbull.overdose.player": "%1$s’s heart gave out after one Red Bull too many",
   "redbull.menu.collection": "Red Bull: %1$s of %2$s cans",
   "redbull.menu.admin": "Red Bull: click to take, Shift for a stack",
   "redbull.menu.locked": "Craft or find this can to see it.",
