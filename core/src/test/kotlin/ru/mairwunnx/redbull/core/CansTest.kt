@@ -42,4 +42,21 @@ class CansTest {
     effects.filter { it.id == "minecraft:strength" && it.amplifier >= 1 }
       .forEach { assertTrue(it.seconds <= STRENGTH_II, "Strength II lasts ${it.seconds} s") }
   }
+
+  @Test
+  fun `wings last 16, 32, or 64 seconds by the kind of can`() {
+    CANS.filter { it.wings > 0 }.forEach { can ->
+      val expected = when {
+        can.recipe == null -> WINGS_LEGEND
+        can.chests != null -> WINGS_EDITION
+        else -> WINGS_COMMON
+      }
+      assertEquals(expected, can.wings, can.id)
+    }
+  }
+
+  @Test
+  fun `a winged can outlasts its own flight`() {
+    assertTrue(wingedCanExpiry(0, WINGS_LEGEND) > WINGS_LEGEND * 1000L)
+  }
 }

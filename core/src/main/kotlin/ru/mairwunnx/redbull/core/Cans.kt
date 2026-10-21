@@ -63,6 +63,11 @@ const val COMMON = 480
 const val EDITION = 720
 const val LEGEND = 960
 
+/** Seconds of wings by the same three kinds of can; cans for the water and the Nether have none. */
+const val WINGS_COMMON = 16
+const val WINGS_EDITION = 32
+const val WINGS_LEGEND = 64
+
 /** What breaks the game stays short: anything that restores health, and Strength II. */
 const val HEALING = 16
 const val STRENGTH_II = 180
@@ -74,58 +79,58 @@ private fun recipe(flavour: String, dye: String) =
 
 /** Every can, in the order commands and the README list them. */
 val CANS = listOf(
-  Can("original", false, listOf(speed(COMMON, 2), haste(COMMON)), 8, recipe("sugar", "blue"), null),
-  Can("sugarfree", true, listOf(speed(COMMON)), 6, recipe("honeycomb", "light_blue"), null),
-  Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), 8, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
-  Can("red", false, listOf(strength(COMMON)), 8, recipe("melon_slice", "red"), null),
-  Can("red_sugarfree", true, listOf(strength(COMMON)), 6, recipe("melon_slice", "red"), null),
-  Can("pink_sugarfree", true, listOf(effect("regeneration", HEALING)), 6, recipe("sweet_berries", "pink"), null),
+  Can("original", false, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe("sugar", "blue"), null),
+  Can("sugarfree", true, listOf(speed(COMMON)), WINGS_COMMON, recipe("honeycomb", "light_blue"), null),
+  Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
+  Can("red", false, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),
+  Can("red_sugarfree", true, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),
+  Can("pink_sugarfree", true, listOf(effect("regeneration", HEALING)), WINGS_COMMON, recipe("sweet_berries", "pink"), null),
   Can(
-    "green", false, listOf(effect("luck", EDITION), speed(EDITION)), 8, recipe("cactus_flower", "green"),
+    "green", false, listOf(effect("luck", EDITION), speed(EDITION)), WINGS_EDITION, recipe("cactus_flower", "green"),
     chests(0.15, "mangrove_swamp", "swamp", "lush_caves"),
   ),
   Can(
-    "cherry", false, listOf(effect("luck", EDITION), speed(EDITION, 2)), 12, recipe("pink_petals", "red"),
+    "cherry", false, listOf(effect("luck", EDITION), speed(EDITION, 2)), WINGS_EDITION, recipe("pink_petals", "red"),
     chests(0.15, "cherry_grove"),
   ),
   Can(
-    "ice", false, listOf(effect("resistance", EDITION)), 10, recipe("packed_ice", "light_blue"),
+    "ice", false, listOf(effect("resistance", EDITION)), WINGS_EDITION, recipe("packed_ice", "light_blue"),
     chests(0.15, "ice_spikes", "frozen_ocean", "deep_frozen_ocean"),
   ),
   Can(
-    "winter_apple", false, listOf(effect("absorption", EDITION, 2)), 8, recipe("apple", "orange"),
+    "winter_apple", false, listOf(effect("absorption", EDITION, 2)), WINGS_EDITION, recipe("apple", "orange"),
     chests(0.15, "snowy_taiga", "grove"),
   ),
   Can(
-    "winter_pistachio", false, listOf(effect("regeneration", HEALING, 2)), 8, recipe("sweet_berries", "lime"),
+    "winter_pistachio", false, listOf(effect("regeneration", HEALING, 2)), WINGS_EDITION, recipe("sweet_berries", "lime"),
     chests(0.15, "snowy_plains", "snowy_beach"),
   ),
   Can(
-    "yellow", false, listOf(speed(EDITION), effect("jump_boost", EDITION)), 10, recipe("sunflower", "yellow"),
+    "yellow", false, listOf(speed(EDITION), effect("jump_boost", EDITION)), WINGS_EDITION, recipe("sunflower", "yellow"),
     chests(0.15, "desert"),
   ),
   Can(
-    "tropical", false, listOf(effect("jump_boost", EDITION, 2)), 12, recipe("cocoa_beans", "yellow"),
+    "tropical", false, listOf(effect("jump_boost", EDITION, 2)), WINGS_EDITION, recipe("cocoa_beans", "yellow"),
     chests(0.15, "jungle", "sparse_jungle", "bamboo_jungle"),
   ),
   Can(
-    "amber", false, listOf(haste(EDITION, 2)), 8, recipe("sweet_berries", "orange"),
+    "amber", false, listOf(haste(EDITION, 2)), WINGS_EDITION, recipe("sweet_berries", "orange"),
     chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
-    "amber_sugarfree", true, listOf(haste(EDITION)), 6, recipe("sweet_berries", "orange"),
+    "amber_sugarfree", true, listOf(haste(EDITION)), WINGS_EDITION, recipe("sweet_berries", "orange"),
     chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
-    "peach", false, listOf(effect("health_boost", EDITION)), 8, recipe("pink_tulip", "pink"),
+    "peach", false, listOf(effect("health_boost", EDITION)), WINGS_EDITION, recipe("pink_tulip", "pink"),
     chests(0.15, "plains", "sunflower_plains"),
   ),
   Can(
-    "lilac_sugarfree", true, listOf(effect("absorption", EDITION)), 6, recipe("lilac", "magenta"),
+    "lilac_sugarfree", true, listOf(effect("absorption", EDITION)), WINGS_EDITION, recipe("lilac", "magenta"),
     chests(0.15, "forest", "flower_forest", "birch_forest"),
   ),
   Can(
-    "purple", false, listOf(effect("invisibility", EDITION), speed(EDITION)), 8, recipe("chorus_fruit", "purple"),
+    "purple", false, listOf(effect("invisibility", EDITION), speed(EDITION)), WINGS_EDITION, recipe("chorus_fruit", "purple"),
     chests(0.15, "dark_forest", "pale_garden"),
   ),
   Can(
@@ -133,15 +138,15 @@ val CANS = listOf(
     recipe("sea_pickle", "cyan"), chests(0.15, OCEANS),
   ),
   Can(
-    "coconut", false, listOf(effect("saturation", 1), speed(EDITION)), 8, recipe("milk_bucket", "white"),
+    "coconut", false, listOf(effect("saturation", 1), speed(EDITION)), WINGS_EDITION, recipe("milk_bucket", "white"),
     chests(0.15, "beach"),
   ),
   Can(
-    "coconut_sugarfree", true, listOf(effect("water_breathing", EDITION)), 6, recipe("milk_bucket", "white"),
+    "coconut_sugarfree", true, listOf(effect("water_breathing", EDITION)), WINGS_EDITION, recipe("milk_bucket", "white"),
     chests(0.15, "beach"),
   ),
   Can(
-    "blue", false, listOf(effect("night_vision", EDITION), speed(EDITION)), 8, recipe("blue_orchid", "blue"),
+    "blue", false, listOf(effect("night_vision", EDITION), speed(EDITION)), WINGS_EDITION, recipe("blue_orchid", "blue"),
     chests(0.15, "deep_dark"),
   ),
   // The legends: no recipe, only chests in the hardest places.
@@ -149,13 +154,13 @@ val CANS = listOf(
     "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(STRENGTH_II, 2)), 0, null, chests(0.08, NETHER),
   ),
   Can(
-    "summer", false, listOf(speed(LEGEND, 3)), 15, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),
+    "summer", false, listOf(speed(LEGEND, 3)), WINGS_LEGEND, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),
   ),
   Can(
-    "glacier", false, listOf(effect("slow_falling", LEGEND), effect("resistance", LEGEND)), 15, null,
+    "glacier", false, listOf(effect("slow_falling", LEGEND), effect("resistance", LEGEND)), WINGS_LEGEND, null,
     chests(0.05, "frozen_peaks", "jagged_peaks", "snowy_slopes"),
   ),
-  Can("spring", false, listOf(effect("slow_falling", LEGEND)), 30, null, chests(0.03, "cherry_grove")),
+  Can("spring", false, listOf(effect("slow_falling", LEGEND)), WINGS_LEGEND, null, chests(0.03, "cherry_grove")),
 )
 
 fun can(id: String): Can? = CANS.firstOrNull { it.id == id }

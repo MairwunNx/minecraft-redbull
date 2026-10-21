@@ -53,6 +53,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
@@ -132,7 +133,7 @@ class RedBullGameTests {
     val player = player(helper)
     val left = drink(player, can("original"))
     equal(helper, left.item, RedBullItems.crumpled.getValue("original"), "what a can with wings leaves")
-    equal(helper, player.getEffect(Wings.WINGS)?.duration, 8 * 20, "eight seconds of Wings")
+    equal(helper, player.getEffect(Wings.WINGS)?.duration, WINGS_COMMON * 20, "sixteen seconds of Wings")
     helper.assertTrue(player.deltaMovement.y > 0.5, "the launch")
     helper.assertFalse(BuiltInRegistries.ITEM.containsKey(RedBullItems.id("winged_can")), "no winged can left")
     helper.succeed()

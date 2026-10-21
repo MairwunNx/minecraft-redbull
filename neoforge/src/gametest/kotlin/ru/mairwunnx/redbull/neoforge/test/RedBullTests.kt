@@ -38,6 +38,7 @@ import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.can
@@ -134,7 +135,7 @@ class RedBullTests(modBus: IEventBus) {
     helper.assertTrue(level(player) == 30.0, "a can adds 30 caffeine, not ${level(player)}")
     helper.assertTrue(player.hasEffect(MobEffects.SPEED), "the original gives Speed")
     helper.assertTrue(Items.id(player.mainHandItem) == "crumpled_original", "a can with wings leaves a crumpled can, not ${player.mainHandItem}")
-    helper.assertTrue(player.getEffect(Wings.EFFECT)?.duration == 8 * 20, "the original gives eight seconds of wings")
+    helper.assertTrue(player.getEffect(Wings.EFFECT)?.duration == WINGS_COMMON * 20, "the original gives sixteen seconds of wings")
     helper.assertTrue(Items.create(Ids.WINGED_CAN) == null, "no winged can is left")
     helper.assertTrue(!BuiltInRegistries.ITEM.containsKey(Identifier.fromNamespaceAndPath("redbull", Ids.WINGED_CAN)), "no winged can is registered")
 

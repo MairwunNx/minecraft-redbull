@@ -33,7 +33,7 @@ import ru.mairwunnx.redbull.core.Ids.CRUMPLED_CAN
 import ru.mairwunnx.redbull.core.Ids.EMPTY_CAN
 import ru.mairwunnx.redbull.core.Ids.TAURINE
 import ru.mairwunnx.redbull.core.Ids.WINGED_CAN
-import ru.mairwunnx.redbull.core.WINGS_GRACE_MILLIS
+import ru.mairwunnx.redbull.core.wingedCanExpiry
 import ru.mairwunnx.redbull.core.can
 
 /**
@@ -58,7 +58,7 @@ object Items {
   /** Any of our items by id: a can, a bottle, taurine, or a can's leftovers. */
   fun create(id: String): ItemStack? = when (id) {
     EMPTY_CAN -> emptyCan()
-    WINGED_CAN -> wingedCan(8, System.currentTimeMillis() + WINGS_GRACE_MILLIS, CANS.first())
+    WINGED_CAN -> CANS.first().let { wingedCan(it.wings, wingedCanExpiry(System.currentTimeMillis(), it.wings), it) }
     CRUMPLED_CAN -> crumpledCan(CANS.first())
     BULL_BILE -> bile()
     CRUDE_TAURINE -> crudeTaurine()

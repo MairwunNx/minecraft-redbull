@@ -19,7 +19,7 @@ import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.Stage
-import ru.mairwunnx.redbull.core.WINGS_GRACE_MILLIS
+import ru.mairwunnx.redbull.core.wingedCanExpiry
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
 import ru.mairwunnx.redbull.core.drink
@@ -93,7 +93,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
   }
 
   private fun wings(event: PlayerItemConsumeEvent, player: Player, can: Can) {
-    event.replacement = Items.wingedCan(can.wings, System.currentTimeMillis() + WINGS_GRACE_MILLIS, can)
+    event.replacement = Items.wingedCan(can.wings, wingedCanExpiry(System.currentTimeMillis(), can.wings), can)
     plugin.wings.watch(player)
     player.velocity = player.velocity.setY(0.9)
     player.world.playSound(player.location, Sound.ENTITY_BREEZE_JUMP, SoundCategory.PLAYERS, 0.8f, 1.2f)
