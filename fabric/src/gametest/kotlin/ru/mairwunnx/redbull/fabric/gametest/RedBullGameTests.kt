@@ -298,6 +298,8 @@ class RedBullGameTests {
     drink(player, can("sea_blue"))
     val refused = sleep(helper, player)
     equal(helper, key(refused.left().orElse(null)?.message), "redbull.sleepless", "what the bed says")
+    equal(helper, refused.left().orElse(null)?.message?.style?.color,
+      net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW), "its colour")
     helper.assertFalse(player.isSleeping, "asleep with caffeine")
     Caffeines.reset(player)
     val allowed = sleep(helper, player)

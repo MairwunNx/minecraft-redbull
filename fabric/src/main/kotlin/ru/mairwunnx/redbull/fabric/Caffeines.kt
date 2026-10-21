@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents
+import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -50,8 +51,8 @@ object Caffeines {
     BuiltInRegistries.MOB_EFFECT, RedBullItems.id("caffeine"), object : MobEffect(MobEffectCategory.NEUTRAL, Colors.CAFFEINE) {},
   )
 
-  /** What a bed answers a caffeinated player, in the action bar. */
-  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+  /** What a bed answers a caffeinated player, in the action bar, yellow as on Paper. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless").withStyle(ChatFormatting.YELLOW))
 
   fun init() {
     EntitySleepEvents.ALLOW_SLEEPING.register { player, _ ->

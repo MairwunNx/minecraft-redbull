@@ -2,6 +2,7 @@ package ru.mairwunnx.redbull.neoforge
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -63,8 +64,8 @@ object Caffeines {
     EFFECTS.register(bus)
   }
 
-  /** What a bed answers a caffeinated player, in the action bar. */
-  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless"))
+  /** What a bed answers a caffeinated player, in the action bar, yellow as on Paper. */
+  val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless").withStyle(ChatFormatting.YELLOW))
 
   fun listen(bus: IEventBus) {
     bus.on<CanPlayerSleepEvent> { event ->

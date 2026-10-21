@@ -209,6 +209,8 @@ class RedBullTests(modBus: IEventBus) {
     player.drink(Items.can(can("sea_blue")!!))
     val refused = sleep(helper, player)
     helper.assertTrue(key(refused.left().orElse(null)?.message) == "redbull.sleepless", "a caffeinated player stays awake, not $refused")
+    val color = refused.left().orElse(null)?.message?.style?.color
+    helper.assertTrue(color == net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW), "in yellow, not $color")
     helper.assertTrue(!player.isSleeping, "awake")
     Caffeines.reset(player)
     val allowed = sleep(helper, player)
