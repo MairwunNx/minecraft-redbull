@@ -75,6 +75,8 @@ object Items {
     if (!can.sugarfree) {
       setData(DataComponentTypes.FOOD, FoodProperties.food().nutrition(2).saturation(1f).canAlwaysEat(true).build())
     }
+    // The legends shimmer, as a bottle o' enchanting does: things you can only find, never make.
+    if (can.recipe == null) setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true)
   }
 
   fun emptyCan(): ItemStack = base(EMPTY_CAN).apply {
