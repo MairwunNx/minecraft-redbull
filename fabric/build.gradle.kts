@@ -46,12 +46,12 @@ kotlin {
 }
 
 // The recipes come from core, as on Paper: a small program writes them as the game's data before every build.
-val generator: SourceSet by sourceSets.creating
+val generator: SourceSet = sourceSets.create("generator")
 dependencies {
   "generatorImplementation"(project(":core"))
 }
 
-val generateData by tasks.registering(JavaExec::class) {
+val generateData = tasks.register<JavaExec>("generateData") {
   val output = layout.buildDirectory.dir("generated/data")
   classpath = generator.runtimeClasspath
   mainClass = "ru.mairwunnx.redbull.fabric.generator.RecipesKt"
