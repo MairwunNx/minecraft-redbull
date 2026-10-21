@@ -67,7 +67,7 @@ class CaffeineTest {
   fun `the crash lasts a minute and comes when the buffs end, three minutes at most`() {
     assertEquals(listOf(60, 60), crash().map { it.seconds })
     assertEquals(listOf("minecraft:slowness", "minecraft:weakness"), crash().map { it.id })
-    assertEquals(90, crashDelay(can("pink_sugarfree")!!))
+    assertEquals(16, crashDelay(can("pink_sugarfree")!!))
     assertEquals(180, crashDelay(can("blue")!!))
   }
 }

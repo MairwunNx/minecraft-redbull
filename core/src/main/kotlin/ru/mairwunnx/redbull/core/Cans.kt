@@ -59,6 +59,10 @@ const val COMMON = 480
 const val EDITION = 720
 const val LEGEND = 960
 
+/** What breaks the game stays short: anything that restores health, and Strength II. */
+const val HEALING = 16
+const val STRENGTH_II = 180
+
 private fun chests(chance: Double, vararg biomes: String) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun chests(chance: Double, biomes: List<String>) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun recipe(flavour: String, dye: String) =
@@ -71,7 +75,7 @@ val CANS = listOf(
   Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), 8, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
   Can("red", false, listOf(strength(COMMON)), 8, recipe("melon_slice", "red"), null),
   Can("red_sugarfree", true, listOf(strength(COMMON)), 6, recipe("melon_slice", "red"), null),
-  Can("pink_sugarfree", true, listOf(effect("regeneration", 90)), 6, recipe("sweet_berries", "pink"), null),
+  Can("pink_sugarfree", true, listOf(effect("regeneration", HEALING)), 6, recipe("sweet_berries", "pink"), null),
   Can(
     "green", false, listOf(effect("luck", EDITION), speed(EDITION)), 8, recipe("cactus_flower", "green"),
     chests(0.15, "mangrove_swamp", "swamp", "lush_caves"),
@@ -89,7 +93,7 @@ val CANS = listOf(
     chests(0.15, "snowy_taiga", "grove"),
   ),
   Can(
-    "winter_pistachio", false, listOf(effect("regeneration", 45, 2)), 8, recipe("sweet_berries", "lime"),
+    "winter_pistachio", false, listOf(effect("regeneration", HEALING, 2)), 8, recipe("sweet_berries", "lime"),
     chests(0.15, "snowy_plains", "snowy_beach"),
   ),
   Can(
@@ -136,10 +140,9 @@ val CANS = listOf(
     "blue", false, listOf(effect("night_vision", EDITION), speed(EDITION)), 8, recipe("blue_orchid", "blue"),
     chests(0.15, "deep_dark"),
   ),
-  // The legends: no recipe, only chests in the hardest places. Regeneration and Strength II stay short
-  // everywhere: minutes of either would make a player unkillable.
+  // The legends: no recipe, only chests in the hardest places.
   Can(
-    "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(180, 2)), 0, null, chests(0.08, NETHER),
+    "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(STRENGTH_II, 2)), 0, null, chests(0.08, NETHER),
   ),
   Can(
     "summer", false, listOf(speed(LEGEND, 3)), 15, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),

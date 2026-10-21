@@ -33,4 +33,13 @@ class CansTest {
   fun `sugarfree cans say so in their id`() {
     CANS.forEach { assertEquals(it.sugarfree, it.id.endsWith("sugarfree") || it.id == "zero", it.id) }
   }
+
+  @Test
+  fun `healing and Strength II stay short`() {
+    val effects = CANS.flatMap { it.effects }
+    effects.filter { it.id in setOf("minecraft:regeneration", "minecraft:instant_health") }
+      .forEach { assertTrue(it.seconds <= HEALING, "${it.id} lasts ${it.seconds} s") }
+    effects.filter { it.id == "minecraft:strength" && it.amplifier >= 1 }
+      .forEach { assertTrue(it.seconds <= STRENGTH_II, "Strength II lasts ${it.seconds} s") }
+  }
 }
