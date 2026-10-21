@@ -13,6 +13,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 - 📖 **`/redbull` in the mods too:** the collection for every player, which survives death; operators take any item from the same menu, and use `/redbull give` and `/redbull caffeine`.
 - 🗺️ **Cans in every chest of their biomes in the mods,** the game’s, another mod’s, or a data pack’s, as on Paper.
 - 💀 **An overdose kills through a totem in the mods too,** and chat says the heart “gave out after one Red Bull too many,” even when it stops in the middle of a fight.
+- 📦 **The Paper jar is `redbull-paper-1.2.0.jar` now,** beside the mods’ jars; `redbull.jar` still fetches the newest one from GitHub. On Modrinth the versions read `1.2.0+paper`, `1.2.0+fabric`, and `1.2.0+neoforge`.
 - ⚙️ **`config/redbull.toml` in the mods:** the overdose, the wings, and the loot multipliers, as in Paper’s `config.yml` without the pack. Fabric writes the defaults when the file is missing and reads it on start and on `/reload`; NeoForge reads it again whenever you save it.
 
 ## 1.1.1
