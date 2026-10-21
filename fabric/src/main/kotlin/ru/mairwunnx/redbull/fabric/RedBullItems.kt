@@ -56,7 +56,7 @@ object RedBullItems {
   fun init() {
     val key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id("redbull"))
     val tab = FabricCreativeModeTab.builder()
-      .title(Component.translatable("item.redbull.original"))
+      .title(Component.translatable("itemGroup.redbull"))
       .icon { ItemStack(cans.getValue("original")) }
       .displayItems { _, output -> all.forEach(output::accept) }
       .build()
