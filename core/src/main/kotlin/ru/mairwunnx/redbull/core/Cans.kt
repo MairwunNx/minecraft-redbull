@@ -31,11 +31,15 @@ data class Can(
 ) {
   val translation get() = "item.redbull.$id"
   val slogan get() = "item.redbull.$id.slogan"
+
+  /** The model of this can once drunk and crumpled. */
+  val crumpled get() = "crumpled_$id"
 }
 
 object Ids {
   const val EMPTY_CAN = "empty_can"
   const val WINGED_CAN = "winged_can"
+  const val CRUMPLED_CAN = "crumpled_can"
   const val BULL_BILE = "bull_bile"
   const val CRUDE_TAURINE = "crude_taurine"
   const val TAURINE = "taurine"

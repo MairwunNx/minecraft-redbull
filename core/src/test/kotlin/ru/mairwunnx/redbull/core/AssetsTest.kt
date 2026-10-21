@@ -6,7 +6,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AssetsTest {
-  private val items = CANS.map { it.id } + listOf(Ids.EMPTY_CAN, Ids.WINGED_CAN, Ids.TAURINE)
+  private val items = CANS.flatMap { listOf(it.id, it.crumpled) } + listOf(Ids.EMPTY_CAN, Ids.WINGED_CAN, Ids.TAURINE)
   private val languages = listOf("en_us", "ru_ru", "de_de", "es_es", "pt_br")
 
   private fun resource(path: String) = javaClass.getResource("/assets/redbull/$path")

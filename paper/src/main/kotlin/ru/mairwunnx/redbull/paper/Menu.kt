@@ -40,7 +40,7 @@ class Menu(private val plugin: RedBullPlugin) : Listener {
       holder.menu.setItem(slot, if (admin || can.id in collected) Items.can(can) else locked())
     }
     if (admin) {
-      listOf(Ids.EMPTY_CAN, Ids.WINGED_CAN, Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE)
+      listOf(Ids.EMPTY_CAN, Ids.WINGED_CAN, Ids.CRUMPLED_CAN, Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE)
         .forEachIndexed { index, id -> holder.menu.setItem(27 + index, Items.create(id)) }
     }
     player.openInventory(holder.menu)

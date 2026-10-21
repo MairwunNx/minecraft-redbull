@@ -28,6 +28,7 @@ import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Effect
 import ru.mairwunnx.redbull.core.Ids.BULL_BILE
 import ru.mairwunnx.redbull.core.Ids.CRUDE_TAURINE
+import ru.mairwunnx.redbull.core.Ids.CRUMPLED_CAN
 import ru.mairwunnx.redbull.core.Ids.EMPTY_CAN
 import ru.mairwunnx.redbull.core.Ids.TAURINE
 import ru.mairwunnx.redbull.core.Ids.WINGED_CAN
@@ -42,6 +43,7 @@ import ru.mairwunnx.redbull.core.can
 object Items {
   val ITEM = NamespacedKey("redbull", "item")
   val EXPIRES = NamespacedKey("redbull", "expires")
+  private val FLAVOUR = NamespacedKey("redbull", "flavour")
 
   private val DRINK_SOUND = Key.key("minecraft:item.honey_bottle.drink")
   private val BILE_COLOR = Color.fromRGB(0x9FB230)
@@ -55,14 +57,15 @@ object Items {
   /** Any of our items by id: a can, a bottle, taurine, or a can's leftovers. */
   fun create(id: String): ItemStack? = when (id) {
     EMPTY_CAN -> emptyCan()
-    WINGED_CAN -> wingedCan(8, System.currentTimeMillis() + WINGS_GRACE_MILLIS)
+    WINGED_CAN -> wingedCan(8, System.currentTimeMillis() + WINGS_GRACE_MILLIS, CANS.first())
+    CRUMPLED_CAN -> crumpledCan(CANS.first())
     BULL_BILE -> bile()
     CRUDE_TAURINE -> crudeTaurine()
     TAURINE -> taurine()
     else -> can(id)?.let(::can)
   }
 
-  val ids get() = CANS.map { it.id } + listOf(EMPTY_CAN, WINGED_CAN, BULL_BILE, CRUDE_TAURINE, TAURINE)
+  val ids get() = CANS.map { it.id } + listOf(EMPTY_CAN, WINGED_CAN, CRUMPLED_CAN, BULL_BILE, CRUDE_TAURINE, TAURINE)
 
   fun can(can: Can): ItemStack = base(can.id, rarity(can)).apply {
     setData(DataComponentTypes.LORE, ItemLore.lore(listOf(
@@ -71,7 +74,7 @@ object Items {
     )))
     setData(DataComponentTypes.POTION_CONTENTS, effects(null, can.effects))
     setData(DataComponentTypes.CONSUMABLE, drink())
-    setData(DataComponentTypes.USE_REMAINDER, UseRemainder.useRemainder(emptyCan()))
+    setData(DataComponentTypes.USE_REMAINDER, UseRemainder.useRemainder(crumpledCan(can)))
     if (!can.sugarfree) {
       setData(DataComponentTypes.FOOD, FoodProperties.food().nutrition(2).saturation(1f).canAlwaysEat(true).build())
     }
@@ -85,18 +88,36 @@ object Items {
     hint(EMPTY_CAN)
   }
 
+  /** What a drink leaves: the can, crumpled, in its flavour's colours. It stacks, and a furnace melts it down. */
+  fun crumpledCan(can: Can): ItemStack = base(CRUMPLED_CAN).apply {
+    unsetData(DataComponentTypes.CONSUMABLE)
+    setData(DataComponentTypes.ITEM_MODEL, Key.key("redbull", can.crumpled))
+    setData(DataComponentTypes.MAX_STACK_SIZE, 64)
+    setData(DataComponentTypes.LORE, ItemLore.lore(listOf(
+      Texts.line(can.translation, NamedTextColor.GRAY),
+      Texts.line("item.redbull.$CRUMPLED_CAN.hint", NamedTextColor.GRAY),
+    )))
+    editPersistentDataContainer { it.set(FLAVOUR, PersistentDataType.STRING, can.id) }
+  }
+
+  /** The can a winged or crumpled can was before it was drunk. */
+  fun flavourOf(item: ItemStack): Can? = item.persistentDataContainer.get(FLAVOUR, PersistentDataType.STRING)?.let(::can)
+
   /**
    * The can after a drink with wings: a glider held in the main hand. The game wears a glider by one point per
    * second of flight and stops one point before it breaks, so [seconds] of flight is all it gives. Unflown, it
-   * turns back into an empty can at [expires] (epoch milliseconds); see [Wings].
+   * crumples at [expires] (epoch milliseconds), as a can of [flavour] would; see [Wings].
    */
-  fun wingedCan(seconds: Int, expires: Long): ItemStack = base(WINGED_CAN).apply {
+  fun wingedCan(seconds: Int, expires: Long, flavour: Can): ItemStack = base(WINGED_CAN).apply {
     unsetData(DataComponentTypes.CONSUMABLE)
     setData(DataComponentTypes.GLIDER)
     setData(DataComponentTypes.EQUIPPABLE, Equippable.equippable(EquipmentSlot.HAND).swappable(false).build())
     setData(DataComponentTypes.MAX_DAMAGE, seconds + 1)
     setData(DataComponentTypes.DAMAGE, 0)
-    editPersistentDataContainer { it.set(EXPIRES, PersistentDataType.LONG, expires) }
+    editPersistentDataContainer {
+      it.set(EXPIRES, PersistentDataType.LONG, expires)
+      it.set(FLAVOUR, PersistentDataType.STRING, flavour.id)
+    }
     hint(WINGED_CAN)
   }
 

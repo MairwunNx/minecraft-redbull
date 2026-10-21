@@ -102,5 +102,7 @@
   "death.attack.redbull.overdose": "El corazón de %1$s no aguantó un Red Bull de más",
   "redbull.menu.collection": "Red Bull: %1$s de %2$s latas",
   "redbull.menu.admin": "Red Bull: haz clic para tomar, con Shift una pila",
-  "redbull.menu.locked": "Fabrica o encuentra esta lata para verla."
+  "redbull.menu.locked": "Fabrica o encuentra esta lata para verla.",
+  "item.redbull.crumpled_can": "Lata aplastada",
+  "item.redbull.crumpled_can.hint": "Fúndela de nuevo en pepitas de hierro."
 }

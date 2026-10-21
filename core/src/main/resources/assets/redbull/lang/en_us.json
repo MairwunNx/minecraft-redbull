@@ -102,5 +102,7 @@
   "death.attack.redbull.overdose": "%1$s’s heart gave out after one Red Bull too many",
   "redbull.menu.collection": "Red Bull: %1$s of %2$s cans",
   "redbull.menu.admin": "Red Bull: click to take, Shift for a stack",
-  "redbull.menu.locked": "Craft or find this can to see it."
+  "redbull.menu.locked": "Craft or find this can to see it.",
+  "item.redbull.crumpled_can": "Crumpled Can",
+  "item.redbull.crumpled_can.hint": "Smelt it back into iron nuggets."
 }

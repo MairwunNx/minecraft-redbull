@@ -102,5 +102,7 @@
   "death.attack.redbull.overdose": "Das Herz von %1$s gab nach einem Red Bull zu viel auf",
   "redbull.menu.collection": "Red Bull: %1$s von %2$s Dosen",
   "redbull.menu.admin": "Red Bull: klick zum Nehmen, mit Shift ein Stapel",
-  "redbull.menu.locked": "Stell diese Dose her oder finde sie, um sie zu sehen."
+  "redbull.menu.locked": "Stell diese Dose her oder finde sie, um sie zu sehen.",
+  "item.redbull.crumpled_can": "Zerdrückte Dose",
+  "item.redbull.crumpled_can.hint": "Schmelz sie wieder zu Eisenklumpen ein."
 }

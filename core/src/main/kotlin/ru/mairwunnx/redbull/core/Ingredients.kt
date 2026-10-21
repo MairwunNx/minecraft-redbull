@@ -22,5 +22,8 @@ object Bottles {
   fun bullMode(otherAt: Long?, now: Long) = otherAt != null && now - otherAt in 0..BULL_MODE_WINDOW_MILLIS
 }
 
+/** A crumpled can smelts back into this many iron nuggets: the iron of a can, not its copper. */
+const val CRUMPLED_NUGGETS = 2
+
 /** A winged can lasts this long after the drink, flown or not; flying wears it out sooner. */
 const val WINGS_GRACE_MILLIS = 60_000L
