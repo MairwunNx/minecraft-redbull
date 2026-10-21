@@ -4,9 +4,11 @@ The “Release” workflow takes the notes for a version from its section here, 
 
 ## 1.1.0
 
-- 📖 **`/redbull` opens a collection** for every player: each can they have ever held, crafted, found, or been given, and an empty can with question marks for the rest. The title counts how many of the 26 they have.
+- 📖 **`/redbull` opens a collection** for every player: each can they have ever held, crafted, found, or been given, and an empty can with question marks for the rest. The title counts how many of the 26 they have. A can joins the collection the moment it reaches the player.
 - 🧰 **Admins take anything from the same menu:** every can and ingredient, one with a click or a stack with Shift.
-- ⏳ **Buffs last far longer than potions:** 8 minutes for the crafted cans, 12 for the Editions also found in chests, and 16 for the legends. Regeneration and Strength II stay short. Wings stay as they were.
+- ⏳ **Buffs last far longer than potions:** 8 minutes for the crafted cans, 12 for the Editions also found in chests, and 16 for the legends. Healing lasts 16 seconds at most and Strength II 3 minutes. Wings stay as they were.
+- 🥫 **Every drink leaves a crumpled can** in its flavour’s colours, instead of an empty one. Crumpled cans stack to 64 and smelt into two iron nuggets, faster in a blast furnace. A winged can crumples too once its flight is over.
+- ✨ **The legends shimmer** like a bottle o’ enchanting: Ruby, Summer, Glacier, and Spring.
 - 💓 **The crash is a minute long** and comes when a can’s buffs end, three minutes after the drink at most.
 
 ## 1.0.0
