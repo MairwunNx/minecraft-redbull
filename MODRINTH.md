@@ -34,36 +34,36 @@ I’m a fan of Red Bull—the best energy drinks in the world. They give me ener
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last at least as long. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends. Regeneration and Strength II stay short, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
-| Energy Drink | sugar, blue dye | Speed II and Haste I for 3 min | 8 s |
-| Sugarfree | honeycomb, light blue dye | Speed I for 3 min | 6 s |
-| Zero | taurine, light blue dye | Speed II and Haste I for 3 min | 8 s |
-| Red Edition | melon slice, red dye | Strength I for 2 min | 8 s |
-| Red Edition Sugarfree | melon slice, red dye | Strength I for 90 s | 6 s |
-| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 45 s | 6 s |
-| Green Edition | cactus flower, green dye; swamps and lush caves | Luck for 10 min, Speed I for 3 min | 8 s |
-| Cherry Edition | pink petals, red dye; cherry groves | Luck for 10 min, Speed II for 2 min | 12 s |
-| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 3 min | 10 s |
-| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 3 min | 8 s |
-| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 30 s | 8 s |
-| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 4 min | 10 s |
-| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 3 min | 12 s |
-| Amber Edition | sweet berries, orange dye; savannas | Haste II for 3 min | 8 s |
-| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 3 min | 6 s |
-| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 5 min | 8 s |
-| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 3 min | 6 s |
-| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 3 min | 8 s |
-| Sea Blue Edition | sea pickle, cyan dye; oceans | Dolphin’s Grace and Conduit Power for 3 min | — |
-| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 3 min | 8 s |
-| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 8 min | 6 s |
-| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision for 8 min, Speed I for 3 min | 8 s |
-| Ruby Edition | only in Nether chests, 8% | Fire Resistance for 8 min, Strength II for 90 s | — |
-| Summer Edition | only in badlands chests, 5% | Speed III for 90 s | 15 s |
-| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling for 3 min, Resistance I for 2 min | 15 s |
-| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 4 min | 30 s |
+| Energy Drink | sugar, blue dye | Speed II and Haste I for 8 min | 8 s |
+| Sugarfree | honeycomb, light blue dye | Speed I for 8 min | 6 s |
+| Zero | taurine, light blue dye | Speed II and Haste I for 8 min | 8 s |
+| Red Edition | melon slice, red dye | Strength I for 8 min | 8 s |
+| Red Edition Sugarfree | melon slice, red dye | Strength I for 8 min | 6 s |
+| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 90 s | 6 s |
+| Green Edition | cactus flower, green dye; swamps and lush caves | Luck and Speed I for 12 min | 8 s |
+| Cherry Edition | pink petals, red dye; cherry groves | Luck and Speed II for 12 min | 12 s |
+| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 12 min | 10 s |
+| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 12 min | 8 s |
+| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 45 s | 8 s |
+| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 12 min | 10 s |
+| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 12 min | 12 s |
+| Amber Edition | sweet berries, orange dye; savannas | Haste II for 12 min | 8 s |
+| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 12 min | 6 s |
+| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 12 min | 8 s |
+| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 12 min | 6 s |
+| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 12 min | 8 s |
+| Sea Blue Edition | sea pickle, cyan dye; oceans | Dolphin’s Grace and Conduit Power for 12 min | — |
+| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 12 min | 8 s |
+| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 12 min | 6 s |
+| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision and Speed I for 12 min | 8 s |
+| Ruby Edition | only in Nether chests, 8% | Fire Resistance for 16 min, Strength II for 3 min | — |
+| Summer Edition | only in badlands chests, 5% | Speed III for 16 min | 15 s |
+| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling and Resistance I for 16 min | 15 s |
+| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 16 min | 30 s |
 
 ## Your collection
 
