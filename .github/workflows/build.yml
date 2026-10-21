@@ -28,6 +28,7 @@ jobs:
             paper/build/libs/*.jar
             paper/build/pack/*.zip
             neoforge/build/libs/*.jar
+            fabric/build/libs/*.jar
       - uses: actions/upload-artifact@v7
         if: failure()
         with:

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "redbull",
+  "version": "${version}",
+  "name": "Red Bull",
+  "description": "26 real Red Bull cans in survival: brew taurine from bull bile, fill cans, glide on wings, and mind the caffeine.",
+  "authors": ["MairwunNx"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/minecraft-redbull",
+    "sources": "https://github.com/MairwunNx/minecraft-redbull",
+    "issues": "https://github.com/MairwunNx/minecraft-redbull/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/redbull/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.RedBullMod" }],
+    "client": [{ "adapter": "kotlin", "value": "ru.mairwunnx.redbull.fabric.client.RedBullClient" }]
+  },
+  "mixins": ["redbull.mixins.json"],
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "fabric-api": "*",
+    "fabric-language-kotlin": ">=${kotlin}",
+    "minecraft": "~${minecraft}",
+    "java": ">=25"
+  }
+}

@@ -5,6 +5,7 @@ plugins {
   id("com.modrinth.minotaur") version "2.10.0" apply false
   id("io.papermc.hangar-publish-plugin") version "0.1.4" apply false
   id("net.neoforged.moddev") version "2.0.148" apply false
+  id("net.fabricmc.fabric-loom") version "1.19.2" apply false
 }
 
 allprojects {
