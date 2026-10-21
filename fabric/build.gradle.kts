@@ -1,0 +1,56 @@
+plugins {
+  kotlin("jvm")
+  id("net.fabricmc.fabric-loom")
+}
+
+val minecraft = "26.3"
+val loader = "0.19.5"
+val fabricApi = "0.164.0+26.3"
+val fabricKotlin = "1.14.2+kotlin.2.4.21"
+
+base {
+  archivesName = "redbull-fabric"
+}
+
+loom {
+  // The HUD meter lives in the client source set, so a dedicated server never loads a client class.
+  splitEnvironmentSourceSets()
+  mods.register("redbull") {
+    sourceSet(sourceSets.main.get())
+    sourceSet(sourceSets.getByName("client"))
+  }
+}
+
+dependencies {
+  minecraft("com.mojang:minecraft:$minecraft")
+  implementation("net.fabricmc:fabric-loader:$loader")
+  implementation("net.fabricmc.fabric-api:fabric-api:$fabricApi")
+  implementation("net.fabricmc:fabric-language-kotlin:$fabricKotlin")
+  implementation(project(":core"))
+}
+
+kotlin {
+  jvmToolchain(25)
+}
+
+// Core's assets ship in the mod: the textures, models, item definitions, and languages every platform shares.
+sourceSets.main {
+  resources.srcDir(project(":core").layout.projectDirectory.dir("src/main/resources"))
+}
+
+tasks.processResources {
+  val version = project.version.toString()
+  val versions = mapOf("version" to version, "minecraft" to minecraft, "loader" to loader, "kotlin" to fabricKotlin)
+  inputs.properties(versions)
+  filesMatching("fabric.mod.json") {
+    expand(versions)
+  }
+  from(rootProject.file("media/icon.png")) { into("assets/redbull") }
+}
+
+// Core is plain Kotlin, not a mod: its classes go into the mod's jar. Fabric Language Kotlin brings Kotlin itself.
+val core = project(":core")
+tasks.jar {
+  dependsOn(core.tasks.named("classes"))
+  from(core.layout.buildDirectory.dir("classes/kotlin/main"))
+}

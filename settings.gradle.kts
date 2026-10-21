@@ -1,3 +1,10 @@
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    maven("https://maven.fabricmc.net/") { name = "Fabric" }
+  }
+}
+
 plugins {
   id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
@@ -5,5 +12,5 @@ plugins {
 rootProject.name = "redbull"
 
 // core: the rules and the assets every platform shares. Each platform is a module next to it;
-// NeoForge and Fabric join as `include("neoforge")` and `include("fabric")`, as CLAUDE.md says.
-include("core", "paper")
+// NeoForge joins as `include("neoforge")`, as CLAUDE.md says.
+include("core", "paper", "fabric")
