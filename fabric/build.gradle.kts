@@ -21,6 +21,18 @@ loom {
   }
 }
 
+// Game tests drink, craft, brew, and loot on a real server: `./gradlew :fabric:runGameTest`. They live in
+// `src/gametest` as a mod of their own, so the release jar doesn't carry them.
+fabricApi {
+  configureTests {
+    createSourceSet = true
+    modId = "redbull-gametest"
+    enableGameTests = true
+    enableClientGameTests = false
+    eula = true
+  }
+}
+
 dependencies {
   minecraft("com.mojang:minecraft:$minecraft")
   implementation("net.fabricmc:fabric-loader:$loader")
