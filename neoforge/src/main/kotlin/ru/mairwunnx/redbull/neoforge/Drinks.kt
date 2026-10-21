@@ -22,6 +22,9 @@ import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.Stage
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
+import ru.mairwunnx.redbull.core.crashes
+import ru.mairwunnx.redbull.core.sugarPit
+import ru.mairwunnx.redbull.core.sugarPitDelay
 import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
@@ -76,7 +79,8 @@ object Drinks {
         val can = Items.canOf(event.item) ?: return
         val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
         if (!caffeine(player, drink)) return
-        if (drink.stage == Stage.CRASH) crashLater(player, can)
+        if (crashes(can, drink.stage)) crashLater(player, can)
+        if (!can.sugarfree) sugarPitLater(player, can)
         if (Settings.wings.get() && can.wings > 0) wings(player, can)
       }
     }
@@ -103,6 +107,15 @@ object Drinks {
     Later.run(crashDelay(can) * 20) {
       if (player.isRemoved || !player.isAlive) return@run
       crash().mapNotNull(Items::effect).forEach { player.addEffect(it) }
+    }
+  }
+
+  /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
+  private fun sugarPitLater(player: ServerPlayer, can: Can) {
+    Later.run(sugarPitDelay(can) * 20) {
+      if (player.isRemoved || !player.isAlive) return@run
+      sugarPit().mapNotNull(Items::effect).forEach { player.addEffect(it) }
+      player.sendOverlayMessage(Component.translatable("redbull.sugar_pit").withStyle(ChatFormatting.GOLD))
     }
   }
 

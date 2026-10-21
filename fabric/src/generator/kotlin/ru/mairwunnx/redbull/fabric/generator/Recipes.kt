@@ -28,11 +28,11 @@ fun main(args: Array<String>) {
   )
   for (can in CANS) {
     val recipe = can.recipe ?: continue
-    val rows = if (can.sugarfree) listOf("TDT", "FCF", " W ") else listOf("TDT", "FCF", "SWS")
+    val rows = listOf("TDT", "FCF", "SWS")
     val key = mutableMapOf<String, Any>(
       "T" to redbull(Ids.TAURINE), "D" to recipe.dye, "F" to recipe.flavour, "C" to redbull(Ids.EMPTY_CAN), "W" to water,
     )
-    if (!can.sugarfree) key["S"] = "minecraft:sugar"
+    key["S"] = can.sweetener
     write("recipe/${can.id}.json", shaped(rows, key, redbull(can.id)))
   }
 

@@ -374,7 +374,7 @@ class RedBullGameTests {
     val water = PotionContents.createItemStack(Items.POTION, Potions.WATER)
     for (can in CANS) {
       val recipe = can.recipe ?: continue
-      val sugar = if (can.sugarfree) ItemStack.EMPTY else ItemStack(Items.SUGAR)
+      val sugar = ItemStack(if (can.sugarfree) Items.HONEYCOMB else Items.SUGAR)
       val grid = listOf(
         ItemStack(RedBullItems.taurine), ItemStack(item(recipe.dye)), ItemStack(RedBullItems.taurine),
         ItemStack(item(recipe.flavour)), ItemStack(RedBullItems.emptyCan), ItemStack(item(recipe.flavour)),

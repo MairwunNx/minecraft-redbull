@@ -19,6 +19,9 @@ import ru.mairwunnx.redbull.core.Drink
 import ru.mairwunnx.redbull.core.Stage
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
+import ru.mairwunnx.redbull.core.crashes
+import ru.mairwunnx.redbull.core.sugarPit
+import ru.mairwunnx.redbull.core.sugarPitDelay
 import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
@@ -50,7 +53,8 @@ object Drinks {
   fun can(player: ServerPlayer, can: Can) {
     val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
     if (!caffeine(player, drink)) return
-    if (drink.stage == Stage.CRASH) crashLater(player, can)
+    if (crashes(can, drink.stage)) crashLater(player, can)
+    if (!can.sugarfree) sugarPitLater(player, can)
     if (Settings.wings && can.wings > 0) wings(player, can)
   }
 
@@ -84,6 +88,13 @@ object Drinks {
   /** After the buffs, the crash: a minute slower and weaker. */
   private fun crashLater(player: ServerPlayer, can: Can) = schedule(crashDelay(can) * 20L) {
     if (!player.hasDisconnected() && player.isAlive) crash().map(RedBullItems::effect).forEach(player::addEffect)
+  }
+
+  /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
+  private fun sugarPitLater(player: ServerPlayer, can: Can) = schedule(sugarPitDelay(can) * 20L) {
+    if (player.hasDisconnected() || !player.isAlive) return@schedule
+    sugarPit().map(RedBullItems::effect).forEach(player::addEffect)
+    player.sendOverlayMessage(Component.translatable("redbull.sugar_pit").withStyle(ChatFormatting.GOLD))
   }
 
   /** Up into the air, with [Can.wings] seconds of the Wings effect to glide on. */

@@ -85,4 +85,19 @@ class CaffeineTest {
     assertTrue(Caffeine(0.5, 0).sleepless())
     assertFalse(Caffeine().sleepless())
   }
+
+  @Test
+  fun `only a can with sugar crashes, and every can with sugar sinks into the sugar pit`() {
+    assertTrue(crashes(can("original")!!, Stage.CRASH))
+    assertFalse(crashes(can("original")!!, Stage.JITTERS))
+    assertFalse(crashes(can("red_sugarfree")!!, Stage.CRASH))
+    assertEquals(listOf(30, 15), sugarPit().map { it.seconds })
+    assertEquals(COMMON, sugarPitDelay(can("original")!!))
+  }
+
+  @Test
+  fun `a sugarfree can is sweetened with honeycomb`() {
+    assertEquals("minecraft:sugar", can("red")!!.sweetener)
+    assertEquals("minecraft:honeycomb", can("red_sugarfree")!!.sweetener)
+  }
 }

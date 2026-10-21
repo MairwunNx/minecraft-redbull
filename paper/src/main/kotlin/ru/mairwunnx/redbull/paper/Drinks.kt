@@ -22,9 +22,12 @@ import ru.mairwunnx.redbull.core.Stage
 import ru.mairwunnx.redbull.core.wingedCanExpiry
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
+import ru.mairwunnx.redbull.core.crashes
 import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
+import ru.mairwunnx.redbull.core.sugarPit
+import ru.mairwunnx.redbull.core.sugarPitDelay
 import java.util.UUID
 
 /**
@@ -65,7 +68,8 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
         val can = Items.canOf(event.item) ?: return
         val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
         if (!caffeine(player, drink)) return
-        if (drink.stage == Stage.CRASH) crashLater(player, can)
+        if (crashes(can, drink.stage)) crashLater(player, can)
+        if (!can.sugarfree) sugarPitLater(player, can)
         if (plugin.settings.wings && can.wings > 0) wings(event, player, can)
       }
     }
@@ -90,6 +94,15 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       if (!player.isOnline || player.isDead) return@Runnable
       crash().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
     }, crashDelay(can) * 20L)
+  }
+
+  /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
+  private fun sugarPitLater(player: Player, can: Can) {
+    plugin.server.scheduler.runTaskLater(plugin, Runnable {
+      if (!player.isOnline || player.isDead) return@Runnable
+      sugarPit().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
+      player.sendActionBar(Texts.text("redbull.sugar_pit").color(NamedTextColor.GOLD))
+    }, sugarPitDelay(can) * 20L)
   }
 
   private fun wings(event: PlayerItemConsumeEvent, player: Player, can: Can) {

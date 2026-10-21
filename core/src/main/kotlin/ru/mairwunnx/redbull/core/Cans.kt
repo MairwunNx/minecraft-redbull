@@ -9,7 +9,7 @@ data class Effect(val id: String, val seconds: Int, val amplifier: Int = 0)
  * ```
  * T D T     T taurine, D dye, F flavour
  * F C F     C empty can, W water bottle
- * S W S     S sugar, or nothing for a sugarfree can
+ * S W S     S the sweetener: sugar, or honeycomb for a sugarfree can
  * ```
  */
 data class Recipe(val flavour: String, val dye: String)
@@ -31,6 +31,9 @@ data class Can(
 ) {
   val translation get() = "item.redbull.$id"
   val slogan get() = "item.redbull.$id.slogan"
+
+  /** What sweetens it in the recipe's bottom corners: sugar, or honeycomb in a sugarfree can. */
+  val sweetener get() = if (sugarfree) "minecraft:honeycomb" else "minecraft:sugar"
 
   /** The model of this can once drunk and crumpled. */
   val crumpled get() = "crumpled_$id"

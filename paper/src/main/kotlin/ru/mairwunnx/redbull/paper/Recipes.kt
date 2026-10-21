@@ -35,14 +35,13 @@ class Recipes(private val server: Server) {
     }
     for (can in CANS) {
       val recipe = can.recipe ?: continue
-      val rows = if (can.sugarfree) arrayOf("TDT", "FCF", " W ") else arrayOf("TDT", "FCF", "SWS")
-      shaped(can.id, Items.can(can), *rows) {
+      shaped(can.id, Items.can(can), "TDT", "FCF", "SWS") {
         setIngredient('T', RecipeChoice.ExactChoice(Items.taurine()))
         setIngredient('D', material(recipe.dye))
         setIngredient('F', choice(recipe.flavour))
         setIngredient('C', RecipeChoice.ExactChoice(Items.emptyCan()))
         setIngredient('W', RecipeChoice.ExactChoice(Items.waterBottle()))
-        if (!can.sugarfree) setIngredient('S', Material.SUGAR)
+        setIngredient('S', material(can.sweetener))
       }
     }
 

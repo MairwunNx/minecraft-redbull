@@ -64,5 +64,16 @@ const val CRASH_DELAY_LIMIT = 180
 fun crash(): List<Effect> =
   listOf(Effect("minecraft:slowness", CRASH_SECONDS, 1), Effect("minecraft:weakness", CRASH_SECONDS, 0))
 
+/** The crash after too much caffeine follows only a can with sugar: no sugar, no crash. */
+fun crashes(can: Can, stage: Stage): Boolean = !can.sugarfree && stage == Stage.CRASH
+
+/**
+ * The sugar pit: when a can with sugar runs out of buffs, the sugar is gone too, and the player is a little hungry
+ * and a little slow. However much caffeine there is. A sugarfree can leaves none.
+ */
+fun sugarPit(): List<Effect> = listOf(Effect("minecraft:hunger", 30), Effect("minecraft:slowness", 15))
+
+fun sugarPitDelay(can: Can): Int = can.effects.maxOf { it.seconds }
+
 /** The crash comes when the can's longest buff ends, but no later than three minutes after the drink. */
 fun crashDelay(can: Can): Int = can.effects.maxOf { it.seconds }.coerceAtMost(CRASH_DELAY_LIMIT)

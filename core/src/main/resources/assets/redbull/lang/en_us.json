@@ -109,5 +109,6 @@
   "effect.redbull.wings": "Wiiings",
   "itemGroup.redbull": "Red Bull",
   "effect.redbull.caffeine": "Caffeine",
-  "redbull.sleepless": "The caffeine won’t let you sleep."
+  "redbull.sleepless": "The caffeine won’t let you sleep.",
+  "redbull.sugar_pit": "The sugar wore off. You feel drained."
 }
