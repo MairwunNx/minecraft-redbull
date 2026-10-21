@@ -1,0 +1,13 @@
+license = "MIT"
+
+[[mods]]
+modId = "redbull_tests"
+version = "0.0.0-dev"
+displayName = "Red Bull game tests"
+
+[[dependencies.redbull_tests]]
+modId = "redbull"
+type = "required"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

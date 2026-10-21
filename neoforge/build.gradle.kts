@@ -14,15 +14,24 @@ val coreMain: SourceSet = core.sourceSets.main.get()
 
 // `data`: writes the recipes from core's cans as the game's JSON; see Recipes.kt there.
 val data: SourceSet = sourceSets.create("data")
+// `gametest`: a dev-only mod with game tests for drinking, wings, and loot; never in the jar.
+val gametest: SourceSet = sourceSets.create("gametest") {
+  compileClasspath += sourceSets.main.get().output + coreMain.output
+  runtimeClasspath += sourceSets.main.get().output + coreMain.output
+}
 
 neoForge {
   version = neoforgeVersion
+  addModdingDependenciesTo(gametest)
 
   // The mod is this module and core together, in dev runs as in the jar.
   mods {
     register("redbull") {
       sourceSet(sourceSets.main.get())
       sourceSet(coreMain)
+    }
+    register("redbull_tests") {
+      sourceSet(gametest)
     }
   }
 
@@ -35,6 +44,13 @@ neoForge {
       server()
       programArgument("--nogui")
       loadedMods = listOf(mods["redbull"])
+    }
+    // Runs every test and stops: `./gradlew :neoforge:runGameTestServer`.
+    register("gameTestServer") {
+      type = "gameTestServer"
+      sourceSet = gametest
+      gameDirectory = file("run/gametest")
+      systemProperty("neoforge.enabledGameTestNamespaces", "redbull_tests")
     }
   }
 }
