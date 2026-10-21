@@ -29,7 +29,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 🥫 **26 real cans:** Original, Sugarfree, Zero, and the Editions from Red to Spring, each with its own buffs, a flavour, and a slogan.
 - 🧪 **A chemistry chain:** cows drop bull bile, a brewing stand turns it into crude taurine, a furnace evaporates that into taurine, and a crafting table fills an empty can.
 - 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else.
-- 🪽 **Real wiiings:** a can with wings launches you and lets you glide like an elytra for a few seconds.
+- 🪽 **Real wiiings:** a can with wings launches you and lets you glide like an elytra, from 16 seconds to over a minute.
 - 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you. Caffeine also keeps you out of bed.
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
@@ -62,32 +62,32 @@ Every can carries the same caffeine, as the real ones do; they differ in buffs a
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
-| Energy Drink | sugar, blue dye | Speed II and Haste I for 8 min | 8 s |
-| Sugarfree | honeycomb, light blue dye | Speed I for 8 min | 6 s |
-| Zero | taurine, light blue dye | Speed II and Haste I for 8 min | 8 s |
-| Red Edition | melon slice, red dye | Strength I for 8 min | 8 s |
-| Red Edition Sugarfree | melon slice, red dye | Strength I for 8 min | 6 s |
-| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 90 s | 6 s |
-| Green Edition | cactus flower, green dye; swamps and lush caves | Luck and Speed I for 12 min | 8 s |
-| Cherry Edition | pink petals, red dye; cherry groves | Luck and Speed II for 12 min | 12 s |
-| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 12 min | 10 s |
-| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 12 min | 8 s |
-| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 45 s | 8 s |
-| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 12 min | 10 s |
-| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 12 min | 12 s |
-| Amber Edition | sweet berries, orange dye; savannas | Haste II for 12 min | 8 s |
-| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 12 min | 6 s |
-| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 12 min | 8 s |
-| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 12 min | 6 s |
-| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 12 min | 8 s |
+| Energy Drink | sugar, blue dye | Speed II and Haste I for 8 min | 16 s |
+| Sugarfree | honeycomb, light blue dye | Speed I for 8 min | 16 s |
+| Zero | taurine, light blue dye | Speed II and Haste I for 8 min | 16 s |
+| Red Edition | melon slice, red dye | Strength I for 8 min | 16 s |
+| Red Edition Sugarfree | melon slice, red dye | Strength I for 8 min | 16 s |
+| Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 90 s | 16 s |
+| Green Edition | cactus flower, green dye; swamps and lush caves | Luck and Speed I for 12 min | 32 s |
+| Cherry Edition | pink petals, red dye; cherry groves | Luck and Speed II for 12 min | 32 s |
+| Ice Edition | packed ice, light blue dye; ice spikes and frozen oceans | Resistance I for 12 min | 32 s |
+| Winter Edition, Fuji Apple & Ginger | apple, orange dye; snowy taigas and groves | Absorption II for 12 min | 32 s |
+| Winter Edition, Pistachio & Forest Fruits | sweet berries, lime dye; snowy plains and beaches | Regeneration II for 45 s | 32 s |
+| Yellow Edition | sunflower, yellow dye; deserts | Speed I and Jump Boost I for 12 min | 32 s |
+| Tropical Edition | cocoa beans, yellow dye; jungles | Jump Boost II for 12 min | 32 s |
+| Amber Edition | sweet berries, orange dye; savannas | Haste II for 12 min | 32 s |
+| Amber Edition Sugarfree | sweet berries, orange dye; savannas | Haste I for 12 min | 32 s |
+| Peach Edition | pink tulip, pink dye; plains | Health Boost I for 12 min | 32 s |
+| Lilac Edition Sugarfree | lilac, magenta dye; forests | Absorption I for 12 min | 32 s |
+| Purple Edition | chorus fruit, purple dye; dark forests and pale gardens | Invisibility and Speed I for 12 min | 32 s |
 | Sea Blue Edition | sea pickle, cyan dye; oceans | Dolphin’s Grace and Conduit Power for 12 min | — |
-| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 12 min | 8 s |
-| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 12 min | 6 s |
-| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision and Speed I for 12 min | 8 s |
+| Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 12 min | 32 s |
+| Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 12 min | 32 s |
+| Blue Edition | blue orchid, blue dye; the deep dark | Night Vision and Speed I for 12 min | 32 s |
 | Ruby Edition | only in Nether chests, 8% | Fire Resistance for 16 min, Strength II for 3 min | — |
-| Summer Edition | only in badlands chests, 5% | Speed III for 16 min | 15 s |
-| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling and Resistance I for 16 min | 15 s |
-| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 16 min | 30 s |
+| Summer Edition | only in badlands chests, 5% | Speed III for 16 min | 64 s |
+| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling and Resistance I for 16 min | 64 s |
+| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 16 min | 64 s |
 
 ## Your collection
 
@@ -98,7 +98,7 @@ Type `/redbull` to open your collection: every can you have ever held, crafted, 
 A can with wings throws you upward as you finish it. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. If the wings run out in the air, Slow Falling sets you down gently.
 
 - **In the mods,** the can gives you the Wings effect, with its icon and timer among your other effects. Elytra you wear don’t wear out while it carries you.
-- **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. After a minute, or once its flight runs out, it crumples.
+- **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. Once its flight runs out, or a minute after it would have, it crumples.
 
 ## Crumpled cans
 
