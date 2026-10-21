@@ -83,7 +83,7 @@ private fun recipe(flavour: String, dye: String) =
 /** Every can, in the order commands and the README list them. */
 val CANS = listOf(
   Can("original", false, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe("sugar", "blue"), null),
-  Can("sugarfree", true, listOf(speed(COMMON)), WINGS_COMMON, recipe("honeycomb", "light_blue"), null),
+  Can("sugarfree", true, listOf(speed(COMMON)), WINGS_COMMON, recipe("sugar_cane", "light_blue"), null),
   Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
   Can("red", false, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),
   Can("red_sugarfree", true, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),

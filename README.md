@@ -67,7 +67,7 @@ Every can carries the same caffeine, as the real ones do; they differ in buffs a
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
 | Energy Drink | sugar, blue dye | Speed II and Haste I for 8 min | 16 s |
-| Sugarfree | honeycomb, light blue dye | Speed I for 8 min | 16 s |
+| Sugarfree | sugar cane, light blue dye | Speed I for 8 min | 16 s |
 | Zero | taurine, light blue dye | Speed II and Haste I for 8 min | 16 s |
 | Red Edition | melon slice, red dye | Strength I for 8 min | 16 s |
 | Red Edition Sugarfree | melon slice, red dye | Strength I for 8 min | 16 s |
