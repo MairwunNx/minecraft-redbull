@@ -105,5 +105,6 @@
   "redbull.menu.locked": "Stell diese Dose her oder finde sie, um sie zu sehen.",
   "item.redbull.crumpled_can": "Zerdrückte Dose",
   "item.redbull.crumpled_can.hint": "Schmelz sie wieder zu Eisenklumpen ein.",
-  "effect.redbull.wings": "Flügel"
+  "effect.redbull.wings": "Flügel",
+  "itemGroup.redbull": "Red Bull"
 }

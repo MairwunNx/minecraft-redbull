@@ -105,5 +105,6 @@
   "redbull.menu.locked": "Fabrique ou encontre esta lata para vê-la.",
   "item.redbull.crumpled_can": "Lata amassada",
   "item.redbull.crumpled_can.hint": "Derreta de volta em pepitas de ferro.",
-  "effect.redbull.wings": "Asas"
+  "effect.redbull.wings": "Asas",
+  "itemGroup.redbull": "Red Bull"
 }

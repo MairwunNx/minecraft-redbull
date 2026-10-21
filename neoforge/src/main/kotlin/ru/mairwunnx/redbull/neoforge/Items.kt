@@ -3,11 +3,13 @@ package ru.mairwunnx.redbull.neoforge
 import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.food.FoodProperties
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
@@ -18,6 +20,7 @@ import net.minecraft.world.item.component.Consumable
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.UseRemainder
 import net.neoforged.bus.api.IEventBus
+import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.Bottles
@@ -38,6 +41,7 @@ import net.minecraft.world.item.Items as Vanilla
  */
 object Items {
   private val ITEMS = DeferredRegister.createItems(MOD_ID)
+  private val TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID)
 
   private fun simple(name: String, properties: (Item.Properties) -> Item.Properties): DeferredItem<Item> =
     ITEMS.registerSimpleItem(name, UnaryOperator { properties(it) })
@@ -70,8 +74,20 @@ object Items {
   val all: List<DeferredItem<Item>>
     get() = cans.values + listOf(emptyCan, taurine, bile, crudeTaurine) + crumpled.values
 
+  /** `redbull:redbull` in the creative inventory: the cans, their crumpled cans, then the ingredients. */
+  val tab: DeferredHolder<CreativeModeTab, CreativeModeTab> = TABS.register("redbull") { ->
+    CreativeModeTab.builder()
+      .title(Component.translatable("itemGroup.$MOD_ID"))
+      .icon { ItemStack(cans.getValue("original").get()) }
+      .displayItems { _, output ->
+        (cans.values + crumpled.values + listOf(emptyCan, bile, crudeTaurine, taurine)).forEach { output.accept(it.get()) }
+      }
+      .build()
+  }
+
   fun register(bus: IEventBus) {
     ITEMS.register(bus)
+    TABS.register(bus)
   }
 
   /** The id of one of our items, like `original` or `bull_bile`; null for anything else. */

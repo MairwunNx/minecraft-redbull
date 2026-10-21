@@ -16,12 +16,14 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
@@ -45,6 +47,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
     functions.register("bile") { -> Consumer(::bile) }
+    functions.register("tab") { -> Consumer(::tab) }
     functions.register(modBus)
   }
 
@@ -164,6 +167,16 @@ class RedBullTests(modBus: IEventBus) {
     val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area).map { Items.id(it.item) }
     helper.assertTrue(Ids.BULL_BILE in drops, "a cow a player killed drops bile, dropped $drops")
     helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  private fun tab(helper: GameTestHelper) {
+    val tab = Items.tab.get()
+    tab.buildContents(CreativeModeTab.ItemDisplayParameters(helper.level.enabledFeatures(), false, helper.level.registryAccess()))
+    val shown = tab.displayItems.map { Items.id(it) }
+    val expected = CANS.map { it.id } + CANS.map { it.crumpled } + listOf(Ids.EMPTY_CAN, Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE)
+    helper.assertTrue(shown == expected, "the creative tab lists every item in order, not $shown")
+    helper.assertTrue(Items.id(tab.iconItem) == "original", "the tab shows the original")
     helper.succeed()
   }
 }
