@@ -14,7 +14,7 @@ base {
 }
 
 loom {
-  // The HUD meter lives in the client source set, so a dedicated server never loads a client class.
+  // Anything only a client draws goes in the client source set, so a dedicated server never loads a client class.
   splitEnvironmentSourceSets()
   mods.register("redbull") {
     sourceSet(sourceSets.main.get())

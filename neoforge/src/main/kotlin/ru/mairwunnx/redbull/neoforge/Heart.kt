@@ -29,8 +29,9 @@ object Heart {
     bus.on<PlayerEvent.PlayerRespawnEvent> { event -> (event.entity as? ServerPlayer)?.let { stages -= it.uuid } }
   }
 
-  /** Every two seconds. */
+  /** Every two seconds; it also keeps the Caffeine effect in line, should milk or a command have taken it. */
   private fun beat(player: ServerPlayer) {
+    Caffeines.refresh(player)
     val stage = Caffeines.now(player).stage(Caffeines.rules)
     val before = stages.put(player.uuid, stage) ?: Stage.CALM
     if (stage > before) warn(player, stage)

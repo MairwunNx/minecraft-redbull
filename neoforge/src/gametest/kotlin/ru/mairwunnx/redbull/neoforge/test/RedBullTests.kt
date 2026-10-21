@@ -1,6 +1,16 @@
 package ru.mairwunnx.redbull.neoforge.test
 
 import com.mojang.authlib.GameProfile
+import com.mojang.datafixers.util.Either
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraft.util.Unit
+import net.minecraft.world.attribute.BedRule
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.AbstractBedBlock
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.properties.BedPart
 import io.netty.channel.embedded.EmbeddedChannel
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
@@ -15,6 +25,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityTypes
+import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
@@ -30,6 +41,7 @@ import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
 import ru.mairwunnx.redbull.neoforge.Settings
 import ru.mairwunnx.redbull.neoforge.Wings
+import java.util.Optional
 import java.util.UUID
 import java.util.function.Consumer
 import net.minecraft.world.item.Items as Vanilla
@@ -43,9 +55,13 @@ class RedBullTests(modBus: IEventBus) {
   init {
     val functions = DeferredRegister.create(Registries.TEST_FUNCTION, "redbull_tests")
     functions.register("drinks") { -> Consumer(::drinks) }
+    functions.register("caffeine") { -> Consumer(::caffeine) }
+    functions.register("milk") { -> Consumer(::milk) }
+    functions.register("bed") { -> Consumer(::bed) }
     functions.register("bottles") { -> Consumer(::bottles) }
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
+    functions.register("elytra") { -> Consumer(::elytra) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
     functions.register(modBus)
@@ -57,8 +73,8 @@ class RedBullTests(modBus: IEventBus) {
     net.minecraft.server.level.ClientInformation.createDefault(),
   ) {
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
-    fun fly(helper: GameTestHelper) {
-      val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(1.5, 10.0, 1.5))
+    fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
+      val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
       teleportTo(at.x, at.y, at.z)
       setOnGround(false)
     }
@@ -115,6 +131,72 @@ class RedBullTests(modBus: IEventBus) {
     }
   }
 
+  /** The Caffeine effect follows the cans: a level per stage, and as long as the caffeine takes to wear off. */
+  private fun caffeine(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    // 30 points a can, a point every 6 seconds: 3 minutes a can.
+    listOf("original", "sugarfree", "zero").forEachIndexed { index, id ->
+      player.drink(Items.can(can(id)!!))
+      val shown = player.getEffect(Caffeines.EFFECT)
+      helper.assertTrue(shown?.amplifier == index, "Caffeine ${index + 1} after ${index + 1} cans, not $shown")
+      helper.assertTrue(shown?.duration == (index + 1) * 3 * 60 * 20, "${(index + 1) * 3} minutes after ${index + 1} cans, not $shown")
+      helper.assertTrue(shown?.isVisible == false && shown.showIcon(), "an icon and no particles")
+    }
+    Caffeines.reset(player)
+    helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "no caffeine, no effect")
+    helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  /** Milk takes 20 caffeine and every effect; the effect comes back for what's left, and after `/effect clear` too. */
+  private fun milk(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    player.drink(Items.can(can("original")!!))
+    player.drink(ItemStack(Vanilla.MILK_BUCKET))
+    helper.runAfterDelay(2) {
+      helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
+      val shown = player.getEffect(Caffeines.EFFECT)
+      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
+      player.removeAllEffects()
+      helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
+      // The heart beats every two seconds and puts the effect back.
+      helper.succeedWhen {
+        helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
+        helper.level.server.playerList.remove(player)
+      }
+    }
+  }
+
+  /**
+   * Lies [player] down in a red bed next to them. The bed's own rule would wait for the night; this one lets them
+   * sleep at any hour, so only caffeine stands in the way.
+   */
+  private fun sleep(helper: GameTestHelper, player: ServerPlayer): Either<Player.BedSleepingProblem, Unit> {
+    val head = BlockPos(1, 1, 3)
+    val bed = Blocks.BED.red().defaultBlockState().setValue(AbstractBedBlock.FACING, Direction.NORTH)
+    helper.setBlock(head.south(), bed.setValue(AbstractBedBlock.PART, BedPart.FOOT))
+    helper.setBlock(head, bed.setValue(AbstractBedBlock.PART, BedPart.HEAD))
+    val anytime = BedRule(BedRule.Rule.ALWAYS, BedRule.Rule.ALWAYS, false, false, Optional.empty())
+    return player.startSleepInBed(Blocks.BED.red() as AbstractBedBlock, helper.getBlockState(head), anytime, helper.absolutePos(head))
+  }
+
+  private fun key(component: Component?) = (component?.contents as? TranslatableContents)?.key
+
+  /** Caffeine keeps a player awake; without it the same bed takes them. */
+  private fun bed(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    player.drink(Items.can(can("sea_blue")!!))
+    val refused = sleep(helper, player)
+    helper.assertTrue(key(refused.left().orElse(null)?.message) == "redbull.sleepless", "a caffeinated player stays awake, not $refused")
+    helper.assertTrue(!player.isSleeping, "awake")
+    Caffeines.reset(player)
+    val allowed = sleep(helper, player)
+    helper.assertTrue(allowed.right().isPresent && player.isSleeping, "without caffeine the bed takes them, not $allowed")
+    player.stopSleeping()
+    helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
   private fun bottles(helper: GameTestHelper) {
     val player = Survivor.join(helper)
     player.drink(ItemStack(Items.bile.get()))
@@ -152,6 +234,39 @@ class RedBullTests(modBus: IEventBus) {
       helper.assertTrue(player.getEffect(MobEffects.SLOW_FALLING)?.duration in 80..100, "wings that end mid-glide leave Slow Falling")
       helper.level.server.playerList.remove(player)
       helper.succeed()
+    }
+  }
+
+  /**
+   * The game wears a glider every second of flight; with Wings an elytra keeps every point, while the same flight
+   * without them wears one down.
+   */
+  private fun elytra(helper: GameTestHelper) {
+    val winged = Survivor.join(helper)
+    val plain = Survivor.join(helper)
+    listOf(winged, plain).forEachIndexed { index, player ->
+      player.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+      // A tick puts the elytra's `gliding_flight` on the player, as wearing it would.
+      player.doTick()
+      player.fly(helper, x = 1.5 + index * 8, height = 40.0)
+    }
+    winged.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(winged, plain).filter { !it.isRemoved }.forEach {
+        it.setOnGround(false)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 60, "three seconds of flight")
+      helper.assertTrue(winged.isFallFlying, "still gliding after $ticks ticks")
+      val wear = winged.getItemBySlot(EquipmentSlot.CHEST).damageValue
+      helper.assertTrue(wear == 0, "an elytra worn with Wings keeps every point, not $wear lost")
+      helper.assertTrue(plain.getItemBySlot(EquipmentSlot.CHEST).damageValue > 0, "an elytra alone wears")
+      listOf(winged, plain).forEach { helper.level.server.playerList.remove(it) }
     }
   }
 

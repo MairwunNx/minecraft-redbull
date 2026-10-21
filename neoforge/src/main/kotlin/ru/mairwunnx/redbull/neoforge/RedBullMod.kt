@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.RecipeType
-import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.Event
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.ModContainer
@@ -15,7 +14,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent
 import net.neoforged.neoforge.event.server.ServerStartedEvent
 import org.slf4j.Logger
 import ru.mairwunnx.redbull.core.CANS
-import ru.mairwunnx.redbull.neoforge.client.CaffeineHud
 
 const val MOD_ID = "redbull"
 
@@ -26,10 +24,10 @@ inline fun <reified T : Event> IEventBus.on(noinline handler: (T) -> Unit) = add
 
 /**
  * Red Bull for NeoForge: the same cans, caffeine, and wings as the Paper plugin, from the same `core`.
- * Items are real items here, recipes and loot are data, and the client draws a caffeine meter.
+ * Items are real items here, recipes and loot are data, and caffeine shows as an effect.
  */
 @Mod(MOD_ID)
-class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
+class RedBullMod(modBus: IEventBus, container: ModContainer) {
   init {
     container.registerConfig(ModConfig.Type.LOCAL, Settings.SPEC, "$MOD_ID.toml")
     Items.register(modBus)
@@ -41,11 +39,11 @@ class RedBullMod(modBus: IEventBus, container: ModContainer, dist: Dist) {
     val bus = NeoForge.EVENT_BUS
     Drinks.listen(bus)
     Wings.listen(bus)
+    Caffeines.listen(bus)
     Heart.listen(bus)
     Collected.listen(bus)
     Later.listen(bus)
     RedBullCommand.listen(bus)
-    if (dist.isClient) CaffeineHud.listen(modBus)
 
     // Players find every crafting recipe in their recipe book.
     bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->

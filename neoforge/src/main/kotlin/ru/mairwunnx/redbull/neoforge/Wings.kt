@@ -14,15 +14,17 @@ import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
 /**
  * `redbull:wings`, the effect a can with wings gives: the player glides as with an elytra, and no item wears.
  * The effect switches on NeoForge's `gliding_flight` attribute, which `LivingEntity.canGlide` checks on the
- * server and on the client. Wings that run out mid-flight leave a few seconds of Slow Falling to land with.
+ * server and on the client; `GliderWearMixin` spares an elytra worn with it. Wings that run out mid-flight leave
+ * a few seconds of Slow Falling to land with.
  */
 object Wings {
   private const val COLOR = 0x8FD8FF
-  private const val LANDING_TICKS = 5 * 20
+  private const val LANDING_TICKS = SOFT_LANDING_SECONDS * 20
 
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
