@@ -43,6 +43,8 @@ class RedBullTests(modBus: IEventBus) {
   init {
     val functions = DeferredRegister.create(Registries.TEST_FUNCTION, "redbull_tests")
     functions.register("drinks") { -> Consumer(::drinks) }
+    functions.register("caffeine") { -> Consumer(::caffeine) }
+    functions.register("milk") { -> Consumer(::milk) }
     functions.register("bottles") { -> Consumer(::bottles) }
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
@@ -112,6 +114,42 @@ class RedBullTests(modBus: IEventBus) {
       helper.assertTrue(level(player) == 0.0, "death resets caffeine")
       helper.level.server.playerList.remove(player)
       helper.succeed()
+    }
+  }
+
+  /** The Caffeine effect follows the cans: a level per stage, and as long as the caffeine takes to wear off. */
+  private fun caffeine(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    // 30 points a can, a point every 6 seconds: 3 minutes a can.
+    listOf("original", "sugarfree", "zero").forEachIndexed { index, id ->
+      player.drink(Items.can(can(id)!!))
+      val shown = player.getEffect(Caffeines.EFFECT)
+      helper.assertTrue(shown?.amplifier == index, "Caffeine ${index + 1} after ${index + 1} cans, not $shown")
+      helper.assertTrue(shown?.duration == (index + 1) * 3 * 60 * 20, "${(index + 1) * 3} minutes after ${index + 1} cans, not $shown")
+      helper.assertTrue(shown?.isVisible == false && shown.showIcon(), "an icon and no particles")
+    }
+    Caffeines.reset(player)
+    helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "no caffeine, no effect")
+    helper.level.server.playerList.remove(player)
+    helper.succeed()
+  }
+
+  /** Milk takes 20 caffeine and every effect; the effect comes back for what's left, and after `/effect clear` too. */
+  private fun milk(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    player.drink(Items.can(can("original")!!))
+    player.drink(ItemStack(Vanilla.MILK_BUCKET))
+    helper.runAfterDelay(2) {
+      helper.assertTrue(level(player) == 10.0, "milk leaves 10 caffeine, not ${level(player)}")
+      val shown = player.getEffect(Caffeines.EFFECT)
+      helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine after milk, not $shown")
+      player.removeAllEffects()
+      helper.assertTrue(!player.hasEffect(Caffeines.EFFECT), "/effect clear takes Caffeine off")
+      // The heart beats every two seconds and puts the effect back.
+      helper.succeedWhen {
+        helper.assertTrue(player.getEffect(Caffeines.EFFECT)?.amplifier == 0, "Caffeine is back after /effect clear")
+        helper.level.server.playerList.remove(player)
+      }
     }
   }
 
