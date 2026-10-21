@@ -2,7 +2,8 @@
 
 <p align="center"><img alt="Red Bull: 26 настоящих банок для Paper, Fabric и NeoForge" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/social-preview.png" width="100%"></p>
 
-Я фанат Red Bull — лучших энергетиков в мире. Они дают мне силы и настроение на весь день, поэтому я посвятил им этот проект.
+> [!NOTE]
+> Я фанат Red Bull — лучших энергетиков в мире. Они дают мне силы и настроение на весь день, поэтому я посвятил им этот проект.
 
 <p align="center">
   <a href="https://github.com/MairwunNx/minecraft-redbull/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/MairwunNx/minecraft-redbull?label=release"></a>

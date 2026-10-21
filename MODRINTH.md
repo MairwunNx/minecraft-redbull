@@ -2,7 +2,7 @@
 
 <p align="center"><img alt="Red Bull: 26 real cans for Paper, Fabric, and NeoForge" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/social-preview.png" width="100%"></p>
 
-I’m a fan of Red Bull—the best energy drinks in the world. They give me energy and a good mood for the whole day, so I dedicated this project to them.
+> I’m a fan of Red Bull – the best energy drinks in the world. They give me energy and a good mood for the whole day, so I dedicated this project to them.
 
 🥫 **Red Bull** brings 26 real cans into survival, as a plugin for Paper servers or a mod for Fabric and NeoForge. You brew taurine from bull bile, fill cans at a crafting table, hunt the rarest editions in chests, and fly on their wiiings. Four cans too fast, and your heart gives out.
 
@@ -126,15 +126,15 @@ Source code and issues live on [GitHub](https://github.com/MairwunNx/minecraft-r
 
 ## Related projects
 
-- **[Moonlands](https://minecraft.mairwunnx.com)**—the hard-survival server where all of these run.
-- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)**—REST and WebSocket API to a Paper server's world, players, and stats.
-- **[Minecraft MCP](https://github.com/MairwunNx/minecraft-mcp)**—lets an AI client read and run a server through WorldAPI.
-- **[Allay](https://github.com/allay-ai/minecraft)**—an AI helper in the game: ask with `/ask`, right in the chat.
-- **[Allay Server](https://github.com/allay-ai/server)**—the backend behind Allay.
-- **[Mo’Joins](https://github.com/MairwunNx/mojoins)**—join and quit messages in each player's language.
-- **[Mo’Afks](https://github.com/MairwunNx/moafks)**—a safe AFK mode that doesn't block the night.
-- **[Mo’Bosses](https://github.com/MairwunNx/mobosses)**—monsters that spawn as bosses with classes, abilities, and loot.
-- **[minecraft-exporter](https://github.com/MairwunNx/minecraft-exporter)**—Prometheus metrics from WorldAPI.
-- **[minecraft-grafana](https://github.com/MairwunNx/minecraft-grafana)**—the Grafana dashboard for WorldAPI.
+- **[Moonlands](https://minecraft.mairwunnx.com)** – the hard-survival server where all of these run.
+- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)** – REST and WebSocket API to a Paper server's world, players, and stats.
+- **[Minecraft MCP](https://github.com/MairwunNx/minecraft-mcp)** – lets an AI client read and run a server through WorldAPI.
+- **[Allay](https://github.com/allay-ai/minecraft)** – an AI helper in the game: ask with `/ask`, right in the chat.
+- **[Allay Server](https://github.com/allay-ai/server)** – the backend behind Allay.
+- **[Mo’Joins](https://github.com/MairwunNx/mojoins)** – join and quit messages in each player's language.
+- **[Mo’Afks](https://github.com/MairwunNx/moafks)** – a safe AFK mode that doesn't block the night.
+- **[Mo’Bosses](https://github.com/MairwunNx/mobosses)** – monsters that spawn as bosses with classes, abilities, and loot.
+- **[minecraft-exporter](https://github.com/MairwunNx/minecraft-exporter)** – Prometheus metrics from WorldAPI.
+- **[minecraft-grafana](https://github.com/MairwunNx/minecraft-grafana)** – the Grafana dashboard for WorldAPI.
 
 > 🫡 Made by Pavel Erokhin (Павел Ерохин), aka mairwunnx.

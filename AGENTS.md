@@ -5,7 +5,7 @@ A Paper 26.3 plugin, and NeoForge and Fabric 26.3 mods, that bring 26 real Red B
 ## Talking to the owner
 
 - Reply in Russian, address the owner as «вы». Quotes «ёлочки», nested „лапки“, an em dash with spaces « — ».
-- Code, comments, commit messages, README.md, MODRINTH.md, and `en_us.json` are in English: curly quotes, an em dash without spaces or an en dash with spaces, never a hyphen as a dash.
+- Code, comments, commit messages, README.md, MODRINTH.md, and `en_us.json` are in English: curly quotes, an en dash with spaces as the dash (never an em dash glued to the words, never a hyphen).
 - README.RU.md and `ru_ru.json` follow Russian typography; `de_de.json` uses „…“, an en dash with spaces, and „du“. Change both READMEs and MODRINTH.md together.
 - Can names stay English in every language, as on the real cans; flavours, slogans, and everything else are translated.
 
