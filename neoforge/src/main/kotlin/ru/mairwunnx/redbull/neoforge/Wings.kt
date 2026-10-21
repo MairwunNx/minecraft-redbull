@@ -18,7 +18,8 @@ import net.neoforged.neoforge.registries.DeferredRegister
 /**
  * `redbull:wings`, the effect a can with wings gives: the player glides as with an elytra, and no item wears.
  * The effect switches on NeoForge's `gliding_flight` attribute, which `LivingEntity.canGlide` checks on the
- * server and on the client. Wings that run out mid-flight leave a few seconds of Slow Falling to land with.
+ * server and on the client; `GliderWearMixin` spares an elytra worn with it. Wings that run out mid-flight leave
+ * a few seconds of Slow Falling to land with.
  */
 object Wings {
   private const val COLOR = 0x8FD8FF

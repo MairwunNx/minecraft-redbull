@@ -25,6 +25,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityTypes
+import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
@@ -60,6 +61,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("bottles") { -> Consumer(::bottles) }
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
+    functions.register("elytra") { -> Consumer(::elytra) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
     functions.register(modBus)
@@ -71,8 +73,8 @@ class RedBullTests(modBus: IEventBus) {
     net.minecraft.server.level.ClientInformation.createDefault(),
   ) {
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
-    fun fly(helper: GameTestHelper) {
-      val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(1.5, 10.0, 1.5))
+    fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
+      val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
       teleportTo(at.x, at.y, at.z)
       setOnGround(false)
     }
@@ -232,6 +234,39 @@ class RedBullTests(modBus: IEventBus) {
       helper.assertTrue(player.getEffect(MobEffects.SLOW_FALLING)?.duration in 80..100, "wings that end mid-glide leave Slow Falling")
       helper.level.server.playerList.remove(player)
       helper.succeed()
+    }
+  }
+
+  /**
+   * The game wears a glider every second of flight; with Wings an elytra keeps every point, while the same flight
+   * without them wears one down.
+   */
+  private fun elytra(helper: GameTestHelper) {
+    val winged = Survivor.join(helper)
+    val plain = Survivor.join(helper)
+    listOf(winged, plain).forEachIndexed { index, player ->
+      player.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+      // A tick puts the elytra's `gliding_flight` on the player, as wearing it would.
+      player.doTick()
+      player.fly(helper, x = 1.5 + index * 8, height = 40.0)
+    }
+    winged.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(winged.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(winged, plain).filter { !it.isRemoved }.forEach {
+        it.setOnGround(false)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 60, "three seconds of flight")
+      helper.assertTrue(winged.isFallFlying, "still gliding after $ticks ticks")
+      val wear = winged.getItemBySlot(EquipmentSlot.CHEST).damageValue
+      helper.assertTrue(wear == 0, "an elytra worn with Wings keeps every point, not $wear lost")
+      helper.assertTrue(plain.getItemBySlot(EquipmentSlot.CHEST).damageValue > 0, "an elytra alone wears")
+      listOf(winged, plain).forEach { helper.level.server.playerList.remove(it) }
     }
   }
 
