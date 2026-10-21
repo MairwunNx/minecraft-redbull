@@ -9,6 +9,7 @@ import ru.mairwunnx.redbull.core.CANS
 
 class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
+  val collected = Collected(this)
 
   private val recipes by lazy { Recipes(server) }
   private val tasks = mutableListOf<BukkitTask>()
@@ -26,6 +27,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     registerCommand("redbull", "Give Red Bull items, or check a player’s caffeine", RedBullCommand())
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
+    tasks += server.scheduler.runTaskTimer(this, Runnable { collected.tick() }, 40L, 40L)
 
     val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
