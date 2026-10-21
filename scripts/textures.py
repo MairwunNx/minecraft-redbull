@@ -1,4 +1,4 @@
-"""Draw every can from one 13×32 template, and the empty and winged cans from the same one;
+"""Draw every can from one 13×32 template, crumpled too, and the empty and winged cans from the same one;
 then give every texture in the folder an item model.
 
 Standard library only: python3 -I scripts/textures.py
@@ -173,6 +173,45 @@ def winged_can():
     return pixels
 
 
+def scale(colour, factor):
+    return tuple(max(0, min(255, round(channel * factor))) for channel in colour[:3]) + (255,)
+
+
+# A can squeezed in a hand after the last sip: how far each row's left and right walls are pushed in. The dents
+# are uneven on purpose, and the top half leans right, as a can squeezed off-centre does.
+DENTS = {5: (1, 0), 6: (2, 0), 7: (2, 1), 8: (3, 1), 9: (3, 1), 10: (2, 2), 11: (2, 2), 12: (3, 2), 13: (3, 3),
+         14: (4, 2), 15: (3, 2), 16: (2, 3), 17: (2, 3), 18: (1, 3), 19: (1, 2), 20: (2, 1), 21: (2, 1), 22: (1, 0), 23: (1, 0)}
+LEAN_UNTIL = 12
+
+
+def crumple(can):
+    whole = paint(can)
+    left_edge = (32 - len(TEMPLATE[0])) // 2
+    rows = [whole[y][left_edge:left_edge + len(TEMPLATE[0])] for y in range(32)]
+    pixels = [[(0, 0, 0, 0)] * 32 for _ in range(32)]
+    for y, row in enumerate(rows):
+        left, right = DENTS.get(y, (0, 0))
+        width = len(row) - left - right
+        line = [row[round(i * (len(row) - 1) / (width - 1))] for i in range(width)]
+        if y in DENTS:
+            for i, pixel in enumerate(line):
+                if not pixel[3] or i in (0, width - 1):
+                    continue
+                fold = (i + y) % 6
+                if fold == 0:
+                    line[i] = scale(pixel, 0.72)  # a crease running down to the right
+                elif fold == 1:
+                    line[i] = scale(pixel, 1.15)  # the light on its edge
+                if 6 <= y <= 11 and 1 <= i <= 3:
+                    line[i] = scale(line[i], 0.8)  # the dent where the thumb pressed
+            line[0], line[-1] = scale(line[0], 0.75), scale(line[-1], 0.75)
+        x0 = left_edge + left + (1 if y <= LEAN_UNTIL else 0)
+        for i, pixel in enumerate(line):
+            if pixel[3]:
+                pixels[y][x0 + i] = pixel
+    return pixels
+
+
 ITEMS = {
     "empty_can": lambda: paint(EMPTY),
     "winged_can": winged_can,
@@ -201,9 +240,10 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, can in CANS.items():
         (OUT / f"{name}.png").write_bytes(png(paint(can)))
+        (OUT / f"crumpled_{name}.png").write_bytes(png(crumple(can)))
     for name, draw in ITEMS.items():
         (OUT / f"{name}.png").write_bytes(png(draw()))
-    print(f"{len(CANS) + len(ITEMS)} textures, {len(models())} models in {ASSETS}")
+    print(f"{2 * len(CANS) + len(ITEMS)} textures, {len(models())} models in {ASSETS}")
 
 
 if __name__ == "__main__":
