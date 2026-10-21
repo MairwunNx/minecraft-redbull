@@ -2,6 +2,12 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.2.0
+
+- 🧵 **Red Bull for Fabric 26.3:** the same 26 cans, recipes, loot, caffeine, and wings as a mod, `redbull-fabric-1.2.0.jar`. It needs Fabric API and Fabric Language Kotlin, and no resource pack: the textures and the five languages are inside.
+- 🫀 **A caffeine meter beside the hotbar** on Fabric clients: a can with a bar that fills up to the limit, blue while calm, yellow in the jitters, red in the crash.
+- The Fabric mod has no `config.yml` or `/redbull` yet; `/give` hands out any item by its id, like `redbull:original`.
+
 ## 1.1.1
 
 - 🛒 **On Modrinth and Hangar.** The first release there, with everything 1.1.0 brought: the `/redbull` collection, buffs of 8, 12, and 16 minutes, crumpled cans, and the legends’ yellow names.
