@@ -12,13 +12,17 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 import java.util.UUID
 
 /**
  * A winged can is spent once its flight wore it down to the last point, or once its grace ran out.
- * A spent can crumples, but never under a player still in the air on it.
+ * A spent can crumples, but never under a player still in the air on it. When the glide ends in the air, the
+ * player floats down under Slow Falling instead of dropping like a stone.
  * Only players holding a winged can are looked at, so a crowd without wings costs nothing.
  */
 class Wings(private val plugin: RedBullPlugin) : Listener {
@@ -42,6 +46,9 @@ class Wings(private val plugin: RedBullPlugin) : Listener {
   fun onLand(event: EntityToggleGlideEvent) {
     if (event.isGliding) return
     val player = event.entity as? Player ?: return
+    if (player.uniqueId in watched && !player.isOnGround && !player.isInWater) {
+      player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, SOFT_LANDING_SECONDS * 20, 0))
+    }
     // The game stops the glide before it writes the item; look a tick later.
     plugin.server.scheduler.runTask(plugin, Runnable { if (player.isOnline) sweep(player) })
   }
