@@ -141,7 +141,7 @@ Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.c
 
 Both are on since 1.1.0 (2026-10-21), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true`, then check the version on each store.
 
-- **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads the Paper jar as `X.Y.Z`, the NeoForge jar as `X.Y.Z+neoforge`, and the Fabric jar (which requires Fabric API and Fabric Language Kotlin), and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
+- **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads the Paper jar as `X.Y.Z+paper` (`X.Y.Z` up to 1.1.1), the NeoForge jar as `X.Y.Z+neoforge`, and the Fabric jar (which requires Fabric API and Fabric Language Kotlin), and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
 - **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. `./gradlew publishPluginPublicationToHangar` uploads each version; it took the first one, 1.1.0, too, which older Hangar projects of the family had to upload on the website. The page came from MODRINTH.md; Hangar doesn't sync it, so edit it and the icon on the site.
 
 The tokens are the `MODRINTH_TOKEN` and `HANGAR_TOKEN` secrets, also in `~/.secrets/cloud.env`. Never put them in the repo.

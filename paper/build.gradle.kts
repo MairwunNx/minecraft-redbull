@@ -74,7 +74,7 @@ tasks.assemble { dependsOn(tasks.shadowJar) }
 modrinth {
   token = providers.environmentVariable("MODRINTH_TOKEN")
   projectId = "minecraft-redbull"
-  versionNumber = project.version.toString()
+  versionNumber = "${project.version}+paper"
   versionName = "Red Bull ${project.version} for Paper"
   versionType = "release"
   uploadFile.set(tasks.shadowJar)
