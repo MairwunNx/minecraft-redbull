@@ -23,11 +23,11 @@ Two modules: `core` holds what every platform shares, `paper` is the Paper plugi
 | `paper/…/Items.kt` | Builds each item: a potion underneath, with its model, name, lore, and effects; the `redbull:item` mark says which one |
 | `paper/…/Recipes.kt` | The crafting recipes, the brewing mix, and the furnace recipe; removed again on disable |
 | `paper/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, the bottles, and the death message |
-| `paper/…/Wings.kt` | Turns spent winged cans back into empty ones |
+| `paper/…/Wings.kt` | Crumples spent winged cans; looks only at players it was told hold one |
 | `paper/…/Heart.kt` | Jitters and crash every two seconds: hunger, heartbeats, warnings |
 | `paper/…/Loot.kt` | Bull bile from cows, cans in chests by biome |
 | `paper/…/Pack.kt` | Sends the resource pack on join |
-| `paper/…/Collected.kt` | The cans each player has ever held, in their persistent data; read from the inventory every two seconds |
+| `paper/…/Collected.kt` | The cans each player has ever held, in their persistent data, recorded on pickup, craft, drink, inventory close, join, and `RedBullPlugin.handed` |
 | `paper/…/Menu.kt` | The `/redbull` chest: a player's collection with question marks, or every item to take for admins |
 | `paper/…/RedBullCommand.kt` | `/redbull` for everyone; `/redbull give` and `/redbull caffeine` for `redbull.admin` |
 | `paper/src/pack/` | `pack.mcmeta` and the pack icon; the `pack` Gradle task zips them with core's assets |
@@ -40,6 +40,9 @@ Two modules: `core` holds what every platform shares, `paper` is the Paper plugi
 - A new can is a line in `Cans.kt`, a line in `scripts/textures.py`, a name, flavour, and slogan in every language, and a row in both READMEs and MODRINTH.md. `CansTest` keeps recipes unique and every can obtainable; `AssetsTest` checks its texture and model.
 - The winged can glides because the game lets any item with `glider` and `equippable` for a slot glide from that slot, the main hand included (`LivingEntity.canGlide` walks every slot). The game wears it by a point per second of flight and stops a point before it breaks; that's the flight time.
 - The jar carries the same pack zip the release attaches, and `Pack` hashes the copy in the jar. The release URL comes from the version, so dev builds send no pack unless `resource_pack.url` is set.
+- Nothing loops over every online player but `Heart`, which reads two numbers each: the collection and the winged cans run on events, so hundreds of players cost little.
+- `HEALING` (16 s) caps anything that restores health, and `STRENGTH_II` (3 min) caps Strength II; `CansTest` holds every can to them.
+- A drink leaves a crumpled can of its flavour (`crumpled_<id>`, drawn by `scripts/textures.py`); a winged can keeps its flavour to crumple into.
 - Overdose kills with `setHealth(0)`, which dies without a totem check; the death message is set in `PlayerDeathEvent`.
 - Caffeine lives in the player's persistent data and wears off by play time (`PLAY_ONE_MINUTE` counts ticks), so it waits while they're offline.
 
