@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
 /**
  * `redbull:wings`, the effect a can with wings gives: the player glides as with an elytra, and no item wears.
@@ -23,7 +24,7 @@ import net.neoforged.neoforge.registries.DeferredRegister
  */
 object Wings {
   private const val COLOR = 0x8FD8FF
-  private const val LANDING_TICKS = 5 * 20
+  private const val LANDING_TICKS = SOFT_LANDING_SECONDS * 20
 
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
