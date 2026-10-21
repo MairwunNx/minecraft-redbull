@@ -68,7 +68,7 @@ kotlin {
   jvmToolchain(25)
 }
 
-val generateData by tasks.registering(JavaExec::class) {
+val generateData = tasks.register<JavaExec>("generateData") {
   val out = layout.buildDirectory.dir("generated/data")
   classpath = data.runtimeClasspath
   mainClass = "ru.mairwunnx.redbull.neoforge.data.RecipesKt"

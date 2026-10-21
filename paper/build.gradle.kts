@@ -31,7 +31,7 @@ tasks.test {
 
 // The resource pack: core's assets and this module's pack.mcmeta. The jar carries it to know its hash,
 // and the release attaches the same file for players to download. Byte for byte the same on every build.
-val pack by tasks.registering(Zip::class) {
+val pack = tasks.register<Zip>("pack") {
   val assets = project(":core").layout.projectDirectory.dir("src/main/resources")
   archiveFileName = "redbull-pack.zip"
   destinationDirectory = layout.buildDirectory.dir("pack")
