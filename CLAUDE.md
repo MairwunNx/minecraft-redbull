@@ -87,7 +87,7 @@ Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.c
 Both are on since 1.1.0 (2026-10-21), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true`, then check the version on each store.
 
 - **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew modrinth` uploads the jar and syncs MODRINTH.md as the description. Submitted for review with 1.1.0.
-- **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. Hangar takes a project's first version only through its website, so the owner uploaded 1.1.0 there; `./gradlew publishPluginPublicationToHangar` uploads every later one. The page came from MODRINTH.md; Hangar doesn't sync it, so edit it and the icon on the site.
+- **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. Hangar takes a project's first version only through its website, so the owner uploads 1.1.0 there by hand; `./gradlew publishPluginPublicationToHangar` uploads every later one. The page came from MODRINTH.md; Hangar doesn't sync it, so edit it and the icon on the site.
 
 The tokens are the `MODRINTH_TOKEN` and `HANGAR_TOKEN` secrets, also in `~/.secrets/cloud.env`. Never put them in the repo.
 
