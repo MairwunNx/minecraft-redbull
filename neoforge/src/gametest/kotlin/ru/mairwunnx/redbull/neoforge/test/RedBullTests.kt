@@ -62,6 +62,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("wings") { -> Consumer(::wings) }
     functions.register("landing") { -> Consumer(::landing) }
     functions.register("elytra") { -> Consumer(::elytra) }
+    functions.register("wings_gone") { -> Consumer(::wingsGone) }
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
     functions.register(modBus)
@@ -72,6 +73,14 @@ class RedBullTests(modBus: IEventBus) {
     helper.level.server, helper.level, GameProfile(UUID.randomUUID(), "redbull-test"),
     net.minecraft.server.level.ClientInformation.createDefault(),
   ) {
+    /** The keys of the action bar's messages, as the client would have shown them. */
+    val overlays = mutableListOf<String?>()
+
+    override fun sendOverlayMessage(message: Component) {
+      overlays += (message.contents as? TranslatableContents)?.key
+      super.sendOverlayMessage(message)
+    }
+
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
     fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
       val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
@@ -232,7 +241,28 @@ class RedBullTests(modBus: IEventBus) {
     helper.runAfterDelay(10) {
       helper.assertTrue(!player.hasEffect(Wings.EFFECT), "the wings are over")
       helper.assertTrue(player.getEffect(MobEffects.SLOW_FALLING)?.duration in 80..100, "wings that end mid-glide leave Slow Falling")
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "wings that run out say so, not ${player.overlays}")
       helper.level.server.playerList.remove(player)
+      helper.succeed()
+    }
+  }
+
+  /** Wings taken on the ground go quietly; taken mid-glide, they say so and leave Slow Falling. */
+  private fun wingsGone(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    walker.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    walker.removeEffect(Wings.EFFECT)
+    val glider = Survivor.join(helper)
+    glider.fly(helper, height = 40.0)
+    glider.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(glider.tryToStartFallFlying(), "wings glide")
+    glider.drink(ItemStack(Vanilla.MILK_BUCKET))
+    helper.runAfterDelay(2) {
+      helper.assertTrue("redbull.wings.gone" !in walker.overlays, "wings taken on the ground say nothing, not ${walker.overlays}")
+      helper.assertTrue(!walker.hasEffect(MobEffects.SLOW_FALLING), "no Slow Falling without a flight")
+      helper.assertTrue("redbull.wings.gone" in glider.overlays, "wings taken mid-glide say so, not ${glider.overlays}")
+      helper.assertTrue(glider.hasEffect(MobEffects.SLOW_FALLING), "wings taken mid-glide leave Slow Falling")
+      listOf(walker, glider).forEach { helper.level.server.playerList.remove(it) }
       helper.succeed()
     }
   }

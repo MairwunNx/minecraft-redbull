@@ -34,8 +34,10 @@ object Wings {
     // The game removes an effect in the middle of ticking every effect, so a new one waits for the end of the tick.
     ServerMobEffectEvents.AFTER_REMOVE.register { instance, entity, _ ->
       if (!instance.`is`(WINGS)) return@register
+      // An effect that ran out has no time left; milk or a command take one that still has some.
+      val expired = !instance.isInfiniteDuration && instance.duration <= 0
       val gliding = entity.isFallFlying
-      Drinks.schedule(0) { ended(entity, gliding) }
+      Drinks.schedule(0) { ended(entity, expired, gliding) }
     }
   }
 
@@ -44,10 +46,11 @@ object Wings {
     player.addEffect(MobEffectInstance(WINGS, seconds * 20))
   }
 
-  private fun ended(entity: LivingEntity, gliding: Boolean) {
+  /** Wings that ran out, or were taken mid-glide, say so; taken on the ground, they go quietly. */
+  private fun ended(entity: LivingEntity, expired: Boolean, gliding: Boolean) {
     if (entity.isRemoved || !entity.isAlive || entity.hasEffect(WINGS)) return
     if (gliding) entity.addEffect(MobEffectInstance(MobEffects.SLOW_FALLING, SLOW_FALLING_TICKS))
-    if (entity is ServerPlayer) {
+    if ((expired || gliding) && entity is ServerPlayer) {
       entity.sendOverlayMessage(Component.translatable("redbull.wings.gone").withStyle(ChatFormatting.GRAY))
     }
   }

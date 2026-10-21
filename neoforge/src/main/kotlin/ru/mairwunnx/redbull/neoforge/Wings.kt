@@ -8,6 +8,7 @@ import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectCategory
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.common.NeoForgeMod
@@ -42,28 +43,27 @@ object Wings {
 
   fun listen(bus: IEventBus) {
     bus.on<MobEffectEvent.Expired> { event ->
-      val player = event.entity as? ServerPlayer ?: return@on
-      if (!wings(event.effectInstance?.effect)) return@on
-      land(player)
-      player.sendOverlayMessage(Drinks.text("redbull.wings.gone", ChatFormatting.GRAY))
+      if (wings(event.effectInstance?.effect)) ended(event.entity, expired = true)
     }
     // Milk, `/effect clear`, and the like.
     bus.on<MobEffectEvent.Remove> { event ->
-      val player = event.entity as? ServerPlayer ?: return@on
-      if (wings(event.effect) && event.effectInstance != null) land(player)
+      if (wings(event.effect) && event.effectInstance != null) ended(event.entity, expired = false)
     }
   }
 
   private fun wings(effect: Holder<MobEffect>?) = effect != null && effect.value() == EFFECT.get()
 
   /**
-   * Slow Falling for a player whose wings end in the air. A tick later: the game is still walking the
-   * player's effects when they end, and adding one there would break its loop.
+   * Wings that ran out, or were taken mid-glide, say so; taken on the ground, they go quietly. A glide they leave
+   * ends under Slow Falling, a tick later: the game is still walking the effects when one ends, and adding one there
+   * would break its loop.
    */
-  private fun land(player: ServerPlayer) {
-    if (!player.isFallFlying) return
+  private fun ended(entity: LivingEntity, expired: Boolean) {
+    val gliding = entity.isFallFlying
+    if (expired || gliding) (entity as? ServerPlayer)?.sendOverlayMessage(Drinks.text("redbull.wings.gone", ChatFormatting.GRAY))
+    if (!gliding) return
     Later.run(1) {
-      if (!player.isRemoved && player.isAlive) player.addEffect(MobEffectInstance(MobEffects.SLOW_FALLING, LANDING_TICKS))
+      if (!entity.isRemoved && entity.isAlive) entity.addEffect(MobEffectInstance(MobEffects.SLOW_FALLING, LANDING_TICKS))
     }
   }
 }

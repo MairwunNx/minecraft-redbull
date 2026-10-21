@@ -74,14 +74,25 @@ class RedBullGameTests {
     return player.getItemInHand(InteractionHand.MAIN_HAND).finishUsingItem(player.level(), player)
   }
 
+  /** A player who remembers the keys of the action bar's messages, as the client would have shown them. */
+  private class Survivor(server: net.minecraft.server.MinecraftServer, level: net.minecraft.server.level.ServerLevel, cookie: CommonListenerCookie) :
+    ServerPlayer(server, level, cookie.gameProfile(), cookie.clientInformation()) {
+    val overlays = mutableListOf<String?>()
+
+    override fun sendOverlayMessage(message: Component) {
+      overlays += (message.contents as? TranslatableContents)?.key
+      super.sendOverlayMessage(message)
+    }
+  }
+
   /**
    * A survival player on an embedded connection, with a name of their own for commands. The game's own mock player is always in creative, where nothing
    * is used up and caffeine can't kill; and the game protects a player whose client is still loading from all harm.
    */
-  private fun player(helper: GameTestHelper): ServerPlayer {
+  private fun player(helper: GameTestHelper): Survivor {
     val server = helper.level.server
     val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
-    val player = ServerPlayer(server, helper.level, cookie.gameProfile(), cookie.clientInformation())
+    val player = Survivor(server, helper.level, cookie)
     val connection = Connection(PacketFlow.SERVERBOUND)
     EmbeddedChannel(connection)
     server.playerList.placeNewPlayer(connection, player, cookie)
@@ -119,7 +130,7 @@ class RedBullGameTests {
   }
 
   /** A player in the air, as one who jumped off a cliff. */
-  private fun airborne(helper: GameTestHelper): ServerPlayer = player(helper).apply {
+  private fun airborne(helper: GameTestHelper): Survivor = player(helper).apply {
     val above = helper.absoluteVec(Vec3(1.5, 40.0, 1.5))
     teleportTo(above.x, above.y, above.z)
     setOnGround(false)
@@ -167,6 +178,7 @@ class RedBullGameTests {
     helper.succeedWhen {
       helper.assertFalse(player.hasEffect(Wings.WINGS), "Wings ran out")
       equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "five seconds of Slow Falling")
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "what Wings say when they run out: ${player.overlays}")
     }
   }
 
@@ -177,6 +189,20 @@ class RedBullGameTests {
     player.removeEffect(Wings.WINGS)
     helper.runAfterDelay(2) {
       helper.assertFalse(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling without a flight")
+      helper.assertFalse("redbull.wings.gone" in player.overlays, "a message for Wings taken on the ground")
+      helper.succeed()
+    }
+  }
+
+  @GameTest
+  fun wingsTakenAwayMidFlightSayGoodbye(helper: GameTestHelper) {
+    val player = airborne(helper)
+    player.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertTrue(player.tryToStartFallFlying(), "gliding")
+    drink(player, Items.MILK_BUCKET)
+    helper.runAfterDelay(2) {
+      helper.assertTrue("redbull.wings.gone" in player.overlays, "what Wings taken mid-flight say: ${player.overlays}")
+      helper.assertTrue(player.hasEffect(MobEffects.SLOW_FALLING), "Slow Falling after Wings taken mid-flight")
       helper.succeed()
     }
   }
