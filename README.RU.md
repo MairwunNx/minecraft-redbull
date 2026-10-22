@@ -44,23 +44,16 @@ Red Bull работает на Moonlands — моём сервере со сло
 | ![Инвентарь с эффектами «Кофеин II» и «Крылья»](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![Коллекция /redbull: 8 из 26 банок, остальные со знаками вопроса](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
 | **Кофеин и крылья в модах** | **Ваша коллекция, `/redbull`** |
 
-<p align="center"><img alt="Все рецепты Red Bull на верстаке, один за другим" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"><br><b>Все рецепты на верстаке</b></p>
-
 ## Как сделать банку
+
+<p align="center"><img alt="Путь к банке: желчь с коровы, зельеварка, печь и верстак" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/process.gif" width="704"></p>
+<p align="center"><img alt="Все рецепты Red Bull на верстаке, один за другим" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"></p>
 
 1. **Бычья желчь.** Взрослая корова или грибная корова, убитая вами, роняет её с шансом 5 %, и ещё 2 % за каждый уровень «Добычи».
 2. **Сырой таурин.** Сварите желчь с бутылками воды: одна желчь — три бутылки.
 3. **Таурин.** Переплавьте сырой таурин в печи.
 4. **Пустая банка.** Четыре железных самородка и медный дают две банки.
-5. **Банка.** Наполните её на верстаке:
-
-   ```
-   таурин   краситель     таурин
-   вкус     пустая банка  вкус
-   сахар    вода          сахар
-   ```
-
-   В банку без сахара вместо сахара идут два куска сот. Все рецепты есть в книге рецептов.
+5. **Банка.** Наполните её на верстаке: два таурина, краситель, два ингредиента вкуса, бутылка воды и два сахара, а в банку без сахара — два куска сот. Все рецепты есть в книге рецептов.
 
 ## Банки
 

@@ -25,23 +25,16 @@
 | ![The inventory with the Caffeine II and Wiiings effects](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![The /redbull collection: 8 of 26 cans, the rest question marks](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
 | **Caffeine and Wiiings, in the mods** | **Your collection, `/redbull`** |
 
-<p align="center"><img alt="Every Red Bull recipe at a crafting table, one after another" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"><br><b>Every recipe at the crafting table</b></p>
-
 ## How to make a can
+
+<p align="center"><img alt="The way to a can: bile from a cow, the brewing stand, the furnace, and the crafting table" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/process.gif" width="704"></p>
+<p align="center"><img alt="Every Red Bull recipe at a crafting table, one after another" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"></p>
 
 1. **Bull bile.** An adult cow or mooshroom you kill drops it with a 5% chance, 2% more per level of Looting.
 2. **Crude taurine.** Brew bull bile into water bottles: one bile, three bottles.
 3. **Taurine.** Smelt crude taurine in a furnace.
 4. **An empty can.** Four iron nuggets and a copper nugget make two.
-5. **The can.** Fill it at a crafting table:
-
-   ```
-   taurine   dye         taurine
-   flavour   empty can   flavour
-   sugar     water       sugar
-   ```
-
-   A sugarfree can takes two honeycombs instead of the sugar. Every recipe sits in your recipe book.
+5. **The can.** Fill it at a crafting table with two taurine, a dye, two of its flavour, a water bottle, and two sugar, or two honeycombs for a sugarfree can. Every recipe sits in your recipe book.
 
 ## The cans
 

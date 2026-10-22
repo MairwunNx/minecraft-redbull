@@ -134,12 +134,14 @@ def width(font, string):
     return sum((len(font.glyph(c)[0]) + 1) * GUI for c in string)
 
 
-def gif(frames, delay_cs, path):
-    """An animated GIF, looping, each frame with its own palette of up to 256 colours."""
+def gif(frames, delays_cs, path):
+    """An animated GIF, looping, each frame with its own palette of up to 256 colours and its own delay."""
+    if isinstance(delays_cs, int):
+        delays_cs = [delays_cs] * len(frames)
     height, wide = len(frames[0]), len(frames[0][0])
     out = bytearray(b"GIF89a" + struct.pack("<HHBBB", wide, height, 0, 0, 0))
     out += b"\x21\xff\x0bNETSCAPE2.0\x03\x01\x00\x00\x00"
-    for frame in frames:
+    for frame, delay_cs in zip(frames, delays_cs):
         colours = sorted({p[:3] for row in frame for p in row})
         assert len(colours) <= 256, f"{len(colours)} colours in a frame"
         index = {c: i for i, c in enumerate(colours)}
@@ -198,6 +200,35 @@ def lzw(pixels, code_size):
     return bytes(out)
 
 
+def picture(vanilla, ingredient):
+    if isinstance(ingredient, dict):
+        return vanilla.water_bottle()
+    return own(ingredient) if ingredient.startswith("redbull:") else vanilla.item(ingredient)
+
+
+def crafting(vanilla, font, table, recipe, title):
+    """One recipe in the crafting table's window, titled [title]."""
+    canvas = [list(row) for row in table]
+    for y, row in enumerate(recipe["pattern"]):
+        for x, symbol in enumerate(row):
+            if symbol != " ":
+                stamp(canvas, picture(vanilla, recipe["key"][symbol]), (30 + x * 18) * GUI, (17 + y * 18) * GUI)
+    result = recipe["result"]["id"]
+    stamp(canvas, own(result), 124 * GUI, 35 * GUI)
+    count = recipe["result"].get("count", 1)
+    if count > 1:
+        label = str(count)
+        write(canvas, font, label, (124 + 17) * GUI - width(font, label), (35 + 9) * GUI, (255, 255, 255), True)
+    write(canvas, font, title, 29 * GUI, 6 * GUI, (0x40, 0x40, 0x40), False)
+    return canvas
+
+
+def window(vanilla, name):
+    """A container's window down to its slots, then its bottom edge, at the game's interface scale."""
+    sheet = vanilla.png(f"assets/minecraft/textures/gui/container/{name}.png")
+    return scale([row[:176] for row in sheet[:80]] + [row[:176] for row in sheet[159:166]], GUI)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--client-jar")
@@ -208,10 +239,7 @@ def main():
     font = Font(vanilla.png("assets/minecraft/textures/font/ascii.png"))
     names = json.loads((ASSETS / "lang/en_us.json").read_text(encoding="utf-8"))
 
-    # The crafting table's window down to the grid, then its bottom edge.
-    sheet = vanilla.png("assets/minecraft/textures/gui/container/crafting_table.png")
-    window = [row[:176] for row in sheet[:80]] + [row[:176] for row in sheet[159:166]]
-    window = scale(window, GUI)
+    table = window(vanilla, "crafting_table")
 
     order = ["empty_can"] + [line.split('"')[1] for line in (ROOT / "core/src/main/kotlin/ru/mairwunnx/redbull/core/Cans.kt")
                              .read_text().splitlines() if line.strip().startswith(('Can("', '"')) and ", " in line]
@@ -221,27 +249,10 @@ def main():
         if file.exists():
             recipes.append(json.loads(file.read_text()))
 
-    def picture(ingredient):
-        if isinstance(ingredient, dict):
-            return vanilla.water_bottle()
-        return own(ingredient) if ingredient.startswith("redbull:") else vanilla.item(ingredient)
-
     frames = []
     for recipe in recipes:
-        canvas = [list(row) for row in window]
-        for y, row in enumerate(recipe["pattern"]):
-            for x, symbol in enumerate(row):
-                if symbol != " ":
-                    stamp(canvas, picture(recipe["key"][symbol]), (30 + x * 18) * GUI, (17 + y * 18) * GUI)
-        result = recipe["result"]["id"]
-        stamp(canvas, own(result), 124 * GUI, 35 * GUI)
-        count = recipe["result"].get("count", 1)
-        if count > 1:
-            label = str(count)
-            write(canvas, font, label, (124 + 17) * GUI - width(font, label), (35 + 9) * GUI, (255, 255, 255), True)
-        title = names[f"item.redbull.{result.split(':')[1]}"]
-        write(canvas, font, title, 29 * GUI, 6 * GUI, (0x40, 0x40, 0x40), False)
-        frames.append(scale(canvas, ZOOM))
+        title = names[f"item.redbull.{recipe['result']['id'].split(':')[1]}"]
+        frames.append(scale(crafting(vanilla, font, table, recipe, title), ZOOM))
 
     gif(frames, FRAME_MS // 10, OUT)
     print(f"{OUT}: {len(frames)} recipes, {len(frames[0][0])}×{len(frames[0])}, {OUT.stat().st_size // 1024} KiB")
