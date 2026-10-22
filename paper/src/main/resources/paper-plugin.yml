@@ -1,6 +1,7 @@
 name: RedBull
 version: '${version}'
 main: ru.mairwunnx.redbull.paper.RedBullPlugin
+bootstrapper: ru.mairwunnx.redbull.paper.RedBullBootstrap
 api-version: '26.3'
 load: POSTWORLD
 authors: [ MairwunNx ]

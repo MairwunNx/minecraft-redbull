@@ -44,6 +44,13 @@ val pack = tasks.register<Zip>("pack") {
   from(assets.file("assets/redbull/lang/pt_br.json")) { into("assets/redbull/lang"); rename { "pt_pt.json" } }
 }
 
+// The data pack the bootstrapper registers: core's data (the advancements) under a pack of its own.
+val datapack = tasks.register<Sync>("datapack") {
+  into(layout.buildDirectory.dir("datapack/datapack"))
+  from(project(":core").layout.projectDirectory.dir("src/main/resources")) { include("data/**") }
+  from("src/datapack")
+}
+
 tasks.processResources {
   val version = project.version.toString()
   inputs.property("version", version)
@@ -51,6 +58,7 @@ tasks.processResources {
     expand("version" to version)
   }
   from(pack)
+  from(datapack.map { it.destinationDir.parentFile })
 }
 
 tasks.shadowJar {
@@ -61,7 +69,7 @@ tasks.shadowJar {
   listOf("kotlin", "kotlinx", "com.charleskorn.kaml", "it.krzeminski.snakeyaml", "okio", "net.thauvin")
     .forEach { relocate(it, "ru.mairwunnx.redbull.libs.$it") }
   // The pack carries the assets; the jar keeps only the English texts, as fallbacks for players without it.
-  exclude("assets/redbull/textures/**", "assets/redbull/models/**", "assets/redbull/items/**")
+  exclude("assets/redbull/textures/**", "assets/redbull/models/**", "assets/redbull/items/**", "data/**")
   exclude { it.path.startsWith("assets/redbull/lang/") && it.name != "en_us.json" }
   exclude("META-INF/*.kotlin_module", "META-INF/versions/*/module-info.class", "module-info.class")
   dependencies { exclude(dependency("org.jetbrains:annotations")) }

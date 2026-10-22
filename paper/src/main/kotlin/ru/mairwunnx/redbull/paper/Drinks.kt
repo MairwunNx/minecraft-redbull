@@ -14,6 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
@@ -68,6 +69,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
         val can = Items.canOf(event.item) ?: return
         val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
         if (!caffeine(player, drink)) return
+        if (drink.caffeine.level >= Advancements.EDGE_LEVEL) Awards.grant(player, Advancements.EDGE)
         if (crashes(can, drink.stage)) crashLater(player, can)
         if (!can.sugarfree) sugarPitLater(player, can)
         if (plugin.settings.wings && can.wings > 0) wings(event, player, can)
@@ -102,6 +104,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       if (!player.isOnline || player.isDead) return@Runnable
       sugarPit().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
       player.sendActionBar(Texts.text("redbull.sugar_pit").color(NamedTextColor.GOLD))
+      Awards.grant(player, Advancements.SUGAR_PIT)
     }, sugarPitDelay(can) * 20L)
   }
 

@@ -4,6 +4,8 @@ package ru.mairwunnx.redbull.paper
 
 import io.papermc.paper.datacomponent.DataComponentTypes
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -14,6 +16,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
@@ -26,6 +29,10 @@ import java.util.UUID
  * Only players holding a winged can are looked at, so a crowd without wings costs nothing.
  */
 class Wings(private val plugin: RedBullPlugin) : Listener {
+  private companion object {
+    val FEATHER = ItemStack.of(Material.FEATHER)
+  }
+
   private val watched = mutableSetOf<UUID>()
 
   fun watch(player: Player) {
@@ -44,7 +51,10 @@ class Wings(private val plugin: RedBullPlugin) : Listener {
 
   @EventHandler
   fun onLand(event: EntityToggleGlideEvent) {
-    if (event.isGliding) return
+    if (event.isGliding) {
+      (event.entity as? Player)?.takeIf { it.uniqueId in watched }?.let { Awards.grant(it, Advancements.WINGS) }
+      return
+    }
     val player = event.entity as? Player ?: return
     if (player.uniqueId in watched && !player.isOnGround && !player.isInWater) {
       player.addPotionEffect(PotionEffect(PotionEffectType.SLOW_FALLING, SOFT_LANDING_SECONDS * 20, 0))
@@ -58,6 +68,16 @@ class Wings(private val plugin: RedBullPlugin) : Listener {
     watched.toList().forEach { id ->
       val player = plugin.server.getPlayer(id)
       if (player == null || !sweep(player)) watched -= id
+    }
+  }
+
+  /** Every other tick: feather bits trail behind whoever glides on a winged can. */
+  fun feathers() {
+    for (id in watched) {
+      val player = plugin.server.getPlayer(id) ?: continue
+      if (!player.isGliding) continue
+      val behind = player.location.subtract(player.location.direction.multiply(0.8)).add(0.0, 0.3, 0.0)
+      player.world.spawnParticle(Particle.ITEM, behind, 3, 0.2, 0.1, 0.2, 0.02, FEATHER)
     }
   }
 

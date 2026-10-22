@@ -12,6 +12,8 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import ru.mairwunnx.redbull.core.Advancements
+import ru.mairwunnx.redbull.core.can
 
 /**
  * The cans a player has ever held, in their persistent data. A can counts the moment it reaches them: picked
@@ -26,9 +28,12 @@ class Collected : Listener {
     val ids = items.mapNotNullTo(mutableSetOf()) { Items.canOf(it)?.id }
     if (ids.isEmpty()) return
     val known = of(player)
-    if (!known.containsAll(ids)) {
-      player.persistentDataContainer.set(KEY, PersistentDataType.LIST.strings(), (known + ids).sorted())
-    }
+    if (known.containsAll(ids)) return
+    val all = known + ids
+    player.persistentDataContainer.set(KEY, PersistentDataType.LIST.strings(), all.sorted())
+    Awards.grant(player, Advancements.ROOT)
+    if ((ids - known).any { id -> can(id)?.let(Advancements::legend) == true }) Awards.grant(player, Advancements.LEGEND)
+    if (Advancements.collector(all)) Awards.grant(player, Advancements.COLLECTOR)
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
