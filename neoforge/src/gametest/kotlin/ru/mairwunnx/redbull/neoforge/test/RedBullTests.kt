@@ -41,6 +41,7 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
 import ru.mairwunnx.redbull.neoforge.Items
@@ -72,6 +73,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
     functions.register("menu") { -> Consumer(::menu) }
+    functions.register("trader") { -> Consumer(::trader) }
     functions.register(modBus)
   }
 
@@ -361,6 +363,27 @@ class RedBullTests(modBus: IEventBus) {
     helper.assertTrue(admin.inventory.countItem(Items.taurine.get()) == 64, "a stack of taurine with Shift")
     helper.level.server.playerList.deop(NameAndId(admin.gameProfile))
     listOf(player, admin).forEach { helper.level.server.playerList.remove(it) }
+    helper.succeed()
+  }
+
+  /** Every wandering trader brings one or two different cans besides its own wares, never a legend, at core's prices. */
+  private fun trader(helper: GameTestHelper) {
+    repeat(20) {
+      val trader = helper.spawn(EntityTypes.WANDERING_TRADER, BlockPos(1, 1, 1))
+      val offers = trader.offers
+      val cans = offers.filter { Items.canOf(it.result) != null }
+      val sold = cans.map { Items.canOf(it.result)!! }
+      helper.assertTrue(cans.size in Trades.MIN_OFFERS..Trades.MAX_OFFERS, "one or two cans, not ${sold.map { it.id }}")
+      helper.assertTrue(offers.size > cans.size, "the trader's own wares stay")
+      helper.assertTrue(sold.distinct() == sold, "different cans, not ${sold.map { it.id }}")
+      for ((offer, can) in cans.zip(sold)) {
+        helper.assertTrue(can.recipe != null, "${can.id} is a legend")
+        helper.assertTrue(offer.costA.`is`(Vanilla.EMERALD) && offer.costA.count == Trades.price(can), "${can.id} for ${offer.costA}")
+        helper.assertTrue(offer.costB.isEmpty && offer.result.count == 1, "one ${can.id} for emeralds alone")
+        helper.assertTrue(offer.maxUses == Trades.MAX_USES && offer.xp == 1, "${can.id}: ${offer.maxUses} uses, ${offer.xp} experience")
+      }
+      trader.discard()
+    }
     helper.succeed()
   }
 

@@ -58,6 +58,7 @@ import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Collected
 import ru.mairwunnx.redbull.fabric.Menu
@@ -365,6 +366,28 @@ class RedBullGameTests {
     equal(helper, left.item, Items.GLASS_BOTTLE, "what a bottle leaves")
     equal(helper, caffeine(player), Caffeines.rules.perCrudeTaurine, "caffeine after crude taurine")
     equal(helper, player.getEffect(MobEffects.STRENGTH)?.amplifier, 1, "bull mode's Strength II")
+    helper.succeed()
+  }
+
+  /** Every wandering trader brings one or two different cans besides its own wares, never a legend, at core's prices. */
+  @GameTest
+  fun wanderingTradersSellCans(helper: GameTestHelper) {
+    repeat(20) {
+      val trader = helper.spawn(EntityTypes.WANDERING_TRADER, BlockPos(1, 2, 1))
+      val offers = trader.offers
+      val cans = offers.filter { RedBullItems.canOf(it.result) != null }
+      val sold = cans.map { RedBullItems.canOf(it.result)!! }
+      helper.assertTrue(cans.size in Trades.MIN_OFFERS..Trades.MAX_OFFERS, "one or two cans, not ${sold.map { it.id }}")
+      helper.assertTrue(offers.size > cans.size, "the trader's own wares stay")
+      equal(helper, sold.distinct(), sold, "different cans")
+      for ((offer, can) in cans.zip(sold)) {
+        helper.assertTrue(can.recipe != null, "${can.id} is a legend")
+        helper.assertTrue(offer.costA.`is`(Items.EMERALD) && offer.costA.count == Trades.price(can), "${can.id} for ${offer.costA}")
+        helper.assertTrue(offer.costB.isEmpty && offer.result.count == 1, "one ${can.id} for emeralds alone")
+        equal(helper, offer.maxUses to offer.xp, Trades.MAX_USES to 1, "the uses and experience of ${can.id}")
+      }
+      trader.discard()
+    }
     helper.succeed()
   }
 

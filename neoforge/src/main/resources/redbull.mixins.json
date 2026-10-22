@@ -2,7 +2,7 @@
   "required": true,
   "package": "ru.mairwunnx.redbull.neoforge.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": ["GliderWearMixin"],
+  "mixins": ["GliderWearMixin", "WanderingTraderMixin"],
   "injectors": {
     "defaultRequire": 1
   }
