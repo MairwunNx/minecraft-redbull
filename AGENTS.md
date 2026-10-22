@@ -39,27 +39,30 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `neoforge/…/Items.kt` | Every item as a real item under its asset's name (`redbull:original`, `redbull:crumpled_original`, …), with components, and the `redbull:redbull` creative tab |
 | `neoforge/…/Caffeines.kt` | Caffeine in a data attachment, saved and dropped on death; the `redbull:caffeine` effect that shows it, and the bed it refuses |
 | `neoforge/…/Drinks.kt`, `Heart.kt` | The same as Paper's, on NeoForge's events; `Later.kt` runs the crash and the overdose ticks later |
-| `neoforge/…/Wings.kt` | The `redbull:wings` effect a can with wings gives instead of a winged can; `redbull.wings.gone` when it runs out or is taken mid-glide, and Slow Falling when it ends mid-glide |
-| `neoforge/…/mixin/GliderWearMixin.java` | Spares an elytra worn with the Wings effect: NeoForge has no event for glider wear |
-| `neoforge/…/Loot.kt` | Two global loot modifiers, `redbull:bull_bile` and `redbull:cans`, switched on in `data/redbull/loot_modifiers/` |
+| `neoforge/…/Wings.kt` | The `redbull:wings` effect a can with wings gives instead of a winged can; `redbull.wings.gone` when it runs out or is taken mid-glide, Slow Falling when it ends mid-glide, and feathers behind a glide on it |
+| `neoforge/…/mixin/` | NeoForge has no event for any of them: `GliderWearMixin` spares an elytra worn with the Wings effect, `GlideMixin` hands every tick of a glide to `Wings`, `WanderingTraderMixin` adds the trader's cans, and `LootPoolAccessor` reaches a pool's entries |
+| `neoforge/…/Loot.kt` | Two global loot modifiers, `redbull:bull_bile` and `redbull:cans`, switched on in `data/redbull/loot_modifiers/`, and the cans among fishing junk, added to the junk table's pool as it loads |
+| `neoforge/…/Trader.kt` | A wandering trader's cans from `Trades`, after the game's own trade sets |
+| `neoforge/…/Awards.kt` | Grants core's advancements: the collection's, the edge, the sugar pit, and the first glide |
 | `neoforge/…/Collected.kt`, `Menu.kt`, `RedBullCommand.kt` | The collection in an attachment kept through death, the `/redbull` chest, and the command; admin is operator level 2 |
 | `neoforge/…/Settings.kt` | `config/redbull.toml`: Paper's `config.yml` without the pack |
 | `neoforge/src/data/` | Writes every recipe and the `crumpled_cans` tag from `Cans.kt` into `build/generated/data` on each build |
 | `neoforge/src/main/resources/` | `neoforge.mods.toml`, the overdose damage type and its tags, and the loot modifiers |
-| `neoforge/src/gametest/` | A dev-only mod with game tests: drinking, the Caffeine effect, milk, the bed, the overdose, the bottles, wings, landing, the elytra, bile, and the creative tab |
+| `neoforge/src/gametest/` | A dev-only mod with game tests: drinking, the Caffeine effect, milk, the bed, the overdose, the bottles, wings, landing, the elytra, feathers, bile, the trader, fishing, the advancements, and the creative tab |
 | `fabric/…/RedBullItems.kt` | Registers every item under its asset's id (`redbull:original`, `redbull:crumpled_original`, `redbull:empty_can`), with its components as defaults, and the creative tab |
 | `fabric/…/ItemTypes.kt` | `CanItem` adds caffeine, wings, and the collection to a drink and the collection to a craft; `BottleItem` the bottles' moo and bull mode |
-| `fabric/…/Wings.kt` | The `redbull:wings` effect: Fabric's `EntityElytraEvents.CUSTOM` lets its holder glide, on both sides, wears nothing, and sends the glide's vibration the event skips; `redbull.wings.gone` and Slow Falling as on NeoForge |
+| `fabric/…/Wings.kt` | The `redbull:wings` effect: Fabric's `EntityElytraEvents.CUSTOM` lets its holder glide, on both sides, wears nothing, and sends the glide's vibration the event skips; `redbull.wings.gone`, Slow Falling, and feathers as on NeoForge |
 | `fabric/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, and the bottles; a tick queue for what comes later |
 | `fabric/…/Caffeines.kt` | Caffeine in a data attachment: saved with the player, dropped on death; the `redbull:caffeine` effect that shows it, and the bed it refuses |
 | `fabric/…/Heart.kt` | Jitters and crash every two seconds, as on Paper, and the Caffeine effect put back in line |
-| `fabric/…/Loot.kt` | Bull bile and chest cans as loot pools in the game's JSON, built from core and read through `LootPool.CODEC`, times the settings' multipliers; cans go to any table under `chests/`, a mod's or a data pack's too, as on NeoForge |
+| `fabric/…/Loot.kt` | Bull bile and chest cans as loot pools in the game's JSON, built from core and read through `LootPool.CODEC`, times the settings' multipliers; cans go to any table under `chests/`, a mod's or a data pack's too, as on NeoForge; the cans among fishing junk join the junk's own pool |
+| `fabric/…/Trader.kt`, `Awards.kt` | A wandering trader's cans and core's advancements, as on NeoForge |
 | `fabric/…/Collected.kt`, `Menu.kt`, `RedBullCommand.kt` | The collection in an attachment kept through death, the `/redbull` chest, and the command; admin is operator level 2 |
 | `fabric/…/Settings.kt` | `config/redbull.toml`, NeoForge's switches in the same file, read on start and `/reload` without a config library |
-| `fabric/…/mixin/` | Milk takes caffeine away once it took every effect (`MilkMixin` wraps `ItemStack.finishUsingItem`), so the Caffeine effect is back at once; a picked-up can (`PickupMixin`) and a closed container (`CloseContainerMixin`) feed the collection. Fabric has events for none of them |
+| `fabric/…/mixin/` | Milk takes caffeine away once it took every effect (`MilkMixin` wraps `ItemStack.finishUsingItem`), so the Caffeine effect is back at once; a picked-up can (`PickupMixin`) and a closed container (`CloseContainerMixin`) feed the collection; `GlideMixin` and `WanderingTraderMixin` as on NeoForge. Fabric has events for none of them |
 | `fabric/src/generator/…/Recipes.kt` | Writes every recipe and the `crumpled_cans` tag as data from core; the `generateData` task runs it before each build |
 | `fabric/src/main/resources/` | `fabric.mod.json` and the `overdose` damage type with NeoForge's tags |
-| `fabric/src/gametest/` | Game tests on a real server, and a client test that takes the README's screenshots |
+| `fabric/src/gametest/` | Game tests on a real server, and a client test that takes the README's screenshots and one of the advancements |
 
 ## Rules that keep it working
 
@@ -92,6 +95,13 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 - Chest cans go to any table under `chests/`, by the biome at the loot's origin. `/loot` takes the command's position as the origin, so test a biome with `execute positioned`.
 - The dev run's version is `0.0.0-dev`, since FML rejects `dev`.
 
+Both mods add the same things to the world the same way, since neither loader has an event for them in 26.3:
+
+- **The wandering trader.** Trades are data since 26.x, and a wandering trader reads three fixed trade sets, so `WanderingTraderMixin` adds `Trades.pick`'s cans after them: `Trades.price` emeralds for one can, `Trades.MAX_USES` uses, 1 experience.
+- **Fishing.** The junk table rolls inside `gameplay/fishing`, where no loot modifier sees it, so its own pool takes an empty can (`Fishing.EMPTY_WEIGHT`) and an inline table of the 26 crumpled cans (`Fishing.CRUMPLED_WEIGHT`), beside the game's 110: Fabric through `LootTableEvents.MODIFY`, NeoForge through `LootTableLoadEvent` and `LootPoolAccessor`.
+- **Feathers.** The game calls `updateFallFlying` only for an entity in flight; `GlideMixin` hands each server tick of it to `Wings.glide`, which sends three feather bits behind a player on Wings every other tick, to everyone within 32 blocks, as Paper does.
+- **Advancements** come from core's data, loaded from the jar like the rest of its resources; `Awards` awards their `done` criterion, with the root alongside: the collection's on every change and on join, the edge after a drink that didn't kill, the sugar pit when it comes, and the first glide on Wings.
+
 ## Fabric
 
 The Fabric mod behaves and looks as NeoForge's: the same items, creative tab, effects, colours, messages, sounds, menu, commands, and texts (`es_mx` and `pt_pt` copies included); only the hooks differ. `config/redbull.toml` takes NeoForge's keys, comments, and defaults (`overdose`, `wings`, `[loot]` `bile` and `chests`); `Settings` writes it with the defaults when it's missing and reads only that much TOML, so the mod needs no config library. It reads the file on start and on `/reload`, while NeoForge reads it again whenever it's saved. `/redbull`, the collection, and `/redbull give` and `/redbull caffeine` behave as on NeoForge; `/give` and `/item` also hand out any item by its id.
@@ -101,7 +111,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
 ## Building and testing
 
 - `./gradlew build` runs the tests and builds `paper/build/libs/redbull-paper-<version>.jar`, shaded and relocated under `ru.mairwunnx.redbull.libs`, `paper/build/pack/redbull-pack.zip`, and `neoforge/build/libs/redbull-neoforge-<version>.jar`. JDK 25; Gradle provisions it through the foojay resolver.
-- It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with core's classes and assets inside, and runs the Fabric game tests on a real server (`./gradlew :fabric:runGameTest`): drinking, the Caffeine effect after one, two, and three cans and its return after milk, the bed, the Wings effect (the launch, gliding with it and not without, no wear, the glide's vibrations, Slow Falling and `redbull.wings.gone` when it ends mid-flight, silence when it's taken on the ground), milk, the overdose through a totem and its death message in a fight, the settings, bull mode, the collection, the `/redbull` chest for players and admins, the commands, the creative tab, every crafting recipe, brewing, both furnaces, bile from cows, and chest loot by biome in the game's chests and another mod's.
+- It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with core's classes and assets inside, and runs the Fabric game tests on a real server (`./gradlew :fabric:runGameTest`): drinking, the Caffeine effect after one, two, and three cans and its return after milk, the bed, the Wings effect (the launch, gliding with it and not without, no wear, the glide's vibrations, Slow Falling and `redbull.wings.gone` when it ends mid-flight, silence when it's taken on the ground), milk, the overdose through a totem and its death message in a fight, the settings, bull mode, the collection, the `/redbull` chest for players and admins, the commands, the creative tab, every crafting recipe, brewing, both furnaces, bile from cows, chest loot by biome in the game's chests and another mod's, the wandering trader's cans, cans among fishing junk and in a real catch, feathers only while gliding on Wings, and each advancement when it's earned and not before.
 - There is no MockBukkit for Paper 26.3; tests cover `core`. The rest runs on a real Paper. On NeoForge and Fabric, game tests drive a real server with a fake survival player.
 
 ## Checking a change
@@ -111,7 +121,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
    ```sh
    python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-paper-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
    ```
-3. NeoForge's game tests: drinking, caffeine and its effect after one, two, and three cans, milk and `/effect clear`, the bed, the overdose and its death message, bull mode, gliding on the Wings effect and only with it, Slow Falling and `redbull.wings.gone` when it ends mid-glide and silence when it's taken on the ground, an elytra that doesn't wear with Wings, the glide's vibrations, no winged can, bile from a cow, the creative tab, and the `/redbull` chest for players and admins, on a real server. It ends with “All 13 required tests passed”:
+3. NeoForge's game tests: drinking, caffeine and its effect after one, two, and three cans, milk and `/effect clear`, the bed, the overdose and its death message, bull mode, gliding on the Wings effect and only with it, Slow Falling and `redbull.wings.gone` when it ends mid-glide and silence when it's taken on the ground, an elytra that doesn't wear with Wings, the glide's vibrations, feathers only while gliding on Wings, no winged can, bile from a cow, the wandering trader's cans, cans among fishing junk and in a real catch, each advancement when it's earned and not before, the creative tab, and the `/redbull` chest for players and admins, on a real server. It ends with “All 18 required tests passed”:
    ```sh
    ./gradlew :neoforge:runGameTestServer
    ```
@@ -120,7 +130,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
    ```sh
    python3 -I .claude/scripts/fabric_smoke.py --game 26.3 --mod fabric/build/libs/redbull-fabric-dev.jar --modrinth fabric-api --modrinth fabric-language-kotlin --expect "Red Bull dev is on: 26 cans, 23 recipes"
    ```
-5. The README's screenshots on a real Fabric client: `./gradlew :fabric:runClientGameTest` opens a 1280×720 window in English and saves `world.png` (the hotbar at noon), `effects.png` (Caffeine II and Wings beside the inventory), and `collection.png` (`/redbull` for a player without operator rights) in `fabric/build/run/clientGameTest/screenshots/`. Copy them to `media/screenshots/` when the look changes.
+5. The README's screenshots on a real Fabric client: `./gradlew :fabric:runClientGameTest` opens a 1280×720 window in English and saves `world.png` (the hotbar at noon), `effects.png` (Caffeine II and Wings beside the inventory), `collection.png` (`/redbull` for a player without operator rights), and `advancements.png` (Red Bull's tab) in `fabric/build/run/clientGameTest/screenshots/`. Copy them to `media/screenshots/` when the look changes.
 6. Gliding everywhere, and NeoForge's effect icons and tooltips, need a player: `./gradlew :neoforge:runClient` for NeoForge; for Paper, the owner tries them after a release reaches Moonlands.
 
 ## Autopilot
