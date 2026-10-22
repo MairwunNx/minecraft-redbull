@@ -125,7 +125,7 @@ def main():
         (brewing(vanilla, font, done=True), 150),
         (smelting(vanilla, font, done=False), 150),
         (smelting(vanilla, font, done=True), 150),
-        (crafting(vanilla, font, table, recipe("empty_can"), "4. Make empty cans"), 200),
+        (crafting(vanilla, font, table, recipe("empty_can"), "4. Make an empty can"), 200),
         (crafting(vanilla, font, table, recipe("original"), "5. Fill a can"), 300),
     ]
     gif([scale(canvas, ZOOM) for canvas, _ in steps], [delay for _, delay in steps], OUT)
