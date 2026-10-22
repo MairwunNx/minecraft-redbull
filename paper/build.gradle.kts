@@ -99,6 +99,10 @@ hangarPublish {
     apiKey = providers.environmentVariable("HANGAR_TOKEN")
     changelog = (findProperty("changelogFile") as String?)?.let { rootProject.file(it).readText() }
       ?: "https://github.com/MairwunNx/minecraft-redbull/releases/tag/v${project.version}"
+    // The project page follows MODRINTH.md, as Modrinth's does; the release syncs it with the version.
+    pages {
+      resourcePage(providers.provider { rootProject.file("MODRINTH.md").readText() })
+    }
     platforms {
       register(Platforms.PAPER) {
         jar = tasks.shadowJar.flatMap { it.archiveFile }

@@ -96,7 +96,8 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
       - name: Publish to Hangar
         if: inputs.hangar
-        run: ./gradlew publishPluginPublicationToHangar -PreleaseVersion="$VERSION" -PchangelogFile="$NOTES" --no-configuration-cache
+        # The version, then the project page from MODRINTH.md, which Hangar doesn't sync by itself.
+        run: ./gradlew publishPluginPublicationToHangar syncAllPluginPublicationPagesToHangar -PreleaseVersion="$VERSION" -PchangelogFile="$NOTES" --no-configuration-cache
         env:
           HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
 
