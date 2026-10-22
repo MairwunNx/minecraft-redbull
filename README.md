@@ -29,10 +29,11 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 
 - 🥫 **26 real cans:** Original, Sugarfree, Zero, and the Editions from Red to Spring, each with its own buffs, a flavour, and a slogan.
 - 🧪 **A chemistry chain:** cows drop bull bile, a brewing stand turns it into crude taurine, a furnace evaporates that into taurine, and a crafting table fills an empty can.
-- 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else.
+- 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else. A wandering trader brings a can or two, and now and then your fishing rod pulls one out of the water.
 - 🪽 **Real wiiings:** a can with wings launches you and lets you glide like an elytra, from 16 seconds to over a minute.
 - 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you. Caffeine also keeps you out of bed.
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
+- 🏆 **Six advancements** in a Red Bull tab: Gives You Wings, Sugar Pit, On the Edge, Legend, and Collector.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
 
 ## Screenshots
@@ -88,13 +89,30 @@ Every can carries the same caffeine, as the real ones do; they differ in buffs a
 | Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling and Resistance I for 16 min | 64 s |
 | Spring Edition | only in cherry grove chests, 3% | Slow Falling for 16 min | 64 s |
 
+## Where else cans come from
+
+- **A wandering trader** brings one or two cans: a crafted one for 6 emeralds, an Edition you also find in chests for 10. Legends are never for sale.
+- **Fishing:** about one junk catch in ten is a can, empty or crumpled, of any flavour. Smelt the crumpled ones back into iron.
+
+## Advancements
+
+A Red Bull tab joins your advancements with your first can:
+
+| Advancement | How |
+|---|---|
+| Gives You Wings | Glide on the wings of a can |
+| Sugar Pit | Sink into a sugar pit when a can’s buffs run out |
+| On the Edge | Have 90 caffeine or more, and live |
+| Legend | Find Ruby, Summer, Glacier, or Spring |
+| Collector | Hold every one of the 26 cans |
+
 ## Your collection
 
 Type `/redbull` to open your collection: every can you have ever held, crafted, found, or been given, and an empty can with question marks for the rest. The title counts how many of the 26 you have. Admins see every can and ingredient there and take one with a click, or a stack with Shift.
 
 ## Wiiings
 
-A can with wings throws you upward as you finish it. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. If the wings run out in the air, Slow Falling sets you down gently.
+A can with wings throws you upward as you finish it. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. Feathers trail behind you as you fly. If the wings run out in the air, Slow Falling sets you down gently.
 
 - **In the mods,** the can gives you the Wings effect, with its icon and timer among your other effects. Elytra you wear don’t wear out while it carries you.
 - **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. Once its flight runs out, or a minute after it would have, it crumples.
