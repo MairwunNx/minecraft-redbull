@@ -462,13 +462,16 @@ class RedBullTests(modBus: IEventBus) {
     // A hundred times 5% is a sure drop.
     Settings.bile.set(100.0)
     val cow = helper.spawn(EntityTypes.COW, BlockPos(1, 1, 1))
+    cow.age = 0
     cow.hurtServer(helper.level, player.damageSources().playerAttack(player), 1000f)
     Settings.bile.set(before)
-    val area = AABB(cow.blockPosition()).inflate(3.0)
-    val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area).map { Items.id(it.item) }
-    helper.assertTrue(Ids.BULL_BILE in drops, "a cow a player killed drops bile, dropped $drops")
-    helper.level.server.playerList.remove(player)
-    helper.succeed()
+    // The drops may land a tick or two after the death, and roll a little: look for a second, not on the spot.
+    val area = AABB(cow.blockPosition()).inflate(6.0)
+    helper.succeedWhen {
+      val drops = helper.level.getEntitiesOfClass(ItemEntity::class.java, area).map { Items.id(it.item) }
+      helper.assertTrue(Ids.BULL_BILE in drops, "a cow a player killed drops bile, dropped $drops")
+      helper.level.server.playerList.remove(player)
+    }
   }
 
   /** A player sees their collection and takes nothing; an admin takes one with a click, a stack with Shift. */
