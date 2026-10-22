@@ -51,7 +51,7 @@ Every can carries the same caffeine, as the real ones do; they differ in buffs a
 |---|---|---|---|
 | Energy Drink | sugar, blue dye | Speed II and Haste I for 8 min | 16 s |
 | Sugarfree | sugar cane, light blue dye | Speed I for 8 min | 16 s |
-| Zero | taurine, light blue dye | Speed II and Haste I for 8 min | 16 s |
+| Zero | phantom membrane, light blue dye | Speed II and Haste I for 8 min | 42 s |
 | Red Edition | melon slice, red dye | Strength I for 8 min | 16 s |
 | Red Edition Sugarfree | melon slice, red dye | Strength I for 8 min | 16 s |
 | Pink Edition Sugarfree | sweet berries, pink dye | Regeneration I for 90 s | 16 s |

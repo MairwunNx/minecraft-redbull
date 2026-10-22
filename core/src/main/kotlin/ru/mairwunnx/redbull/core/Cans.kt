@@ -71,6 +71,9 @@ const val WINGS_COMMON = 16
 const val WINGS_EDITION = 32
 const val WINGS_LEGEND = 64
 
+/** Zero is the one can between the kinds: the original's full strength without sugar, and wings to match its price. */
+const val WINGS_ZERO = 42
+
 /** What breaks the game stays short: anything that restores health, and Strength II. */
 const val HEALING = 16
 const val STRENGTH_II = 180
@@ -84,7 +87,7 @@ private fun recipe(flavour: String, dye: String) =
 val CANS = listOf(
   Can("original", false, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe("sugar", "blue"), null),
   Can("sugarfree", true, listOf(speed(COMMON)), WINGS_COMMON, recipe("sugar_cane", "light_blue"), null),
-  Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_COMMON, recipe(Ids.TAURINE_ITEM, "light_blue"), null),
+  Can("zero", true, listOf(speed(COMMON, 2), haste(COMMON)), WINGS_ZERO, recipe("phantom_membrane", "light_blue"), null),
   Can("red", false, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),
   Can("red_sugarfree", true, listOf(strength(COMMON)), WINGS_COMMON, recipe("melon_slice", "red"), null),
   Can("pink_sugarfree", true, listOf(effect("regeneration", HEALING)), WINGS_COMMON, recipe("sweet_berries", "pink"), null),

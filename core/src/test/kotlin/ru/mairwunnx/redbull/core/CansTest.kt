@@ -44,9 +44,10 @@ class CansTest {
   }
 
   @Test
-  fun `wings last 16, 32, or 64 seconds by the kind of can`() {
+  fun `wings last 16, 32, or 64 seconds by the kind of can, and Zero 42`() {
     CANS.filter { it.wings > 0 }.forEach { can ->
       val expected = when {
+        can.id == "zero" -> WINGS_ZERO
         can.recipe == null -> WINGS_LEGEND
         can.chests != null -> WINGS_EDITION
         else -> WINGS_COMMON
