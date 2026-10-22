@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
@@ -71,7 +72,9 @@ object Drinks {
   /** Writes the new caffeine; false when it was one drink too many and the player is about to die. */
   private fun caffeine(player: ServerPlayer, drink: Drink): Boolean {
     if (!drink.fatal || !Settings.overdose || player.isCreative || player.isSpectator) {
-      Caffeines.set(player, drink.caffeine.copy(level = drink.caffeine.level.coerceAtMost(rules.limit)))
+      val level = drink.caffeine.level.coerceAtMost(rules.limit)
+      Caffeines.set(player, drink.caffeine.copy(level = level))
+      Awards.caffeine(player, level)
       return true
     }
     Caffeines.reset(player)
@@ -92,9 +95,14 @@ object Drinks {
 
   /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
   private fun sugarPitLater(player: ServerPlayer, can: Can) = schedule(sugarPitDelay(can) * 20L) {
-    if (player.hasDisconnected() || !player.isAlive) return@schedule
+    if (!player.hasDisconnected() && player.isAlive) sugarPit(player)
+  }
+
+  /** The sugar pit itself, and its advancement. */
+  fun sugarPit(player: ServerPlayer) {
     sugarPit().map(RedBullItems::effect).forEach(player::addEffect)
     player.sendOverlayMessage(Component.translatable("redbull.sugar_pit").withStyle(ChatFormatting.GOLD))
+    Awards.award(player, Advancements.SUGAR_PIT)
   }
 
   /** Up into the air, with [Can.wings] seconds of the Wings effect to glide on. */

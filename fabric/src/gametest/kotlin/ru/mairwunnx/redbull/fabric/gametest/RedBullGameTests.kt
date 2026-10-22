@@ -15,6 +15,8 @@ import io.netty.channel.embedded.EmbeddedChannel
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.PacketFlow
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.core.particles.ItemParticleOption
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.core.BlockPos
 import net.minecraft.core.component.DataComponents
@@ -51,6 +53,7 @@ import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import ru.mairwunnx.redbull.core.WINGS_COMMON
@@ -58,8 +61,12 @@ import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Advancements
+import ru.mairwunnx.redbull.core.Fishing
+import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Collected
+import ru.mairwunnx.redbull.fabric.Drinks
 import ru.mairwunnx.redbull.fabric.Menu
 import ru.mairwunnx.redbull.fabric.RedBullItems
 import ru.mairwunnx.redbull.fabric.Settings
@@ -93,6 +100,15 @@ class RedBullGameTests {
       overlays += (message.contents as? TranslatableContents)?.key
       super.sendOverlayMessage(message)
     }
+
+    /** Where the server's packets to this player end up. */
+    lateinit var channel: EmbeddedChannel
+
+    /** The bursts of feathers this player was sent near themselves since the last look; other tests glide around too. */
+    fun feathers(): Int = generateSequence { channel.readOutbound<Any>() }.count {
+      it is ClientboundLevelParticlesPacket && (it.particle() as? ItemParticleOption)?.item?.item()?.value() == Items.FEATHER &&
+        position().closerThan(Vec3(it.x(), it.y(), it.z()), 4.0)
+    }
   }
 
   /**
@@ -104,7 +120,7 @@ class RedBullGameTests {
     val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
     val player = Survivor(server, helper.level, cookie)
     val connection = Connection(PacketFlow.SERVERBOUND)
-    EmbeddedChannel(connection)
+    player.channel = EmbeddedChannel(connection)
     server.playerList.placeNewPlayer(connection, player, cookie)
     player.setGameMode(GameType.SURVIVAL)
     player.connection.handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket())
@@ -191,6 +207,38 @@ class RedBullGameTests {
       equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
       // The game sends it every half a second of flight, as with an elytra alone.
       equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
+    }
+  }
+
+  /** Feathers trail a glide on Wings every couple of ticks; Wings on the ground and an elytra alone shed none. */
+  @GameTest(maxTicks = 100)
+  fun wingsTrailFeathersInFlight(helper: GameTestHelper) {
+    val walker = player(helper)
+    helper.absoluteVec(Vec3(1.5, 1.0, 1.5)).let { walker.teleportTo(it.x, it.y, it.z) }
+    // High above the other tests' flights, and far apart, so no one else's feathers count.
+    val glider = airborne(helper)
+    helper.absoluteVec(Vec3(1.5, 120.0, 1.5)).let { glider.teleportTo(it.x, it.y, it.z) }
+    val plain = airborne(helper)
+    helper.absoluteVec(Vec3(1.5, 200.0, 1.5)).let { plain.teleportTo(it.x, it.y, it.z) }
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    listOf(walker, glider).forEach { it.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20)) }
+    helper.assertTrue(glider.tryToStartFallFlying() && plain.tryToStartFallFlying(), "gliding")
+    val bursts = mutableMapOf(walker to 0, glider to 0, plain to 0)
+    var ticks = 0
+    helper.onEachTick {
+      bursts.keys.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+        bursts[it] = bursts.getValue(it) + it.feathers()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 20, "a second of flight")
+      helper.assertTrue(glider.isFallFlying, "still gliding")
+      helper.assertTrue(bursts.getValue(glider) >= ticks / 2 - 1, "${bursts[glider]} bursts of feathers in $ticks ticks of flight")
+      equal(helper, bursts.getValue(walker), 0, "feathers from Wings on the ground")
+      equal(helper, bursts.getValue(plain), 0, "feathers from an elytra alone")
     }
   }
 
@@ -368,6 +416,28 @@ class RedBullGameTests {
     helper.succeed()
   }
 
+  /** Every wandering trader brings one or two different cans besides its own wares, never a legend, at core's prices. */
+  @GameTest
+  fun wanderingTradersSellCans(helper: GameTestHelper) {
+    repeat(20) {
+      val trader = helper.spawn(EntityTypes.WANDERING_TRADER, BlockPos(1, 2, 1))
+      val offers = trader.offers
+      val cans = offers.filter { RedBullItems.canOf(it.result) != null }
+      val sold = cans.map { RedBullItems.canOf(it.result)!! }
+      helper.assertTrue(cans.size in Trades.MIN_OFFERS..Trades.MAX_OFFERS, "one or two cans, not ${sold.map { it.id }}")
+      helper.assertTrue(offers.size > cans.size, "the trader's own wares stay")
+      equal(helper, sold.distinct(), sold, "different cans")
+      for ((offer, can) in cans.zip(sold)) {
+        helper.assertTrue(can.recipe != null, "${can.id} is a legend")
+        helper.assertTrue(offer.costA.`is`(Items.EMERALD) && offer.costA.count == Trades.price(can), "${can.id} for ${offer.costA}")
+        helper.assertTrue(offer.costB.isEmpty && offer.result.count == 1, "one ${can.id} for emeralds alone")
+        equal(helper, offer.maxUses to offer.xp, Trades.MAX_USES to 1, "the uses and experience of ${can.id}")
+      }
+      trader.discard()
+    }
+    helper.succeed()
+  }
+
   @GameTest
   fun everyCanWithARecipeCrafts(helper: GameTestHelper) {
     val level = helper.level
@@ -453,6 +523,79 @@ class RedBullGameTests {
     helper.succeed()
   }
 
+  /** Whether [player] has the advancement `redbull:<name>`, which core's data brings into the mod. */
+  private fun done(helper: GameTestHelper, player: ServerPlayer, name: String): Boolean {
+    val advancement = helper.level.server.advancements.get(RedBullItems.id(name))
+      ?: throw helper.assertionException("no advancement redbull:$name")
+    return player.advancements.getOrStartProgress(advancement).isDone
+  }
+
+  /** The collection's advancements: the first can, a legend, and every can, each when it happens and not before. */
+  @GameTest
+  fun theCollectionEarnsAdvancements(helper: GameTestHelper) {
+    val player = player(helper)
+    val all = listOf(Advancements.ROOT, Advancements.LEGEND, Advancements.COLLECTOR)
+    equal(helper, all.filter { done(helper, player, it) }, emptyList<String>(), "advancements before any can")
+    Collected.add(player, setOf("cherry"))
+    equal(helper, all.filter { done(helper, player, it) }, listOf(Advancements.ROOT), "advancements after the first can")
+    val legend = CANS.first { Advancements.legend(it) }
+    Collected.add(player, setOf(legend.id))
+    equal(helper, all.filter { done(helper, player, it) }, all.dropLast(1), "advancements after ${legend.id}")
+    Collected.add(player, CANS.filter { it.id != "summer" }.map { it.id }.toSet())
+    helper.assertFalse(done(helper, player, Advancements.COLLECTOR), "the collector with a can missing")
+    Collected.add(player, setOf("summer"))
+    helper.assertTrue(done(helper, player, Advancements.COLLECTOR), "the collector with every can")
+    helper.succeed()
+  }
+
+  /** On the edge at 90 caffeine, alive; the sugar pit when it comes; an overdose earns nothing. */
+  @GameTest
+  fun caffeineEarnsAdvancements(helper: GameTestHelper) {
+    val player = player(helper)
+    drink(player, can("original"))
+    drink(player, can("sugarfree"))
+    helper.assertFalse(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
+    drink(player, can("zero"))
+    helper.assertTrue(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
+    helper.assertFalse(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit before it comes")
+    Drinks.sugarPit(player)
+    helper.assertTrue(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit")
+
+    val dying = player(helper)
+    Caffeines.set(dying, Caffeine(80.0, Caffeines.clock(dying)))
+    drink(dying, can("red"))
+    helper.assertFalse(done(helper, dying, Advancements.EDGE), "the edge from an overdose")
+    helper.succeed()
+  }
+
+  /** The first glide on Wings earns its advancement; Wings on the ground or an elytra alone don't. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsEarnsAnAdvancement(helper: GameTestHelper) {
+    val walker = player(helper)
+    walker.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    val plain = airborne(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    helper.assertTrue(plain.tryToStartFallFlying(), "gliding on an elytra")
+    val glider = airborne(helper)
+    glider.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertFalse(done(helper, glider, Advancements.WINGS), "Wings before the glide")
+    helper.assertTrue(glider.tryToStartFallFlying(), "gliding on Wings")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(walker, plain, glider).forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 10, "half a second")
+      helper.assertTrue(done(helper, glider, Advancements.WINGS), "Wings after the glide")
+      helper.assertFalse(done(helper, walker, Advancements.WINGS), "Wings on the ground")
+      helper.assertFalse(done(helper, plain, Advancements.WINGS), "Wings on an elytra alone")
+    }
+  }
+
   @GameTest
   fun collectionShowsWhatThePlayerHeld(helper: GameTestHelper) {
     val player = player(helper)
@@ -523,6 +666,36 @@ class RedBullGameTests {
     val expected = CANS.map { it.id } + CANS.map { it.crumpled } + listOf("empty_can", "bull_bile", "crude_taurine", "taurine")
     equal(helper, shown, expected, "the creative tab")
     equal(helper, RedBullItems.idOf(tab.iconItem.item), "original", "the tab's icon")
+    helper.succeed()
+  }
+
+  /**
+   * A fishing rod's junk holds an empty can and crumpled cans of every flavour, as often as core says; a real catch,
+   * which rolls the junk inside the fishing table, brings them too. A fixed seed keeps the counts the same every run.
+   */
+  @GameTest
+  fun fishingJunkHoldsCans(helper: GameTestHelper) {
+    val level = helper.level
+    val params = LootParams.Builder(level)
+      .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3(1.5, 2.0, 1.5)))
+      .withParameter(LootContextParams.TOOL, ItemStack(Items.FISHING_ROD))
+      .create(LootContextParamSets.FISHING)
+    fun roll(table: String, times: Int): List<ItemStack> {
+      val loot = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(table)))
+      val random = RandomSource.create(26)
+      return (1..times).flatMap { loot.getRandomItems(params, random) }
+    }
+    val junk = roll("minecraft:gameplay/fishing/junk", 4000)
+    val empty = junk.count { it.`is`(RedBullItems.emptyCan) }
+    val crumpled = junk.filter { it.item in RedBullItems.crumpled.values }
+    val share = (empty + crumpled.size).toDouble() / junk.size
+    helper.assertTrue(share in Fishing.share - 0.02..Fishing.share + 0.02, "cans in ${"%.3f".format(share)} of the junk, not ${"%.3f".format(Fishing.share)}")
+    val emptyShare = empty.toDouble() / (empty + crumpled.size)
+    val expected = Fishing.EMPTY_WEIGHT.toDouble() / (Fishing.EMPTY_WEIGHT + Fishing.CRUMPLED_WEIGHT)
+    helper.assertTrue(emptyShare in expected - 0.1..expected + 0.1, "empty cans in ${"%.3f".format(emptyShare)} of the cans")
+    helper.assertTrue(crumpled.map { it.item }.toSet().size >= CANS.size - 4, "crumpled cans of nearly every flavour")
+    val catches = roll("minecraft:gameplay/fishing", 4000)
+    helper.assertTrue(catches.any { it.`is`(RedBullItems.emptyCan) || it.item in RedBullItems.crumpled.values }, "a can in a real catch")
     helper.succeed()
   }
 

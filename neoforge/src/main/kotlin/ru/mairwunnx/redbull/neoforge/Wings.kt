@@ -2,6 +2,8 @@ package ru.mairwunnx.redbull.neoforge
 
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
+import net.minecraft.core.particles.ItemParticleOption
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.Registries
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.MobEffect
@@ -15,8 +17,10 @@ import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
+import net.minecraft.world.item.Items as Vanilla
 
 /**
  * `redbull:wings`, the effect a can with wings gives: the player glides as with an elytra, and no item wears.
@@ -26,6 +30,12 @@ import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
  */
 object Wings {
   private const val LANDING_TICKS = SOFT_LANDING_SECONDS * 20
+  private const val FEATHER_TICKS = 2
+  /** As on Paper: three bits, 0.8 blocks behind where the player looks, 0.3 above their feet. */
+  private const val FEATHERS = 3
+  private const val FEATHER_DISTANCE = 0.8
+  private const val FEATHER_HEIGHT = 0.3
+  private val FEATHER by lazy { ItemParticleOption(ParticleTypes.ITEM, Vanilla.FEATHER) }
 
   private val EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MOD_ID)
 
@@ -35,6 +45,26 @@ object Wings {
   }
 
   fun register(bus: IEventBus) = EFFECTS.register(bus)
+
+  /**
+   * Every server tick of a glide, from `GlideMixin`: on Wings, feathers trail the player every couple of ticks, and
+   * the first glide is an advancement.
+   */
+  @JvmStatic
+  fun glide(entity: LivingEntity) {
+    if (entity !is ServerPlayer || entity.onGround() || !entity.hasEffect(EFFECT)) return
+    if (entity.fallFlyingTicks % FEATHER_TICKS != 0) return
+    feathers(entity)
+    Awards.award(entity, Advancements.WINGS)
+  }
+
+  /** A few bits of feather behind [player], for everyone nearby; how many players were sent them. */
+  fun feathers(player: ServerPlayer): Int {
+    val back = player.lookAngle.scale(-FEATHER_DISTANCE)
+    return player.level().sendParticles(
+      FEATHER, player.x + back.x, player.y + FEATHER_HEIGHT + back.y, player.z + back.z, FEATHERS, 0.2, 0.1, 0.2, 0.02,
+    )
+  }
 
   /** Wings for [seconds]; a longer flight already under way stays. */
   fun give(player: ServerPlayer, seconds: Int) {

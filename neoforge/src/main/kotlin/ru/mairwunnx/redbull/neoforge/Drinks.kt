@@ -15,6 +15,7 @@ import net.minecraft.world.item.Items as Vanilla
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent
 import net.neoforged.neoforge.event.entity.player.PlayerEvent
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
@@ -89,7 +90,9 @@ object Drinks {
   /** Writes the new caffeine; false when it was one drink too many and the player is about to die. */
   private fun caffeine(player: ServerPlayer, drink: Drink): Boolean {
     if (!drink.fatal || !Settings.overdose.get() || !player.gameMode().isSurvival) {
-      Caffeines.set(player, drink.caffeine.copy(level = drink.caffeine.level.coerceAtMost(rules.limit)))
+      val level = drink.caffeine.level.coerceAtMost(rules.limit)
+      Caffeines.set(player, drink.caffeine.copy(level = level))
+      Awards.caffeine(player, level)
       return true
     }
     Caffeines.reset(player)
@@ -113,10 +116,15 @@ object Drinks {
   /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
   private fun sugarPitLater(player: ServerPlayer, can: Can) {
     Later.run(sugarPitDelay(can) * 20) {
-      if (player.isRemoved || !player.isAlive) return@run
-      sugarPit().mapNotNull(Items::effect).forEach { player.addEffect(it) }
-      player.sendOverlayMessage(Component.translatable("redbull.sugar_pit").withStyle(ChatFormatting.GOLD))
+      if (!player.isRemoved && player.isAlive) sugarPit(player)
     }
+  }
+
+  /** The sugar pit itself, and its advancement. */
+  fun sugarPit(player: ServerPlayer) {
+    sugarPit().mapNotNull(Items::effect).forEach { player.addEffect(it) }
+    player.sendOverlayMessage(Component.translatable("redbull.sugar_pit").withStyle(ChatFormatting.GOLD))
+    Awards.award(player, Advancements.SUGAR_PIT)
   }
 
   /** Up into the air, with the Wings effect to glide on; the can still crumples as any other. */

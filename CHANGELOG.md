@@ -2,6 +2,13 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.3.0
+
+- 🧳 **A wandering trader brings cans in the mods too:** one or two different ones besides its own wares, 6 emeralds for a crafted can and 10 for an Edition, three times each. It never sells a legend.
+- 🎣 **Cans among fishing junk in the mods:** about one junk catch in ten is an empty can or a crumpled can of any flavour, in any rod’s catch.
+- 🪶 **Feathers trail a glide on Wiiings in the mods,** for everyone nearby to see, and only while you fly.
+- 🏆 **Six advancements in the mods,** in a Red Bull tab of their own: your first can, the first glide on Wiiings, the sugar pit, 90 caffeine and still alive, a legend, and every can. A collection from before counts the moment you join.
+
 ## 1.2.1
 
 - 🥫 **An empty can is one can now:** four iron nuggets and a copper nugget make one, not two. A crumpled can still smelts into two iron nuggets, so two of them and a copper nugget make a new one.

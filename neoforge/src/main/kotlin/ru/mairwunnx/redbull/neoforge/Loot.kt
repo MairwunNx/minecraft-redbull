@@ -10,22 +10,31 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.LootPool
+import net.minecraft.world.level.storage.loot.LootTable
+import net.minecraft.world.level.storage.loot.entries.LootItem
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer
+import net.minecraft.world.level.storage.loot.entries.NestedLootTable
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier
 import net.neoforged.neoforge.common.loot.LootModifier
+import net.neoforged.neoforge.event.LootTableLoadEvent
 import net.neoforged.neoforge.registries.DeferredRegister
 import net.neoforged.neoforge.registries.NeoForgeRegistries
 import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
+import ru.mairwunnx.redbull.core.Fishing
+import ru.mairwunnx.redbull.neoforge.mixin.LootPoolAccessor
 import java.util.Optional
 import net.minecraft.core.Holder
 
 /**
- * Where ingredients and cans come from besides crafting: bull bile from cows a player kills, and cans in
- * chests by the biome the chest stands in, whatever structure it belongs to. Two global loot modifiers,
- * switched on by `data/redbull/loot_modifiers/`; the chances come from `core`.
+ * Where ingredients and cans come from besides crafting: bull bile from cows a player kills, cans in chests by
+ * the biome the chest stands in, whatever structure it belongs to, and cans among a fishing rod's junk. Two global
+ * loot modifiers, switched on by `data/redbull/loot_modifiers/`, and the junk table's own pool; the chances come
+ * from `core`.
  */
 object Loot {
   private val SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, MOD_ID)
@@ -40,6 +49,33 @@ object Loot {
   }
 
   fun register(bus: IEventBus) = SERIALIZERS.register(bus)
+
+  /**
+   * The junk table is rolled inside the fishing table, where no loot modifier sees it, so its pool takes the cans
+   * as it loads: weights beside the game's junk, as Fabric adds them.
+   */
+  fun listen(bus: IEventBus) {
+    bus.on<LootTableLoadEvent> { event ->
+      if (event.name.toString() != JUNK) return@on
+      val pool = event.table.getPool("main") as? LootPoolAccessor ?: return@on
+      pool.`redbull$setEntries`(pool.`redbull$entries`() + junk())
+    }
+  }
+
+  private const val JUNK = "minecraft:gameplay/fishing/junk"
+
+  /**
+   * An empty can, and a crumpled can of any flavour, the flavours sharing one weight, so a can turns up as often as
+   * core says however many flavours there are.
+   */
+  private fun junk(): List<LootPoolEntryContainer> {
+    val crumpled = LootPool.lootPool()
+    Items.crumpled.values.forEach { crumpled.add(LootItem.lootTableItem(it.get())) }
+    return listOf(
+      LootItem.lootTableItem(Items.emptyCan.get()).setWeight(Fishing.EMPTY_WEIGHT).build(),
+      NestedLootTable.inlineLootTable(LootTable.lootTable().withPool(crumpled).build()).setWeight(Fishing.CRUMPLED_WEIGHT).build(),
+    )
+  }
 
   abstract class Modifier(condition: Optional<Holder<LootItemCondition>>, priority: Int) : LootModifier(condition, priority) {
     companion object {

@@ -4,19 +4,23 @@ import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotOptions
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.advancements.AdvancementsScreen
 import net.minecraft.client.gui.screens.inventory.ContainerScreen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import net.minecraft.network.chat.Component
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.fabric.Awards
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Collected
 import ru.mairwunnx.redbull.fabric.Menu
+import ru.mairwunnx.redbull.fabric.RedBullItems
 import ru.mairwunnx.redbull.fabric.Wings
 
 /**
  * A real client in a fresh survival world at noon, as a player without operator rights, and the README's screenshots:
  * `world` with cans and bottles in the hotbar, `effects` with Caffeine II and Wings beside the inventory, and
- * `collection` with the `/redbull` chest of a player who has found a few cans. `./gradlew :fabric:runClientGameTest`
+ * `collection` with the `/redbull` chest of a player who has found a few cans, and `advancements` with Red Bull's tab. `./gradlew :fabric:runClientGameTest`
  * opens a game window and saves them in `fabric/build/run/clientGameTest/screenshots`; copy them to
  * `media/screenshots` when the look changes.
  */
@@ -66,6 +70,24 @@ class RedBullClientGameTest : FabricClientGameTest {
       context.input.setCursorPos(0.0, 0.0)
       context.waitTicks(5)
       screenshot(context, "collection")
+      context.setScreen { null }
+
+      // Red Bull's tab of advancements: the first can came with the collection; add the first glide, the edge, and
+      // the sugar pit, and leave the legend and the collector to find.
+      world.server.runOnServer<RuntimeException> { server ->
+        val player = server.playerList.players.single()
+        listOf(Advancements.WINGS, Advancements.EDGE, Advancements.SUGAR_PIT).forEach { Awards.award(player, it) }
+      }
+      context.waitTicks(5)
+      context.runOnClient<RuntimeException> {
+        val advancements = it.player!!.connection.advancements
+        val root = advancements.get(RedBullItems.id(Advancements.ROOT)) ?: error("the client has no Red Bull advancements")
+        advancements.setSelectedTab(root, false)
+      }
+      context.setScreen { AdvancementsScreen(Minecraft.getInstance().player!!.connection.advancements) }
+      context.input.setCursorPos(0.0, 0.0)
+      context.waitTicks(5)
+      screenshot(context, "advancements")
       context.setScreen { null }
     }
   }

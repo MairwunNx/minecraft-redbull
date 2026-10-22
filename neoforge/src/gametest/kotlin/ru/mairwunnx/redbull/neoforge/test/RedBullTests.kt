@@ -18,6 +18,8 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.PacketFlow
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.core.particles.ItemParticleOption
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.InteractionHand
@@ -34,6 +36,11 @@ import net.minecraft.world.level.GameType
 import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.server.players.NameAndId
 import ru.mairwunnx.redbull.neoforge.Collected
+import net.minecraft.resources.ResourceKey
+import net.minecraft.util.RandomSource
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
@@ -41,8 +48,13 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.Advancements
+import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Fishing
+import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
+import ru.mairwunnx.redbull.neoforge.Drinks
 import ru.mairwunnx.redbull.neoforge.Items
 import ru.mairwunnx.redbull.neoforge.Menu
 import ru.mairwunnx.redbull.neoforge.Settings
@@ -72,6 +84,11 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("bile") { -> Consumer(::bile) }
     functions.register("tab") { -> Consumer(::tab) }
     functions.register("menu") { -> Consumer(::menu) }
+    functions.register("trader") { -> Consumer(::trader) }
+    functions.register("fishing") { -> Consumer(::fishing) }
+    functions.register("feathers") { -> Consumer(::feathers) }
+    functions.register("advancements") { -> Consumer(::advancements) }
+    functions.register("wings_advancement") { -> Consumer(::wingsAdvancement) }
     functions.register(modBus)
   }
 
@@ -96,6 +113,15 @@ class RedBullTests(modBus: IEventBus) {
       super.gameEvent(event)
     }
 
+    /** Where the server's packets to this player end up. */
+    lateinit var channel: EmbeddedChannel
+
+    /** The bursts of feathers this player was sent near themselves since the last look; other tests glide around too. */
+    fun feathers(): Int = generateSequence { channel.readOutbound<Any>() }.count {
+      it is ClientboundLevelParticlesPacket && (it.particle() as? ItemParticleOption)?.item?.item()?.value() == Vanilla.FEATHER &&
+        position().closerThan(net.minecraft.world.phys.Vec3(it.x(), it.y(), it.z()), 4.0)
+    }
+
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
     fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
       val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
@@ -115,7 +141,7 @@ class RedBullTests(modBus: IEventBus) {
         val player = Survivor(helper)
         val cookie = CommonListenerCookie.createInitial(player.gameProfile, false)
         val connection = Connection(PacketFlow.SERVERBOUND)
-        EmbeddedChannel(connection)
+        player.channel = EmbeddedChannel(connection)
         helper.level.server.playerList.placeNewPlayer(connection, player, cookie)
         // As a real client's first frames would: survival, and no longer shielded as a player still loading.
         player.setGameMode(GameType.SURVIVAL)
@@ -321,6 +347,115 @@ class RedBullTests(modBus: IEventBus) {
     }
   }
 
+  /** Feathers trail a glide on Wings every couple of ticks; Wings on the ground and an elytra alone shed none. */
+  private fun feathers(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    val glider = Survivor.join(helper)
+    val plain = Survivor.join(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+    // A tick puts the elytra's `gliding_flight` on the player, as wearing it would.
+    plain.doTick()
+    // High above the other tests' flights, and far apart, so no one else's feathers count.
+    glider.fly(helper, height = 120.0)
+    plain.fly(helper, height = 200.0)
+    listOf(walker, glider).forEach { it.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20)) }
+    helper.assertTrue(glider.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    val bursts = mutableMapOf(walker to 0, glider to 0, plain to 0)
+    var ticks = 0
+    helper.onEachTick {
+      bursts.keys.filter { !it.isRemoved }.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+        bursts[it] = bursts.getValue(it) + it.feathers()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 20, "a second of flight")
+      helper.assertTrue(glider.isFallFlying, "still gliding")
+      helper.assertTrue(bursts.getValue(glider) >= ticks / 2 - 1, "${bursts[glider]} bursts of feathers in $ticks ticks of flight")
+      helper.assertTrue(bursts.getValue(walker) == 0, "no feathers from Wings on the ground, not ${bursts[walker]}")
+      helper.assertTrue(bursts.getValue(plain) == 0, "no feathers from an elytra alone, not ${bursts[plain]}")
+      bursts.keys.forEach { helper.level.server.playerList.remove(it) }
+    }
+  }
+
+  /** Whether [player] has the advancement `redbull:<name>`, which core's data brings into the mod. */
+  private fun done(helper: GameTestHelper, player: ServerPlayer, name: String): Boolean {
+    val advancement = helper.level.server.advancements.get(Identifier.fromNamespaceAndPath("redbull", name))
+      ?: throw helper.assertionException("no advancement redbull:$name")
+    return player.advancements.getOrStartProgress(advancement).isDone
+  }
+
+  /**
+   * The collection's advancements: the first can, a legend, and every can; on the edge at 90 caffeine, alive; the
+   * sugar pit when it comes. Each when it happens and not before; an overdose earns nothing.
+   */
+  private fun advancements(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    val all = listOf(Advancements.ROOT, Advancements.LEGEND, Advancements.COLLECTOR)
+    fun earned() = all.filter { done(helper, player, it) }
+    helper.assertTrue(earned().isEmpty(), "no advancements before any can, not ${earned()}")
+    Collected.record(player, listOf(Items.can(can("cherry")!!)))
+    helper.assertTrue(earned() == listOf(Advancements.ROOT), "the root after the first can, not ${earned()}")
+    val legend = CANS.first { Advancements.legend(it) }
+    Collected.record(player, listOf(Items.can(legend)))
+    helper.assertTrue(earned() == all.dropLast(1), "the legend after ${legend.id}, not ${earned()}")
+    Collected.record(player, CANS.filter { it.id != "summer" }.map(Items::can))
+    helper.assertTrue(!done(helper, player, Advancements.COLLECTOR), "no collector with a can missing")
+    Collected.record(player, listOf(Items.can(can("summer")!!)))
+    helper.assertTrue(done(helper, player, Advancements.COLLECTOR), "the collector with every can")
+
+    val drinker = Survivor.join(helper)
+    drinker.drink(Items.can(can("original")!!))
+    drinker.drink(Items.can(can("sugarfree")!!))
+    helper.assertTrue(!done(helper, drinker, Advancements.EDGE), "no edge at ${level(drinker)} caffeine")
+    drinker.drink(Items.can(can("zero")!!))
+    helper.assertTrue(done(helper, drinker, Advancements.EDGE), "the edge at ${level(drinker)} caffeine")
+    helper.assertTrue(!done(helper, drinker, Advancements.SUGAR_PIT), "no sugar pit before it comes")
+    Drinks.sugarPit(drinker)
+    helper.assertTrue(done(helper, drinker, Advancements.SUGAR_PIT), "the sugar pit")
+
+    val dying = Survivor.join(helper)
+    Caffeines.set(dying, Caffeine(80.0, Caffeines.clock(dying)))
+    dying.drink(Items.can(can("red")!!))
+    helper.assertTrue(!done(helper, dying, Advancements.EDGE), "no edge from an overdose")
+    helper.runAfterDelay(3) {
+      listOf(player, drinker, dying).forEach { helper.level.server.playerList.remove(it) }
+      helper.succeed()
+    }
+  }
+
+  /** The first glide on Wings earns its advancement; Wings on the ground or an elytra alone don't. */
+  private fun wingsAdvancement(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    walker.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    val plain = Survivor.join(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+    plain.doTick()
+    plain.fly(helper, height = 40.0)
+    val glider = Survivor.join(helper)
+    glider.fly(helper, x = 9.5, height = 40.0)
+    glider.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(!done(helper, glider, Advancements.WINGS), "no Wings advancement before the glide")
+    helper.assertTrue(plain.tryToStartFallFlying() && glider.tryToStartFallFlying(), "both glide")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(walker, plain, glider).filter { !it.isRemoved }.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 10, "half a second")
+      helper.assertTrue(done(helper, glider, Advancements.WINGS), "the Wings advancement after the glide")
+      helper.assertTrue(!done(helper, walker, Advancements.WINGS), "no Wings advancement on the ground")
+      helper.assertTrue(!done(helper, plain, Advancements.WINGS), "no Wings advancement on an elytra alone")
+      listOf(walker, plain, glider).forEach { helper.level.server.playerList.remove(it) }
+    }
+  }
+
   private fun bile(helper: GameTestHelper) {
     val player = Survivor.join(helper)
     val before = Settings.bile.get()
@@ -361,6 +496,56 @@ class RedBullTests(modBus: IEventBus) {
     helper.assertTrue(admin.inventory.countItem(Items.taurine.get()) == 64, "a stack of taurine with Shift")
     helper.level.server.playerList.deop(NameAndId(admin.gameProfile))
     listOf(player, admin).forEach { helper.level.server.playerList.remove(it) }
+    helper.succeed()
+  }
+
+  /** Every wandering trader brings one or two different cans besides its own wares, never a legend, at core's prices. */
+  private fun trader(helper: GameTestHelper) {
+    repeat(20) {
+      val trader = helper.spawn(EntityTypes.WANDERING_TRADER, BlockPos(1, 1, 1))
+      val offers = trader.offers
+      val cans = offers.filter { Items.canOf(it.result) != null }
+      val sold = cans.map { Items.canOf(it.result)!! }
+      helper.assertTrue(cans.size in Trades.MIN_OFFERS..Trades.MAX_OFFERS, "one or two cans, not ${sold.map { it.id }}")
+      helper.assertTrue(offers.size > cans.size, "the trader's own wares stay")
+      helper.assertTrue(sold.distinct() == sold, "different cans, not ${sold.map { it.id }}")
+      for ((offer, can) in cans.zip(sold)) {
+        helper.assertTrue(can.recipe != null, "${can.id} is a legend")
+        helper.assertTrue(offer.costA.`is`(Vanilla.EMERALD) && offer.costA.count == Trades.price(can), "${can.id} for ${offer.costA}")
+        helper.assertTrue(offer.costB.isEmpty && offer.result.count == 1, "one ${can.id} for emeralds alone")
+        helper.assertTrue(offer.maxUses == Trades.MAX_USES && offer.xp == 1, "${can.id}: ${offer.maxUses} uses, ${offer.xp} experience")
+      }
+      trader.discard()
+    }
+    helper.succeed()
+  }
+
+  /**
+   * A fishing rod's junk holds an empty can and crumpled cans of every flavour, as often as core says; a real catch,
+   * which rolls the junk inside the fishing table, brings them too. A fixed seed keeps the counts the same every run.
+   */
+  private fun fishing(helper: GameTestHelper) {
+    val level = helper.level
+    val params = LootParams.Builder(level)
+      .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(net.minecraft.world.phys.Vec3(1.5, 2.0, 1.5)))
+      .withParameter(LootContextParams.TOOL, ItemStack(Vanilla.FISHING_ROD))
+      .create(LootContextParamSets.FISHING)
+    fun roll(table: String, times: Int): List<ItemStack> {
+      val loot = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(table)))
+      val random = RandomSource.create(26)
+      return (1..times).flatMap { loot.getRandomItems(params, random) }
+    }
+    val junk = roll("minecraft:gameplay/fishing/junk", 4000)
+    val empty = junk.count { Items.id(it) == Ids.EMPTY_CAN }
+    val crumpled = junk.mapNotNull { Items.id(it)?.takeIf { id -> id.startsWith("crumpled_") } }
+    val share = (empty + crumpled.size).toDouble() / junk.size
+    helper.assertTrue(share in Fishing.share - 0.02..Fishing.share + 0.02, "cans in ${"%.3f".format(share)} of the junk, not ${"%.3f".format(Fishing.share)}")
+    val emptyShare = empty.toDouble() / (empty + crumpled.size)
+    val expected = Fishing.EMPTY_WEIGHT.toDouble() / (Fishing.EMPTY_WEIGHT + Fishing.CRUMPLED_WEIGHT)
+    helper.assertTrue(emptyShare in expected - 0.1..expected + 0.1, "empty cans in ${"%.3f".format(emptyShare)} of the cans")
+    helper.assertTrue(crumpled.toSet().size >= CANS.size - 4, "crumpled cans of nearly every flavour, not ${crumpled.toSet()}")
+    val catches = roll("minecraft:gameplay/fishing", 4000)
+    helper.assertTrue(catches.any { Items.id(it) == Ids.EMPTY_CAN || Items.id(it)?.startsWith("crumpled_") == true }, "a can in a real catch")
     helper.succeed()
   }
 
