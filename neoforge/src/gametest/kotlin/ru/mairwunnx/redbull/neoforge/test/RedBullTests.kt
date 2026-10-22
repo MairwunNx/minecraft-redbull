@@ -34,6 +34,11 @@ import net.minecraft.world.level.GameType
 import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.server.players.NameAndId
 import ru.mairwunnx.redbull.neoforge.Collected
+import net.minecraft.resources.ResourceKey
+import net.minecraft.util.RandomSource
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.AABB
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.fml.common.Mod
@@ -41,6 +46,7 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.Fishing
 import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
@@ -74,6 +80,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("tab") { -> Consumer(::tab) }
     functions.register("menu") { -> Consumer(::menu) }
     functions.register("trader") { -> Consumer(::trader) }
+    functions.register("fishing") { -> Consumer(::fishing) }
     functions.register(modBus)
   }
 
@@ -384,6 +391,35 @@ class RedBullTests(modBus: IEventBus) {
       }
       trader.discard()
     }
+    helper.succeed()
+  }
+
+  /**
+   * A fishing rod's junk holds an empty can and crumpled cans of every flavour, as often as core says; a real catch,
+   * which rolls the junk inside the fishing table, brings them too. A fixed seed keeps the counts the same every run.
+   */
+  private fun fishing(helper: GameTestHelper) {
+    val level = helper.level
+    val params = LootParams.Builder(level)
+      .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(net.minecraft.world.phys.Vec3(1.5, 2.0, 1.5)))
+      .withParameter(LootContextParams.TOOL, ItemStack(Vanilla.FISHING_ROD))
+      .create(LootContextParamSets.FISHING)
+    fun roll(table: String, times: Int): List<ItemStack> {
+      val loot = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(table)))
+      val random = RandomSource.create(26)
+      return (1..times).flatMap { loot.getRandomItems(params, random) }
+    }
+    val junk = roll("minecraft:gameplay/fishing/junk", 4000)
+    val empty = junk.count { Items.id(it) == Ids.EMPTY_CAN }
+    val crumpled = junk.mapNotNull { Items.id(it)?.takeIf { id -> id.startsWith("crumpled_") } }
+    val share = (empty + crumpled.size).toDouble() / junk.size
+    helper.assertTrue(share in Fishing.share - 0.02..Fishing.share + 0.02, "cans in ${"%.3f".format(share)} of the junk, not ${"%.3f".format(Fishing.share)}")
+    val emptyShare = empty.toDouble() / (empty + crumpled.size)
+    val expected = Fishing.EMPTY_WEIGHT.toDouble() / (Fishing.EMPTY_WEIGHT + Fishing.CRUMPLED_WEIGHT)
+    helper.assertTrue(emptyShare in expected - 0.1..expected + 0.1, "empty cans in ${"%.3f".format(emptyShare)} of the cans")
+    helper.assertTrue(crumpled.toSet().size >= CANS.size - 4, "crumpled cans of nearly every flavour, not ${crumpled.toSet()}")
+    val catches = roll("minecraft:gameplay/fishing", 4000)
+    helper.assertTrue(catches.any { Items.id(it) == Ids.EMPTY_CAN || Items.id(it)?.startsWith("crumpled_") == true }, "a can in a real catch")
     helper.succeed()
   }
 

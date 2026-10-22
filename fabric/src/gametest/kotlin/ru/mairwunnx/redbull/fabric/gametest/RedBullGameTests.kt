@@ -51,6 +51,7 @@ import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import ru.mairwunnx.redbull.core.WINGS_COMMON
@@ -58,6 +59,7 @@ import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Fishing
 import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Collected
@@ -546,6 +548,36 @@ class RedBullGameTests {
     val expected = CANS.map { it.id } + CANS.map { it.crumpled } + listOf("empty_can", "bull_bile", "crude_taurine", "taurine")
     equal(helper, shown, expected, "the creative tab")
     equal(helper, RedBullItems.idOf(tab.iconItem.item), "original", "the tab's icon")
+    helper.succeed()
+  }
+
+  /**
+   * A fishing rod's junk holds an empty can and crumpled cans of every flavour, as often as core says; a real catch,
+   * which rolls the junk inside the fishing table, brings them too. A fixed seed keeps the counts the same every run.
+   */
+  @GameTest
+  fun fishingJunkHoldsCans(helper: GameTestHelper) {
+    val level = helper.level
+    val params = LootParams.Builder(level)
+      .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3(1.5, 2.0, 1.5)))
+      .withParameter(LootContextParams.TOOL, ItemStack(Items.FISHING_ROD))
+      .create(LootContextParamSets.FISHING)
+    fun roll(table: String, times: Int): List<ItemStack> {
+      val loot = level.server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse(table)))
+      val random = RandomSource.create(26)
+      return (1..times).flatMap { loot.getRandomItems(params, random) }
+    }
+    val junk = roll("minecraft:gameplay/fishing/junk", 4000)
+    val empty = junk.count { it.`is`(RedBullItems.emptyCan) }
+    val crumpled = junk.filter { it.item in RedBullItems.crumpled.values }
+    val share = (empty + crumpled.size).toDouble() / junk.size
+    helper.assertTrue(share in Fishing.share - 0.02..Fishing.share + 0.02, "cans in ${"%.3f".format(share)} of the junk, not ${"%.3f".format(Fishing.share)}")
+    val emptyShare = empty.toDouble() / (empty + crumpled.size)
+    val expected = Fishing.EMPTY_WEIGHT.toDouble() / (Fishing.EMPTY_WEIGHT + Fishing.CRUMPLED_WEIGHT)
+    helper.assertTrue(emptyShare in expected - 0.1..expected + 0.1, "empty cans in ${"%.3f".format(emptyShare)} of the cans")
+    helper.assertTrue(crumpled.map { it.item }.toSet().size >= CANS.size - 4, "crumpled cans of nearly every flavour")
+    val catches = roll("minecraft:gameplay/fishing", 4000)
+    helper.assertTrue(catches.any { it.`is`(RedBullItems.emptyCan) || it.item in RedBullItems.crumpled.values }, "a can in a real catch")
     helper.succeed()
   }
 

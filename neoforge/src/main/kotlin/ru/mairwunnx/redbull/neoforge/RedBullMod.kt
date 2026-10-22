@@ -43,6 +43,7 @@ class RedBullMod(modBus: IEventBus, container: ModContainer) {
     Heart.listen(bus)
     Collected.listen(bus)
     Later.listen(bus)
+    Loot.listen(bus)
     RedBullCommand.listen(bus)
 
     // Players find every crafting recipe in their recipe book.
