@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "redbull:original"
+      }
+    },
+    "title": {
+      "translate": "advancements.redbull.root.title"
+    },
+    "description": {
+      "translate": "advancements.redbull.root.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "background": "minecraft:gui/advancements/backgrounds/adventure"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

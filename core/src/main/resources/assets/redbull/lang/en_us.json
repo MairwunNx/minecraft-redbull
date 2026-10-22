@@ -110,5 +110,17 @@
   "itemGroup.redbull": "Red Bull",
   "effect.redbull.caffeine": "Caffeine",
   "redbull.sleepless": "The caffeine won’t let you sleep.",
-  "redbull.sugar_pit": "The sugar wore off. You feel drained."
+  "redbull.sugar_pit": "The sugar wore off. You feel drained.",
+  "advancements.redbull.root.title": "Red Bull",
+  "advancements.redbull.root.description": "Get your first can",
+  "advancements.redbull.wings.title": "Gives You Wings",
+  "advancements.redbull.wings.description": "Glide on the wings of a can",
+  "advancements.redbull.sugar_pit.title": "Sugar Pit",
+  "advancements.redbull.sugar_pit.description": "Sink into a sugar pit when a can’s buffs run out",
+  "advancements.redbull.edge.title": "On the Edge",
+  "advancements.redbull.edge.description": "Have 90 caffeine or more, and live",
+  "advancements.redbull.legend.title": "Legend",
+  "advancements.redbull.legend.description": "Find a legendary can: Ruby, Summer, Glacier, or Spring",
+  "advancements.redbull.collector.title": "Collector",
+  "advancements.redbull.collector.description": "Hold every one of the 26 cans"
 }

@@ -1,0 +1,25 @@
+{
+  "parent": "redbull:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "redbull:spring"
+      }
+    },
+    "title": {
+      "translate": "advancements.redbull.legend.title"
+    },
+    "description": {
+      "translate": "advancements.redbull.legend.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

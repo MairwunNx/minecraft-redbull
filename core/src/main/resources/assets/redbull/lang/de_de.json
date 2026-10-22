@@ -110,5 +110,17 @@
   "itemGroup.redbull": "Red Bull",
   "effect.redbull.caffeine": "Koffein",
   "redbull.sleepless": "Das Koffein lässt dich nicht schlafen.",
-  "redbull.sugar_pit": "Der Zucker ist verflogen. Du fühlst dich schlapp."
+  "redbull.sugar_pit": "Der Zucker ist verflogen. Du fühlst dich schlapp.",
+  "advancements.redbull.root.title": "Red Bull",
+  "advancements.redbull.root.description": "Hol dir deine erste Dose",
+  "advancements.redbull.wings.title": "Verleiht Flügel",
+  "advancements.redbull.wings.description": "Gleite auf den Flügeln einer Dose",
+  "advancements.redbull.sugar_pit.title": "Zuckerloch",
+  "advancements.redbull.sugar_pit.description": "Fall in ein Zuckerloch, wenn eine Dose nachlässt",
+  "advancements.redbull.edge.title": "Am Limit",
+  "advancements.redbull.edge.description": "Komm auf 90 Koffein oder mehr und überleb es",
+  "advancements.redbull.legend.title": "Legende",
+  "advancements.redbull.legend.description": "Finde eine legendäre Dose: Ruby, Summer, Glacier oder Spring",
+  "advancements.redbull.collector.title": "Sammler",
+  "advancements.redbull.collector.description": "Sammle alle 26 Dosen"
 }

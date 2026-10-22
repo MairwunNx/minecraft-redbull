@@ -1,0 +1,25 @@
+{
+  "parent": "redbull:legend",
+  "display": {
+    "icon": {
+      "id": "minecraft:paper",
+      "components": {
+        "minecraft:item_model": "redbull:glacier"
+      }
+    },
+    "title": {
+      "translate": "advancements.redbull.collector.title"
+    },
+    "description": {
+      "translate": "advancements.redbull.collector.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

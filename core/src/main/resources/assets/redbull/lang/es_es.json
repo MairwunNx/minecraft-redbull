@@ -110,5 +110,17 @@
   "itemGroup.redbull": "Red Bull",
   "effect.redbull.caffeine": "Cafeína",
   "redbull.sleepless": "La cafeína no te deja dormir.",
-  "redbull.sugar_pit": "El azúcar se acabó. Te sientes sin fuerzas."
+  "redbull.sugar_pit": "El azúcar se acabó. Te sientes sin fuerzas.",
+  "advancements.redbull.root.title": "Red Bull",
+  "advancements.redbull.root.description": "Consigue tu primera lata",
+  "advancements.redbull.wings.title": "Te da alas",
+  "advancements.redbull.wings.description": "Planea con las alas de una lata",
+  "advancements.redbull.sugar_pit.title": "Bajón de azúcar",
+  "advancements.redbull.sugar_pit.description": "Cae en un bajón de azúcar cuando se acaben los efectos de una lata",
+  "advancements.redbull.edge.title": "Al límite",
+  "advancements.redbull.edge.description": "Llega a 90 de cafeína o más y sobrevive",
+  "advancements.redbull.legend.title": "Leyenda",
+  "advancements.redbull.legend.description": "Encuentra una lata legendaria: Ruby, Summer, Glacier o Spring",
+  "advancements.redbull.collector.title": "Coleccionista",
+  "advancements.redbull.collector.description": "Reúne las 26 latas"
 }

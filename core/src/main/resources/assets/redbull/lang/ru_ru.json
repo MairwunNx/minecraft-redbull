@@ -110,5 +110,17 @@
   "itemGroup.redbull": "Red Bull",
   "effect.redbull.caffeine": "Кофеин",
   "redbull.sleepless": "Кофеин не даёт уснуть.",
-  "redbull.sugar_pit": "Сахар кончился — накатила вялость."
+  "redbull.sugar_pit": "Сахар кончился — накатила вялость.",
+  "advancements.redbull.root.title": "Red Bull",
+  "advancements.redbull.root.description": "Получите первую банку",
+  "advancements.redbull.wings.title": "Окрыляет",
+  "advancements.redbull.wings.description": "Пролетите на крыльях из банки",
+  "advancements.redbull.sugar_pit.title": "Сахарная яма",
+  "advancements.redbull.sugar_pit.description": "Провалитесь в сахарную яму, когда баффы банки кончатся",
+  "advancements.redbull.edge.title": "На грани",
+  "advancements.redbull.edge.description": "Наберите 90 кофеина или больше и выживите",
+  "advancements.redbull.legend.title": "Легенда",
+  "advancements.redbull.legend.description": "Найдите легендарную банку: Ruby, Summer, Glacier или Spring",
+  "advancements.redbull.collector.title": "Коллекционер",
+  "advancements.redbull.collector.description": "Соберите все 26 банок"
 }
