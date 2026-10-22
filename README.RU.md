@@ -44,6 +44,8 @@ Red Bull работает на Moonlands — моём сервере со сло
 | ![Инвентарь с эффектами «Кофеин II» и «Крылья»](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![Коллекция /redbull: 8 из 26 банок, остальные со знаками вопроса](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
 | **Кофеин и крылья в модах** | **Ваша коллекция, `/redbull`** |
 
+<p align="center"><img alt="Все рецепты Red Bull на верстаке, один за другим" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"><br><b>Все рецепты на верстаке</b></p>
+
 ## Как сделать банку
 
 1. **Бычья желчь.** Взрослая корова или грибная корова, убитая вами, роняет её с шансом 5 %, и ещё 2 % за каждый уровень «Добычи».

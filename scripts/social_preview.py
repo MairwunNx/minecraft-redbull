@@ -36,7 +36,7 @@ BAND_EDGE = [(1180, 0), (1200, 0), (920, HEIGHT), (900, HEIGHT)]
 
 
 def read_png(data):
-    """RGBA rows of a truecolour-with-alpha or palette PNG, the two kinds this script meets."""
+    """RGBA rows of an 8-bit PNG of any colour type, or a palette one of any depth: what the game's files use."""
     pos, chunks = 8, {}
     idat = b""
     while pos < len(data):
@@ -48,10 +48,10 @@ def read_png(data):
         else:
             chunks[kind] = body
     width, height, depth, colour = struct.unpack(">IIBB", chunks[b"IHDR"][:10])
-    assert (colour == 6 and depth == 8) or colour == 3, "only RGBA or palette PNGs"
-    size = 4 if colour == 6 else 1
+    assert colour == 3 or depth == 8, "16-bit PNGs aren't used here"
+    size = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[colour]
     raw = zlib.decompress(idat)
-    stride = width * 4 if colour == 6 else (width * depth + 7) // 8
+    stride = (width * depth + 7) // 8 if colour == 3 else width * size
     rows, previous = [], bytearray(stride)
     for y in range(height):
         kind, line = raw[y * (stride + 1)], bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
@@ -72,6 +72,12 @@ def read_png(data):
         previous = line
     if colour == 6:
         return [[tuple(row[x * 4:x * 4 + 4]) for x in range(width)] for row in rows]
+    if colour == 2:
+        return [[tuple(row[x * 3:x * 3 + 3]) + (255,) for x in range(width)] for row in rows]
+    if colour == 4:
+        return [[(row[x * 2],) * 3 + (row[x * 2 + 1],) for x in range(width)] for row in rows]
+    if colour == 0:
+        return [[(row[x],) * 3 + (255,) for x in range(width)] for row in rows]
     palette = chunks[b"PLTE"]
     alpha = chunks.get(b"tRNS", b"")
     def entry(i):

@@ -25,6 +25,8 @@
 | ![The inventory with the Caffeine II and Wiiings effects](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/effects.png) | ![The /redbull collection: 8 of 26 cans, the rest question marks](https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/screenshots/collection.png) |
 | **Caffeine and Wiiings, in the mods** | **Your collection, `/redbull`** |
 
+<p align="center"><img alt="Every Red Bull recipe at a crafting table, one after another" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/crafting.gif" width="704"><br><b>Every recipe at the crafting table</b></p>
+
 ## How to make a can
 
 1. **Bull bile.** An adult cow or mooshroom you kill drops it with a 5% chance, 2% more per level of Looting.

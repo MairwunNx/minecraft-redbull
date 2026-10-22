@@ -20,6 +20,7 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `core/…/Ingredients.kt` | Bull bile's drop chance, the bottles' effects, bull mode, how long a winged can lasts, and the colours of the bottles and both effects (`Colors`) |
 | `core/src/main/resources/assets/redbull/` | The assets every platform uses: textures, item models and definitions (the mods' bottles tint the game's potion model), and the five languages |
 | `scripts/textures.py` | Draws every can from one 13×32 template (a new flavour is one line in `CANS`), the empty and winged cans, and an item model for every texture. Standard library only: `python3 -I scripts/textures.py` |
+| `scripts/crafting_gif.py` | Draws `media/crafting.gif`, every crafting recipe at a crafting table, 1.5 seconds each, from the recipes NeoForge's build generates and a client jar's window, items, and font. Standard library only: `./gradlew :neoforge:generateData`, then `python3 -I scripts/crafting_gif.py`; run it again when a recipe changes |
 | `scripts/social_preview.py` | Draws `media/social-preview.png`, GitHub's 1280×640 preview and the READMEs' header, with the game's font read from a client jar in Gradle's caches. Standard library only: `python3 -I scripts/social_preview.py` |
 | `paper/…/Items.kt` | Builds each item: a potion underneath, with its model, name, lore, and effects; the `redbull:item` mark says which one |
 | `paper/…/Recipes.kt` | The crafting recipes, the brewing mix, and the furnace recipe; removed again on disable |
