@@ -30,6 +30,8 @@ Four modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `paper/…/Wings.kt` | Crumples spent winged cans; looks only at players it was told hold one |
 | `paper/…/Heart.kt` | Jitters and crash every two seconds: hunger, heartbeats, warnings |
 | `paper/…/Loot.kt` | Bull bile from cows, cans in chests by biome |
+| `paper/…/Wanderers.kt` | A wandering trader's cans and cans among fishing junk, by core's `Trades` and `Fishing` |
+| `paper/…/Awards.kt`, `RedBullBootstrap.kt` | The six advancements: the bootstrapper registers the data pack inside the jar (`datapack/`, core's `data/` plus `paper/src/datapack/pack.mcmeta`), and `Awards` grants them |
 | `paper/…/Pack.kt` | Sends the resource pack on join |
 | `paper/…/Collected.kt` | The cans each player has ever held, in their persistent data, recorded on pickup, craft, drink, inventory close, join, and `RedBullPlugin.handed` |
 | `paper/…/Menu.kt` | The `/redbull` chest: a player's collection with question marks, or every item to take for admins |

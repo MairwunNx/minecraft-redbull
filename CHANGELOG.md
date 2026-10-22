@@ -4,10 +4,13 @@ The “Release” workflow takes the notes for a version from its section here, 
 
 ## 1.3.0
 
-- 🧳 **A wandering trader brings cans in the mods too:** one or two different ones besides its own wares, 6 emeralds for a crafted can and 10 for an Edition, three times each. It never sells a legend.
-- 🎣 **Cans among fishing junk in the mods:** about one junk catch in ten is an empty can or a crumpled can of any flavour, in any rod’s catch.
-- 🪶 **Feathers trail a glide on Wiiings in the mods,** for everyone nearby to see, and only while you fly.
-- 🏆 **Six advancements in the mods,** in a Red Bull tab of their own: your first can, the first glide on Wiiings, the sugar pit, 90 caffeine and still alive, a legend, and every can. A collection from before counts the moment you join.
+- 🧳 **A wandering trader brings cans:** one or two different ones besides its own wares, 6 emeralds for a crafted can and 10 for an Edition, three times each. It never sells a legend.
+- 🎣 **Cans among fishing junk:** about one junk catch in ten is an empty can or a crumpled can of any flavour.
+- 🪶 **Feathers trail behind you** as you glide on a can’s wings, for everyone nearby to see.
+- 🏆 **Six advancements** in a Red Bull tab of their own: your first can, Gives You Wings, Sugar Pit, On the Edge (90 caffeine or more, and alive), Legend (any of the four), and Collector (all 26). A collection from before counts the moment you join. On Paper they come in a data pack inside the jar and read in your language with the resource pack, in English without it.
+- 📄 **The Hangar page** follows the store page with every release now.
+
+All of it works the same on Paper, Fabric, and NeoForge.
 
 ## 1.2.1
 
