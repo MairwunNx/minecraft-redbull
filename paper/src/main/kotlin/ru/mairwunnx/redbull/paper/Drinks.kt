@@ -63,7 +63,8 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       Ids.BULL_BILE -> bottle(player, bile, crude)
       Ids.CRUDE_TAURINE -> {
         bottle(player, crude, bile)
-        caffeine(player, rules.drinkCrudeTaurine(Caffeines.now(player), Caffeines.clock(player)))
+        val drink = rules.drinkCrudeTaurine(Caffeines.now(player), Caffeines.clock(player))
+        if (caffeine(player, drink) && drink.caffeine.level >= Advancements.EDGE_LEVEL) Awards.grant(player, Advancements.EDGE)
       }
       else -> {
         val can = Items.canOf(event.item) ?: return

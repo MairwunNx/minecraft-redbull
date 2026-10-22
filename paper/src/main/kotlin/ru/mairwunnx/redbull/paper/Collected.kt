@@ -31,9 +31,15 @@ class Collected : Listener {
     if (known.containsAll(ids)) return
     val all = known + ids
     player.persistentDataContainer.set(KEY, PersistentDataType.LIST.strings(), all.sorted())
+    award(player, all)
+  }
+
+  /** The advancements a collection earns; on join too, so one gathered before they existed counts. */
+  private fun award(player: Player, collection: Set<String>) {
+    if (collection.isEmpty()) return
     Awards.grant(player, Advancements.ROOT)
-    if ((ids - known).any { id -> can(id)?.let(Advancements::legend) == true }) Awards.grant(player, Advancements.LEGEND)
-    if (Advancements.collector(all)) Awards.grant(player, Advancements.COLLECTOR)
+    if (collection.any { id -> can(id)?.let(Advancements::legend) == true }) Awards.grant(player, Advancements.LEGEND)
+    if (Advancements.collector(collection)) Awards.grant(player, Advancements.COLLECTOR)
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -55,7 +61,10 @@ class Collected : Listener {
   }
 
   @EventHandler
-  fun onJoin(event: PlayerJoinEvent) = record(event.player, event.player.inventory.contents.asList())
+  fun onJoin(event: PlayerJoinEvent) {
+    record(event.player, event.player.inventory.contents.asList())
+    award(event.player, of(event.player))
+  }
 
   companion object {
     private val KEY = NamespacedKey("redbull", "collected")
