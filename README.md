@@ -52,7 +52,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 1. **Bull bile.** An adult cow or mooshroom you kill drops it with a 5% chance, 2% more per level of Looting.
 2. **Crude taurine.** Brew bull bile into water bottles: one bile, three bottles.
 3. **Taurine.** Smelt crude taurine in a furnace.
-4. **An empty can.** Four iron nuggets and a copper nugget make two.
+4. **An empty can.** Four iron nuggets and a copper nugget make one.
 5. **The can.** Fill it at a crafting table with two taurine, a dye, two of its flavour, a water bottle, and two sugar, or two honeycombs for a sugarfree can. Every recipe sits in your recipe book.
 
 ## The cans
@@ -101,7 +101,7 @@ A can with wings throws you upward as you finish it. Jump while in the air, and 
 
 ## Crumpled cans
 
-Every can you finish leaves a crumpled can in its own colours. They stack to 64, and a furnace melts each back into two iron nuggets, twice as fast in a blast furnace. Iron comes back; for a new can you need only a copper nugget more.
+Every can you finish leaves a crumpled can in its own colours. They stack to 64, and a furnace melts each back into two iron nuggets, twice as fast in a blast furnace. Half the iron comes back, so two crumpled cans and a copper nugget make a new empty can.
 
 ## Sugar or sugarfree
 

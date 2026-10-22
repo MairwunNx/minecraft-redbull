@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.2.1
+
+- 🥫 **An empty can is one can now:** four iron nuggets and a copper nugget make one, not two. A crumpled can still smelts into two iron nuggets, so two of them and a copper nugget make a new one.
+
 ## 1.2.0
 
 - 🧩 **Red Bull is a mod now, for NeoForge and Fabric 26.3:** the same 26 cans, recipes, chests, caffeine, wings, and `/redbull` collection as the plugin, in `redbull-neoforge-1.2.0.jar` and `redbull-fabric-1.2.0.jar`. Install it on the client and the server. The NeoForge mod needs nothing else, since Kotlin ships inside; the Fabric mod needs Fabric API and Fabric Language Kotlin.
