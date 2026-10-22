@@ -1,4 +1,4 @@
-# Red Bull
+![Red Bull](https://img.shields.io/badge/Red_Bull-%23E30613.svg?style=for-the-badge&logo=red-bull&logoColor=white)
 
 <p align="center"><img alt="Red Bull: 26 настоящих банок для Paper, Fabric и NeoForge" src="https://raw.githubusercontent.com/MairwunNx/minecraft-redbull/master/media/social-preview.png" width="100%"></p>
 
