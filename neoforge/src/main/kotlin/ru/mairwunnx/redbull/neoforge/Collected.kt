@@ -36,7 +36,9 @@ object Collected {
     val ids = items.mapNotNullTo(mutableSetOf()) { Items.canOf(it)?.id }
     if (ids.isEmpty()) return
     val known = of(player)
-    if (!known.containsAll(ids)) player.setData(COLLECTED, (known + ids).sorted())
+    if (known.containsAll(ids)) return
+    player.setData(COLLECTED, (known + ids).sorted())
+    Awards.collection(player, known + ids)
   }
 
   fun listen(bus: IEventBus) {
@@ -53,7 +55,10 @@ object Collected {
       (event.entity as? ServerPlayer)?.let { record(it, it.inventory) }
     }
     bus.on<PlayerEvent.PlayerLoggedInEvent> { event ->
-      (event.entity as? ServerPlayer)?.let { record(it, it.inventory) }
+      val player = event.entity as? ServerPlayer ?: return@on
+      record(player, player.inventory)
+      // A collection from before the advancements counts at once.
+      Awards.collection(player, of(player))
     }
   }
 }

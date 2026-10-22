@@ -17,6 +17,7 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.gameevent.GameEvent
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 
@@ -56,11 +57,16 @@ object Wings {
     }
   }
 
-  /** Every server tick of a glide, from `GlideMixin`: on Wings, feathers trail the player every couple of ticks. */
+  /**
+   * Every server tick of a glide, from `GlideMixin`: on Wings, feathers trail the player every couple of ticks, and
+   * the first glide is an advancement.
+   */
   @JvmStatic
   fun glide(entity: LivingEntity) {
     if (entity !is ServerPlayer || entity.onGround() || !entity.hasEffect(WINGS)) return
-    if (entity.fallFlyingTicks % FEATHER_TICKS == 0) feathers(entity)
+    if (entity.fallFlyingTicks % FEATHER_TICKS != 0) return
+    feathers(entity)
+    Awards.award(entity, Advancements.WINGS)
   }
 
   /** A few bits of feather behind [player], for everyone nearby; how many players were sent them. */

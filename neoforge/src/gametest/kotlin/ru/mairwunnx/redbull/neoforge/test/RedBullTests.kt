@@ -48,10 +48,13 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import ru.mairwunnx.redbull.core.WINGS_COMMON
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.Advancements
+import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.core.Fishing
 import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.core.can
 import ru.mairwunnx.redbull.neoforge.Caffeines
+import ru.mairwunnx.redbull.neoforge.Drinks
 import ru.mairwunnx.redbull.neoforge.Items
 import ru.mairwunnx.redbull.neoforge.Menu
 import ru.mairwunnx.redbull.neoforge.Settings
@@ -84,6 +87,8 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("trader") { -> Consumer(::trader) }
     functions.register("fishing") { -> Consumer(::fishing) }
     functions.register("feathers") { -> Consumer(::feathers) }
+    functions.register("advancements") { -> Consumer(::advancements) }
+    functions.register("wings_advancement") { -> Consumer(::wingsAdvancement) }
     functions.register(modBus)
   }
 
@@ -372,6 +377,82 @@ class RedBullTests(modBus: IEventBus) {
       helper.assertTrue(bursts.getValue(walker) == 0, "no feathers from Wings on the ground, not ${bursts[walker]}")
       helper.assertTrue(bursts.getValue(plain) == 0, "no feathers from an elytra alone, not ${bursts[plain]}")
       bursts.keys.forEach { helper.level.server.playerList.remove(it) }
+    }
+  }
+
+  /** Whether [player] has the advancement `redbull:<name>`, which core's data brings into the mod. */
+  private fun done(helper: GameTestHelper, player: ServerPlayer, name: String): Boolean {
+    val advancement = helper.level.server.advancements.get(Identifier.fromNamespaceAndPath("redbull", name))
+      ?: throw helper.assertionException("no advancement redbull:$name")
+    return player.advancements.getOrStartProgress(advancement).isDone
+  }
+
+  /**
+   * The collection's advancements: the first can, a legend, and every can; on the edge at 90 caffeine, alive; the
+   * sugar pit when it comes. Each when it happens and not before; an overdose earns nothing.
+   */
+  private fun advancements(helper: GameTestHelper) {
+    val player = Survivor.join(helper)
+    val all = listOf(Advancements.ROOT, Advancements.LEGEND, Advancements.COLLECTOR)
+    fun earned() = all.filter { done(helper, player, it) }
+    helper.assertTrue(earned().isEmpty(), "no advancements before any can, not ${earned()}")
+    Collected.record(player, listOf(Items.can(can("cherry")!!)))
+    helper.assertTrue(earned() == listOf(Advancements.ROOT), "the root after the first can, not ${earned()}")
+    val legend = CANS.first { Advancements.legend(it) }
+    Collected.record(player, listOf(Items.can(legend)))
+    helper.assertTrue(earned() == all.dropLast(1), "the legend after ${legend.id}, not ${earned()}")
+    Collected.record(player, CANS.filter { it.id != "summer" }.map(Items::can))
+    helper.assertTrue(!done(helper, player, Advancements.COLLECTOR), "no collector with a can missing")
+    Collected.record(player, listOf(Items.can(can("summer")!!)))
+    helper.assertTrue(done(helper, player, Advancements.COLLECTOR), "the collector with every can")
+
+    val drinker = Survivor.join(helper)
+    drinker.drink(Items.can(can("original")!!))
+    drinker.drink(Items.can(can("sugarfree")!!))
+    helper.assertTrue(!done(helper, drinker, Advancements.EDGE), "no edge at ${level(drinker)} caffeine")
+    drinker.drink(Items.can(can("zero")!!))
+    helper.assertTrue(done(helper, drinker, Advancements.EDGE), "the edge at ${level(drinker)} caffeine")
+    helper.assertTrue(!done(helper, drinker, Advancements.SUGAR_PIT), "no sugar pit before it comes")
+    Drinks.sugarPit(drinker)
+    helper.assertTrue(done(helper, drinker, Advancements.SUGAR_PIT), "the sugar pit")
+
+    val dying = Survivor.join(helper)
+    Caffeines.set(dying, Caffeine(80.0, Caffeines.clock(dying)))
+    dying.drink(Items.can(can("red")!!))
+    helper.assertTrue(!done(helper, dying, Advancements.EDGE), "no edge from an overdose")
+    helper.runAfterDelay(3) {
+      listOf(player, drinker, dying).forEach { helper.level.server.playerList.remove(it) }
+      helper.succeed()
+    }
+  }
+
+  /** The first glide on Wings earns its advancement; Wings on the ground or an elytra alone don't. */
+  private fun wingsAdvancement(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    walker.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    val plain = Survivor.join(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+    plain.doTick()
+    plain.fly(helper, height = 40.0)
+    val glider = Survivor.join(helper)
+    glider.fly(helper, x = 9.5, height = 40.0)
+    glider.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20))
+    helper.assertTrue(!done(helper, glider, Advancements.WINGS), "no Wings advancement before the glide")
+    helper.assertTrue(plain.tryToStartFallFlying() && glider.tryToStartFallFlying(), "both glide")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(walker, plain, glider).filter { !it.isRemoved }.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 10, "half a second")
+      helper.assertTrue(done(helper, glider, Advancements.WINGS), "the Wings advancement after the glide")
+      helper.assertTrue(!done(helper, walker, Advancements.WINGS), "no Wings advancement on the ground")
+      helper.assertTrue(!done(helper, plain, Advancements.WINGS), "no Wings advancement on an elytra alone")
+      listOf(walker, plain, glider).forEach { helper.level.server.playerList.remove(it) }
     }
   }
 

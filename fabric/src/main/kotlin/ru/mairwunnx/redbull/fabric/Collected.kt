@@ -19,7 +19,11 @@ object Collected {
   }
 
   fun init() {
-    ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> record(handler.player, handler.player.inventory) }
+    ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
+      record(handler.player, handler.player.inventory)
+      // A collection from before the advancements counts at once.
+      Awards.collection(handler.player, of(handler.player))
+    }
   }
 
   fun of(player: ServerPlayer): Set<String> = player.getAttached(COLLECTED)?.toSet() ?: emptySet()
@@ -31,6 +35,8 @@ object Collected {
   fun add(player: ServerPlayer, ids: Set<String>) {
     if (ids.isEmpty()) return
     val known = of(player)
-    if (!known.containsAll(ids)) player.setAttached(COLLECTED, (known + ids).sorted())
+    if (known.containsAll(ids)) return
+    player.setAttached(COLLECTED, (known + ids).sorted())
+    Awards.collection(player, known + ids)
   }
 }

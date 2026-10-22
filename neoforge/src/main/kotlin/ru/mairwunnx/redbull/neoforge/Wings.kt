@@ -17,6 +17,7 @@ import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Colors
 import ru.mairwunnx.redbull.core.SOFT_LANDING_SECONDS
 import net.minecraft.world.item.Items as Vanilla
@@ -45,11 +46,16 @@ object Wings {
 
   fun register(bus: IEventBus) = EFFECTS.register(bus)
 
-  /** Every server tick of a glide, from `GlideMixin`: on Wings, feathers trail the player every couple of ticks. */
+  /**
+   * Every server tick of a glide, from `GlideMixin`: on Wings, feathers trail the player every couple of ticks, and
+   * the first glide is an advancement.
+   */
   @JvmStatic
   fun glide(entity: LivingEntity) {
     if (entity !is ServerPlayer || entity.onGround() || !entity.hasEffect(EFFECT)) return
-    if (entity.fallFlyingTicks % FEATHER_TICKS == 0) feathers(entity)
+    if (entity.fallFlyingTicks % FEATHER_TICKS != 0) return
+    feathers(entity)
+    Awards.award(entity, Advancements.WINGS)
   }
 
   /** A few bits of feather behind [player], for everyone nearby; how many players were sent them. */

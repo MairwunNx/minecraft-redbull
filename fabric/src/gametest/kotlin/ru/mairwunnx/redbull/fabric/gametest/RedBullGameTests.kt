@@ -61,10 +61,12 @@ import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Fishing
 import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.fabric.Caffeines
 import ru.mairwunnx.redbull.fabric.Collected
+import ru.mairwunnx.redbull.fabric.Drinks
 import ru.mairwunnx.redbull.fabric.Menu
 import ru.mairwunnx.redbull.fabric.RedBullItems
 import ru.mairwunnx.redbull.fabric.Settings
@@ -519,6 +521,79 @@ class RedBullGameTests {
     val respawned = helper.level.server.playerList.respawn(player, false, Entity.RemovalReason.KILLED)
     equal(helper, Collected.of(respawned), Collected.of(player), "the collection after death")
     helper.succeed()
+  }
+
+  /** Whether [player] has the advancement `redbull:<name>`, which core's data brings into the mod. */
+  private fun done(helper: GameTestHelper, player: ServerPlayer, name: String): Boolean {
+    val advancement = helper.level.server.advancements.get(RedBullItems.id(name))
+      ?: throw helper.assertionException("no advancement redbull:$name")
+    return player.advancements.getOrStartProgress(advancement).isDone
+  }
+
+  /** The collection's advancements: the first can, a legend, and every can, each when it happens and not before. */
+  @GameTest
+  fun theCollectionEarnsAdvancements(helper: GameTestHelper) {
+    val player = player(helper)
+    val all = listOf(Advancements.ROOT, Advancements.LEGEND, Advancements.COLLECTOR)
+    equal(helper, all.filter { done(helper, player, it) }, emptyList<String>(), "advancements before any can")
+    Collected.add(player, setOf("cherry"))
+    equal(helper, all.filter { done(helper, player, it) }, listOf(Advancements.ROOT), "advancements after the first can")
+    val legend = CANS.first { Advancements.legend(it) }
+    Collected.add(player, setOf(legend.id))
+    equal(helper, all.filter { done(helper, player, it) }, all.dropLast(1), "advancements after ${legend.id}")
+    Collected.add(player, CANS.filter { it.id != "summer" }.map { it.id }.toSet())
+    helper.assertFalse(done(helper, player, Advancements.COLLECTOR), "the collector with a can missing")
+    Collected.add(player, setOf("summer"))
+    helper.assertTrue(done(helper, player, Advancements.COLLECTOR), "the collector with every can")
+    helper.succeed()
+  }
+
+  /** On the edge at 90 caffeine, alive; the sugar pit when it comes; an overdose earns nothing. */
+  @GameTest
+  fun caffeineEarnsAdvancements(helper: GameTestHelper) {
+    val player = player(helper)
+    drink(player, can("original"))
+    drink(player, can("sugarfree"))
+    helper.assertFalse(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
+    drink(player, can("zero"))
+    helper.assertTrue(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
+    helper.assertFalse(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit before it comes")
+    Drinks.sugarPit(player)
+    helper.assertTrue(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit")
+
+    val dying = player(helper)
+    Caffeines.set(dying, Caffeine(80.0, Caffeines.clock(dying)))
+    drink(dying, can("red"))
+    helper.assertFalse(done(helper, dying, Advancements.EDGE), "the edge from an overdose")
+    helper.succeed()
+  }
+
+  /** The first glide on Wings earns its advancement; Wings on the ground or an elytra alone don't. */
+  @GameTest(maxTicks = 100)
+  fun glidingOnWingsEarnsAnAdvancement(helper: GameTestHelper) {
+    val walker = player(helper)
+    walker.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    val plain = airborne(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    helper.assertTrue(plain.tryToStartFallFlying(), "gliding on an elytra")
+    val glider = airborne(helper)
+    glider.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20))
+    helper.assertFalse(done(helper, glider, Advancements.WINGS), "Wings before the glide")
+    helper.assertTrue(glider.tryToStartFallFlying(), "gliding on Wings")
+    var ticks = 0
+    helper.onEachTick {
+      listOf(walker, plain, glider).forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 10, "half a second")
+      helper.assertTrue(done(helper, glider, Advancements.WINGS), "Wings after the glide")
+      helper.assertFalse(done(helper, walker, Advancements.WINGS), "Wings on the ground")
+      helper.assertFalse(done(helper, plain, Advancements.WINGS), "Wings on an elytra alone")
+    }
   }
 
   @GameTest
