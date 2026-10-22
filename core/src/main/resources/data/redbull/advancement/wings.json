@@ -8,10 +8,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.wings.title"
+      "translate": "advancements.redbull.wings.title",
+      "fallback": "Gives You Wings"
     },
     "description": {
-      "translate": "advancements.redbull.wings.description"
+      "translate": "advancements.redbull.wings.description",
+      "fallback": "Glide on the wings of a can"
     },
     "frame": "task",
     "show_toast": true,

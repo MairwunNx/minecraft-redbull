@@ -8,10 +8,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.legend.title"
+      "translate": "advancements.redbull.legend.title",
+      "fallback": "Legend"
     },
     "description": {
-      "translate": "advancements.redbull.legend.description"
+      "translate": "advancements.redbull.legend.description",
+      "fallback": "Find a legendary can: Ruby, Summer, Glacier, or Spring"
     },
     "frame": "goal",
     "show_toast": true,

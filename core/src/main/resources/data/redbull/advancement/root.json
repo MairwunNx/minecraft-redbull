@@ -7,10 +7,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.root.title"
+      "translate": "advancements.redbull.root.title",
+      "fallback": "Red Bull"
     },
     "description": {
-      "translate": "advancements.redbull.root.description"
+      "translate": "advancements.redbull.root.description",
+      "fallback": "Get your first can"
     },
     "frame": "task",
     "show_toast": false,

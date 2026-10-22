@@ -8,10 +8,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.edge.title"
+      "translate": "advancements.redbull.edge.title",
+      "fallback": "On the Edge"
     },
     "description": {
-      "translate": "advancements.redbull.edge.description"
+      "translate": "advancements.redbull.edge.description",
+      "fallback": "Have 90 caffeine or more, and live"
     },
     "frame": "goal",
     "show_toast": true,

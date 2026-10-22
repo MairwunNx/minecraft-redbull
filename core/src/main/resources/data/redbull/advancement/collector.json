@@ -8,10 +8,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.collector.title"
+      "translate": "advancements.redbull.collector.title",
+      "fallback": "Collector"
     },
     "description": {
-      "translate": "advancements.redbull.collector.description"
+      "translate": "advancements.redbull.collector.description",
+      "fallback": "Hold every one of the 26 cans"
     },
     "frame": "challenge",
     "show_toast": true,

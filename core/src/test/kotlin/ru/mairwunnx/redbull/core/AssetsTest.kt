@@ -47,4 +47,17 @@ class AssetsTest {
     val english = keys("en_us")
     languages.forEach { assertEquals(english, keys(it), it) }
   }
+
+  @Test
+  fun `every advancement names itself in English when a client has no pack`() {
+    val english = keys("en_us")
+    listOf("root", "wings", "sugar_pit", "edge", "legend", "collector").forEach { name ->
+      val text = assertNotNull(javaClass.getResource("/data/redbull/advancement/$name.json"), name).readText()
+      listOf("title", "description").forEach { part ->
+        val key = "advancements.redbull.$name.$part"
+        assertTrue(key in english, "$key is missing")
+        assertTrue(Regex("\"translate\": \"${Regex.escape(key)}\",\\s*\"fallback\": \"[^\"]+\"").containsMatchIn(text), "$name has no English $part")
+      }
+    }
+  }
 }

@@ -8,10 +8,12 @@
       }
     },
     "title": {
-      "translate": "advancements.redbull.sugar_pit.title"
+      "translate": "advancements.redbull.sugar_pit.title",
+      "fallback": "Sugar Pit"
     },
     "description": {
-      "translate": "advancements.redbull.sugar_pit.description"
+      "translate": "advancements.redbull.sugar_pit.description",
+      "fallback": "Sink into a sugar pit when a can’s buffs run out"
     },
     "frame": "task",
     "show_toast": true,
