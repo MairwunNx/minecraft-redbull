@@ -15,6 +15,8 @@ import io.netty.channel.embedded.EmbeddedChannel
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.PacketFlow
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.core.particles.ItemParticleOption
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.core.BlockPos
 import net.minecraft.core.component.DataComponents
@@ -96,6 +98,15 @@ class RedBullGameTests {
       overlays += (message.contents as? TranslatableContents)?.key
       super.sendOverlayMessage(message)
     }
+
+    /** Where the server's packets to this player end up. */
+    lateinit var channel: EmbeddedChannel
+
+    /** The bursts of feathers this player was sent near themselves since the last look; other tests glide around too. */
+    fun feathers(): Int = generateSequence { channel.readOutbound<Any>() }.count {
+      it is ClientboundLevelParticlesPacket && (it.particle() as? ItemParticleOption)?.item?.item()?.value() == Items.FEATHER &&
+        position().closerThan(Vec3(it.x(), it.y(), it.z()), 4.0)
+    }
   }
 
   /**
@@ -107,7 +118,7 @@ class RedBullGameTests {
     val cookie = CommonListenerCookie.createInitial(UUID.randomUUID().let { GameProfile(it, "rb-${it.toString().take(8)}") }, false)
     val player = Survivor(server, helper.level, cookie)
     val connection = Connection(PacketFlow.SERVERBOUND)
-    EmbeddedChannel(connection)
+    player.channel = EmbeddedChannel(connection)
     server.playerList.placeNewPlayer(connection, player, cookie)
     player.setGameMode(GameType.SURVIVAL)
     player.connection.handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket())
@@ -194,6 +205,38 @@ class RedBullGameTests {
       equal(helper, player.getItemBySlot(EquipmentSlot.CHEST).damageValue, 0, "the elytra's wear")
       // The game sends it every half a second of flight, as with an elytra alone.
       equal(helper, player.glides, player.fallFlyingTicks / 10, "the glide's vibrations after ${player.fallFlyingTicks} ticks")
+    }
+  }
+
+  /** Feathers trail a glide on Wings every couple of ticks; Wings on the ground and an elytra alone shed none. */
+  @GameTest(maxTicks = 100)
+  fun wingsTrailFeathersInFlight(helper: GameTestHelper) {
+    val walker = player(helper)
+    helper.absoluteVec(Vec3(1.5, 1.0, 1.5)).let { walker.teleportTo(it.x, it.y, it.z) }
+    // High above the other tests' flights, and far apart, so no one else's feathers count.
+    val glider = airborne(helper)
+    helper.absoluteVec(Vec3(1.5, 120.0, 1.5)).let { glider.teleportTo(it.x, it.y, it.z) }
+    val plain = airborne(helper)
+    helper.absoluteVec(Vec3(1.5, 200.0, 1.5)).let { plain.teleportTo(it.x, it.y, it.z) }
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Items.ELYTRA))
+    listOf(walker, glider).forEach { it.addEffect(MobEffectInstance(Wings.WINGS, 10 * 20)) }
+    helper.assertTrue(glider.tryToStartFallFlying() && plain.tryToStartFallFlying(), "gliding")
+    val bursts = mutableMapOf(walker to 0, glider to 0, plain to 0)
+    var ticks = 0
+    helper.onEachTick {
+      bursts.keys.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+        bursts[it] = bursts.getValue(it) + it.feathers()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 20, "a second of flight")
+      helper.assertTrue(glider.isFallFlying, "still gliding")
+      helper.assertTrue(bursts.getValue(glider) >= ticks / 2 - 1, "${bursts[glider]} bursts of feathers in $ticks ticks of flight")
+      equal(helper, bursts.getValue(walker), 0, "feathers from Wings on the ground")
+      equal(helper, bursts.getValue(plain), 0, "feathers from an elytra alone")
     }
   }
 

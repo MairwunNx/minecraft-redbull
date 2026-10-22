@@ -18,6 +18,8 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.PacketFlow
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.core.particles.ItemParticleOption
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.InteractionHand
@@ -81,6 +83,7 @@ class RedBullTests(modBus: IEventBus) {
     functions.register("menu") { -> Consumer(::menu) }
     functions.register("trader") { -> Consumer(::trader) }
     functions.register("fishing") { -> Consumer(::fishing) }
+    functions.register("feathers") { -> Consumer(::feathers) }
     functions.register(modBus)
   }
 
@@ -105,6 +108,15 @@ class RedBullTests(modBus: IEventBus) {
       super.gameEvent(event)
     }
 
+    /** Where the server's packets to this player end up. */
+    lateinit var channel: EmbeddedChannel
+
+    /** The bursts of feathers this player was sent near themselves since the last look; other tests glide around too. */
+    fun feathers(): Int = generateSequence { channel.readOutbound<Any>() }.count {
+      it is ClientboundLevelParticlesPacket && (it.particle() as? ItemParticleOption)?.item?.item()?.value() == Vanilla.FEATHER &&
+        position().closerThan(net.minecraft.world.phys.Vec3(it.x(), it.y(), it.z()), 4.0)
+    }
+
     /** Up in the air above the test's floor, where a jump would spread an elytra. */
     fun fly(helper: GameTestHelper, x: Double = 1.5, height: Double = 10.0) {
       val at = helper.absoluteVec(net.minecraft.world.phys.Vec3(x, height, 1.5))
@@ -124,7 +136,7 @@ class RedBullTests(modBus: IEventBus) {
         val player = Survivor(helper)
         val cookie = CommonListenerCookie.createInitial(player.gameProfile, false)
         val connection = Connection(PacketFlow.SERVERBOUND)
-        EmbeddedChannel(connection)
+        player.channel = EmbeddedChannel(connection)
         helper.level.server.playerList.placeNewPlayer(connection, player, cookie)
         // As a real client's first frames would: survival, and no longer shielded as a player still loading.
         player.setGameMode(GameType.SURVIVAL)
@@ -327,6 +339,39 @@ class RedBullTests(modBus: IEventBus) {
         helper.assertTrue(it.glides == it.fallFlyingTicks / 10, "${it.glides} vibrations in ${it.fallFlyingTicks} ticks")
       }
       listOf(winged, plain, bare).forEach { helper.level.server.playerList.remove(it) }
+    }
+  }
+
+  /** Feathers trail a glide on Wings every couple of ticks; Wings on the ground and an elytra alone shed none. */
+  private fun feathers(helper: GameTestHelper) {
+    val walker = Survivor.join(helper)
+    val glider = Survivor.join(helper)
+    val plain = Survivor.join(helper)
+    plain.setItemSlot(EquipmentSlot.CHEST, ItemStack(Vanilla.ELYTRA))
+    // A tick puts the elytra's `gliding_flight` on the player, as wearing it would.
+    plain.doTick()
+    // High above the other tests' flights, and far apart, so no one else's feathers count.
+    glider.fly(helper, height = 120.0)
+    plain.fly(helper, height = 200.0)
+    listOf(walker, glider).forEach { it.addEffect(MobEffectInstance(Wings.EFFECT, 10 * 20)) }
+    helper.assertTrue(glider.tryToStartFallFlying() && plain.tryToStartFallFlying(), "both glide")
+    val bursts = mutableMapOf(walker to 0, glider to 0, plain to 0)
+    var ticks = 0
+    helper.onEachTick {
+      bursts.keys.filter { !it.isRemoved }.forEach {
+        it.setOnGround(it === walker)
+        it.doTick()
+        bursts[it] = bursts.getValue(it) + it.feathers()
+      }
+      ticks++
+    }
+    helper.succeedWhen {
+      helper.assertTrue(ticks >= 20, "a second of flight")
+      helper.assertTrue(glider.isFallFlying, "still gliding")
+      helper.assertTrue(bursts.getValue(glider) >= ticks / 2 - 1, "${bursts[glider]} bursts of feathers in $ticks ticks of flight")
+      helper.assertTrue(bursts.getValue(walker) == 0, "no feathers from Wings on the ground, not ${bursts[walker]}")
+      helper.assertTrue(bursts.getValue(plain) == 0, "no feathers from an elytra alone, not ${bursts[plain]}")
+      bursts.keys.forEach { helper.level.server.playerList.remove(it) }
     }
   }
 
