@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
   write("data/redbull/recipe/${Ids.EMPTY_CAN}.json", shaped(
     listOf("I I", "I I", " C "),
     mapOf('I' to "minecraft:iron_nugget", 'C' to "minecraft:copper_nugget"),
-    item(Ids.EMPTY_CAN, count = 2),
+    item(Ids.EMPTY_CAN),
   ))
   for (can in CANS) {
     val recipe = can.recipe ?: continue

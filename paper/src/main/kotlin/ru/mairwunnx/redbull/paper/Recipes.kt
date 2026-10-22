@@ -29,7 +29,7 @@ class Recipes(private val server: Server) {
   val keys: List<NamespacedKey> get() = crafting
 
   fun register() {
-    shaped(Ids.EMPTY_CAN, Items.emptyCan().asQuantity(2), "I I", "I I", " C ") {
+    shaped(Ids.EMPTY_CAN, Items.emptyCan(), "I I", "I I", " C ") {
       setIngredient('I', Material.IRON_NUGGET)
       setIngredient('C', Material.COPPER_NUGGET)
     }

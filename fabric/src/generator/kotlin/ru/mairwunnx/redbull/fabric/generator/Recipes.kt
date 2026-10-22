@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
 
   write("recipe/${Ids.EMPTY_CAN}.json", shaped(
     listOf("I I", "I I", " C "), mapOf("I" to "minecraft:iron_nugget", "C" to "minecraft:copper_nugget"),
-    redbull(Ids.EMPTY_CAN), count = 2,
+    redbull(Ids.EMPTY_CAN),
   ))
   // A plain water bottle, as Paper's exact choice takes it: a potion of water and nothing else.
   val water = mapOf(
