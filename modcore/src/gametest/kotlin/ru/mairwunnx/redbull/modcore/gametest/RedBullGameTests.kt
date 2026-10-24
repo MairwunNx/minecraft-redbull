@@ -24,6 +24,11 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.inventory.ContainerInput
+import net.minecraft.world.inventory.BrewingStandMenu
+import net.minecraft.world.level.block.HopperBlock
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity
+import net.minecraft.world.level.block.entity.HopperBlockEntity
 import net.minecraft.server.players.NameAndId
 import net.minecraft.server.permissions.LevelBasedPermissionSet
 import net.minecraft.world.entity.EntityTypes
@@ -406,6 +411,105 @@ class RedBullGameTests {
       helper.assertTrue(nuggets.`is`(Items.IRON_NUGGET) && nuggets.count == CRUMPLED_NUGGETS, "a crumpled can melted in $type")
     }
     helper.succeed()
+  }
+
+  /**
+   * A player puts bile into a brewing stand's ingredient slot every way the game offers: a click, a shift-click, a
+   * number key, and a hopper above. The slot, the client's too, takes what the brewing recipes' reagents are made of.
+   */
+  @GameTest
+  fun bileGoesIntoTheIngredientSlot(helper: GameTestHelper) {
+    val player = player(helper)
+    val pos = BlockPos(1, 2, 1)
+    helper.setBlock(pos, Blocks.BREWING_STAND)
+    val stand = helper.getBlockEntity(pos, BrewingStandBlockEntity::class.java)
+    player.openMenu(stand)
+    val menu = player.containerMenu as BrewingStandMenu
+    val ingredient = 3
+    fun inStand() = stand.getItem(ingredient).item
+    fun ownSlot(item: Item) = menu.slots.indexOfFirst { it.container == player.inventory && it.item.`is`(item) }
+
+    menu.setCarried(ItemStack(RedBullItems.bile))
+    menu.clicked(ingredient, 0, ContainerInput.PICKUP, player)
+    equal(helper, inStand(), RedBullItems.bile, "bile clicked into the ingredient slot")
+    menu.clicked(ingredient, 0, ContainerInput.QUICK_MOVE, player)
+    equal(helper, inStand(), Items.AIR, "bile shift-clicked back out")
+
+    menu.clicked(ownSlot(RedBullItems.bile), 0, ContainerInput.QUICK_MOVE, player)
+    equal(helper, inStand(), RedBullItems.bile, "bile shift-clicked into the ingredient slot")
+    menu.clicked(ingredient, 0, ContainerInput.QUICK_MOVE, player)
+
+    player.inventory.removeItemNoUpdate(player.inventory.findSlotMatchingItem(ItemStack(RedBullItems.bile)))
+    player.inventory.setItem(4, ItemStack(RedBullItems.bile))
+    menu.clicked(ingredient, 4, ContainerInput.SWAP, player)
+    equal(helper, inStand(), RedBullItems.bile, "bile swapped in with a number key")
+
+    // Water bottles still go to the bottle slots, with bile in the ingredient slot.
+    repeat(3) { player.inventory.setItem(10 + it, PotionContents.createItemStack(Items.POTION, Potions.WATER)) }
+    repeat(3) { menu.clicked(ownSlot(Items.POTION), 0, ContainerInput.QUICK_MOVE, player) }
+    helper.assertTrue((0..2).all { stand.getItem(it).`is`(Items.POTION) }, "shift-clicked water bottles in the bottle slots")
+
+    helper.assertTrue(stand.canPlaceItemThroughFace(ingredient, ItemStack(RedBullItems.bile), Direction.UP), "a hopper puts bile in")
+    helper.assertFalse(
+      stand.canPlaceItemThroughFace(ingredient, PotionContents.createItemStack(Items.POTION, Potions.WATER), Direction.UP),
+      "a hopper keeps a water bottle out of the ingredient slot",
+    )
+    helper.succeed()
+  }
+
+  /**
+   * The whole way to a can in real blocks: hoppers feed a brewing stand bile, three water bottles, and blaze powder;
+   * one bile brews all three into crude taurine; a furnace evaporates two of them into taurine; and a crafting grid
+   * makes an empty can of nuggets and fills it with that taurine.
+   */
+  @GameTest(maxTicks = 1200)
+  fun bileBecomesACanThroughBlocks(helper: GameTestHelper) {
+    val standPos = BlockPos(1, 2, 1)
+    val furnacePos = BlockPos(3, 2, 3)
+    helper.setBlock(standPos, Blocks.BREWING_STAND)
+    helper.setBlock(standPos.above(), Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN))
+    helper.setBlock(standPos.east(), Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.WEST))
+    helper.setBlock(furnacePos, Blocks.FURNACE)
+    helper.setBlock(furnacePos.above(), Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN))
+    val stand = helper.getBlockEntity(standPos, BrewingStandBlockEntity::class.java)
+    val furnace = helper.getBlockEntity(furnacePos, AbstractFurnaceBlockEntity::class.java)
+    val furnaceHopper = helper.getBlockEntity(furnacePos.above(), HopperBlockEntity::class.java)
+    helper.getBlockEntity(standPos.above(), HopperBlockEntity::class.java).setItem(0, ItemStack(RedBullItems.bile))
+    helper.getBlockEntity(standPos.east(), HopperBlockEntity::class.java).apply {
+      repeat(3) { setItem(it, PotionContents.createItemStack(Items.POTION, Potions.WATER)) }
+      setItem(3, ItemStack(Items.BLAZE_POWDER))
+    }
+
+    helper.startSequence()
+      .thenWaitUntil {
+        helper.assertTrue((0..2).all { stand.getItem(it).`is`(RedBullItems.crudeTaurine) }, "three crude taurine in the stand")
+        helper.assertTrue(stand.getItem(3).isEmpty, "the bile used up")
+      }
+      .thenExecute {
+        furnaceHopper.setItem(0, stand.removeItemNoUpdate(0))
+        furnaceHopper.setItem(1, stand.removeItemNoUpdate(1))
+        furnace.setItem(1, ItemStack(Items.COAL))
+      }
+      .thenWaitUntil {
+        val result = furnace.getItem(2)
+        helper.assertTrue(result.`is`(RedBullItems.taurine) && result.count == 2, "two taurine from the furnace, got $result")
+      }
+      .thenExecute {
+        val level = helper.level
+        fun craft(vararg grid: ItemStack): ItemStack {
+          val input = CraftingInput.of(3, 3, grid.toList())
+          return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level).map { it.value().assemble(input) }.orElse(ItemStack.EMPTY)
+        }
+        val nugget = ItemStack(Items.IRON_NUGGET)
+        val empty = craft(nugget, ItemStack.EMPTY, nugget, nugget, ItemStack.EMPTY, nugget, ItemStack.EMPTY, ItemStack(Items.COPPER_NUGGET), ItemStack.EMPTY)
+        equal(helper, empty.item, RedBullItems.emptyCan, "the empty can from nuggets")
+        val taurine = furnace.getItem(2).copyWithCount(1)
+        val sugar = ItemStack(Items.SUGAR)
+        val water = PotionContents.createItemStack(Items.POTION, Potions.WATER)
+        val original = craft(taurine, ItemStack(item("minecraft:blue_dye")), taurine.copy(), sugar, empty, sugar.copy(), sugar.copy(), water, sugar.copy())
+        equal(helper, original.item, can("original"), "the Energy Drink from the furnace's taurine")
+      }
+      .thenSucceed()
   }
 
   @GameTest(maxTicks = 200)
