@@ -2,6 +2,11 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.4.2
+
+- 🧪 **Bull bile goes into the brewing stand on Paper:** the ingredient slot never took it, by click, shift-click, number key, or hopper, so no crude taurine, taurine, or can could be made. A brewing stand takes an ingredient by its item alone, the player’s client too, and bile was a potion underneath, like the bottles. It’s an ominous bottle underneath now, still drawn and drunk as before, so one bile brews three water bottles into crude taurine on a vanilla client. Bile from older versions turns into the new one when you join, open a container, or pick it up. Fabric and NeoForge took it all along.
+- 🎁 **Cans turn up in chests a third less often**, on every platform: an Edition in 10% of its biome’s chests (15% before), Ruby in 5% (8%), Summer and Glacier in 3.5% (5%), and Spring in 2% (3%). `loot.chests` in the settings still scales them all.
+
 ## 1.4.1
 
 - 🏷️ **Allay names the ingredients in your language:** Allay’s AI got Red Bull’s items only by their ids and translated them itself, so in Russian taurine came out as «таврин». Red Bull now hands it the names of bull bile, crude taurine, taurine, and the empty can, and each can’s flavour, in the language Allay talks to the player in (Allay 6.17 or newer; older Allay gets the game’s language). The Paper jar also carries every language, so Allay’s own item search finds the names there too.
