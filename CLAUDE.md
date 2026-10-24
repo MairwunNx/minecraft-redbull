@@ -25,7 +25,8 @@ Five modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `scripts/process_gif.py` | Draws `media/process.gif`, the whole way to a can window by window: a cow's bile, the brewing stand, the furnace, the empty can, the filled can. Same sources and command as `crafting_gif.py` |
 | `scripts/modrinth_mods.py` | Uploads the Fabric and NeoForge jars to Modrinth through its v3 API, each marked to run on the client and the server; the release runs it after Paper's Minotaur upload |
 | `scripts/social_preview.py` | Draws `media/social-preview.png`, GitHub's 1280×640 preview and the READMEs' header, with the game's font read from a client jar in Gradle's caches. Standard library only: `python3 -I scripts/social_preview.py` |
-| `paper/…/Items.kt` | Builds each item: a potion underneath, with its model, name, lore, and effects; the `redbull:item` mark says which one |
+| `paper/…/Items.kt` | Builds each item: a potion underneath (bull bile an ominous bottle), with its model, name, lore, and effects; the `redbull:item` mark says which one |
+| `paper/…/Upgrades.kt` | Swaps items of older versions for today's where a player meets them: 1.4.1's potion bile on join, in an opened container, and on pickup |
 | `paper/…/Recipes.kt` | The crafting recipes, the brewing mix, and the furnace recipe; removed again on disable |
 | `paper/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, the bottles, and the death message |
 | `paper/…/Wings.kt` | Crumples spent winged cans; looks only at players it was told hold one |
@@ -37,6 +38,7 @@ Five modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `paper/…/Collected.kt` | The cans each player has ever held, in their persistent data, recorded on pickup, craft, drink, inventory close, join, and `RedBullPlugin.handed` |
 | `paper/…/Menu.kt` | The `/redbull` chest: a player's collection with question marks, or every item to take for admins |
 | `paper/…/RedBullCommand.kt` | `/redbull` for everyone; `/redbull give` and `/redbull caffeine` for `redbull.admin` |
+| `paper/src/check/` | `redbull-check.jar`, a plugin for test servers only (Java, so it needs no Kotlin of its own): on start it walks the way to a can in blocks, bile through a hopper into a brewing stand, the brew, a furnace, and the crafting grid, and logs “Red Bull check passed”. `/redbullcheck <player> <x> <y> <z>` opens a block's own window for a test client |
 | `paper/src/pack/` | `pack.mcmeta` and the pack icon; the `pack` Gradle task zips them with core's assets |
 | `modcore/…/Mod.kt`, `Loader.kt` | `Mod` is what each loader's entry calls: `init` first, then commands, the tick, joins, quits, deaths, start and stop. `Loader` is what a loader hands in: item and effect registration, the Wings effect's glide (`glider`), the caffeine and collection attachments (`Store`), and `Settings` |
 | `modcore/…/RedBullItems.kt` | Every item as a real item under its asset's name (`redbull:original`, `redbull:crumpled_original`, `redbull:empty_can`), with its components as defaults, and the `redbull:redbull` tab's title, icon, and items. `CanItem` adds caffeine, wings, and the collection to a drink and the collection to a craft; `BottleItem` the bottles' moo and bull mode |
@@ -64,6 +66,7 @@ Five modules: `core` holds what every platform shares, `paper` is the Paper plug
 ## Rules that keep it working
 
 - Every item is `minecraft:potion` underneath. The game drinks it, lists its effects in the tooltip, applies them, and no vanilla crafting, brewing, or trade takes a potion without a potion id. Non-drinkable items unset `consumable`.
+- Bull bile alone is `minecraft:ominous_bottle` underneath, drawn with the potion model and drunk as a potion. A brewing stand's ingredient slot, the vanilla client's too, takes an item by its type through the brewing recipes' `brewing_reagents` set, so a potion there would let every potion in and send shift-clicked water bottles to the ingredient slot. The ominous bottle has no recipe, tag, or trade, and without its amplifier it does nothing. The brewing mix's choices are `RecipeChoice.predicateChoice` with our item as the example: the example's type is what the slot takes (`PotionMix.createPredicateChoice` uses stone). `Upgrades` swaps 1.4.1's potion bile.
 - A potion names itself after its contents and ignores `item_name`, so names go in `custom_name`, not italic.
 - Every text players read is a translation key with the English text as its fallback (`Texts`). A new key goes into all five language files; `AssetsTest` fails otherwise.
 - A new can is a line in `Cans.kt`, a line in `scripts/textures.py`, a name, flavour, and slogan in every language, and a row in both READMEs and MODRINTH.md. `CansTest` keeps recipes unique and every can obtainable; `AssetsTest` checks its texture and model.
@@ -112,7 +115,7 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
 ## Building and testing
 
 - `./gradlew build` runs the tests and builds `paper/build/libs/redbull-paper-<version>.jar`, shaded and relocated under `ru.mairwunnx.redbull.libs`, `paper/build/pack/redbull-pack.zip`, and `neoforge/build/libs/redbull-neoforge-<version>.jar`. JDK 25; Gradle provisions it through the foojay resolver.
-- It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with modcore's and core's classes and assets inside, and runs the game tests on a real Fabric server (`./gradlew :fabric:runGameTest`), modcore's shared ones and Fabric's settings: drinking, the Caffeine effect after one, two, and three cans and its return after milk, the bed, the Wings effect (the launch, gliding with it and not without, no wear, the glide's vibrations, Slow Falling and `redbull.wings.gone` when it ends mid-flight, silence when it's taken on the ground), milk, the overdose through a totem and its death message in a fight, the settings, bull mode, the collection, the `/redbull` chest for players and admins, the commands, the creative tab, every crafting recipe, brewing, both furnaces, bile from cows, chest loot by biome in the game's chests and another mod's, the wandering trader's cans, cans among fishing junk and in a real catch, feathers only while gliding on Wings, and each advancement when it's earned and not before. It ends with “All 32 required tests passed”.
+- It also builds `fabric/build/libs/redbull-fabric-<version>.jar`, with modcore's and core's classes and assets inside, and runs the game tests on a real Fabric server (`./gradlew :fabric:runGameTest`), modcore's shared ones and Fabric's settings: drinking, the Caffeine effect after one, two, and three cans and its return after milk, the bed, the Wings effect (the launch, gliding with it and not without, no wear, the glide's vibrations, Slow Falling and `redbull.wings.gone` when it ends mid-flight, silence when it's taken on the ground), milk, the overdose through a totem and its death message in a fight, the settings, bull mode, the collection, the `/redbull` chest for players and admins, the commands, the creative tab, every crafting recipe, brewing, both furnaces, bile from cows, chest loot by biome in the game's chests and another mod's, the wandering trader's cans, cans among fishing junk and in a real catch, feathers only while gliding on Wings, and each advancement when it's earned and not before. It ends with “All 34 required tests passed”.
 - There is no MockBukkit for Paper 26.3; tests cover `core`. The rest runs on a real Paper. On NeoForge and Fabric, game tests drive a real server with a fake survival player.
 
 ## Checking a change
@@ -120,9 +123,12 @@ A new loader joins the same way: a module next to `paper` that takes core's clas
 1. `./gradlew build`: the tests and the jar.
 2. A real Paper with the jar. On start the plugin builds every item through the game's codecs, so a component the game rejects fails here:
    ```sh
-   python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-paper-dev.jar --expect "Red Bull dev is on: 26 cans, 23 recipes"
+   python3 -I .claude/scripts/paper_smoke.py --game 26.3 --plugin paper/build/libs/redbull-paper-dev.jar --plugin paper/build/libs/redbull-check.jar \
+       --command "tick query" --command "tick query" --command "tick query" --command "tick query" \
+       --expect "Red Bull dev is on: 26 cans, 23 recipes" --expect "Red Bull check passed"
    ```
-3. modcore's game tests on NeoForge, the same as on Fabric but its settings reader, on a real server. It ends with “All 31 required tests passed”:
+   `redbull-check.jar` walks the way to a can in blocks at `tick rate 400` (a sprint skips block entities); the commands only give it the seconds. Clicks need a client: a mineflayer bot on 26.1 through ViaVersion and ViaBackwards clicks, shift-clicks, and swaps bile into the stand once `/redbullcheck` opened it (the snapshot of ViaBackwards garbles the bot's moves and block clicks, so drop its move packets).
+3. modcore's game tests on NeoForge, the same as on Fabric but its settings reader, on a real server. It ends with “All 33 required tests passed”:
    ```sh
    ./gradlew :neoforge:runGameTestServer
    ```
