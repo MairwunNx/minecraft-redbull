@@ -37,7 +37,7 @@ import ru.mairwunnx.redbull.core.wingedCanExpiry
 import ru.mairwunnx.redbull.core.can
 
 /**
- * Every item is a potion underneath: the game drinks it, shows its effects in the tooltip, applies them,
+ * Every item but bull bile is a potion underneath: the game drinks it, shows its effects in the tooltip, applies them,
  * and keeps it out of vanilla crafting and trading. Components give it a model, a name, and a purpose;
  * the `redbull:item` mark says which of ours it is.
  */
@@ -120,7 +120,27 @@ object Items {
     hint(WINGED_CAN)
   }
 
-  fun bile(): ItemStack = bottle(BULL_BILE, BILE_COLOR, Bottles.BILE)
+  /**
+   * Bull bile is an ominous bottle underneath, drawn and drunk as a potion. A brewing stand's ingredient slot, the
+   * client's included, takes an item by its type alone, so a potion there would let every potion in and send a
+   * shift-clicked water bottle to the ingredient slot. The ominous bottle is an item of components only, without a
+   * recipe, tag, or trade; without its amplifier it does nothing, and every brewing ingredient slot takes it.
+   */
+  fun bile(): ItemStack = mark(ItemStack.of(Material.OMINOUS_BOTTLE), BULL_BILE).apply {
+    val potion = ItemStack.of(Material.POTION)
+    unsetData(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER)
+    setData(DataComponentTypes.ITEM_MODEL, Key.key("minecraft:potion"))
+    setData(DataComponentTypes.CUSTOM_NAME, Texts.line("item.redbull.$BULL_BILE"))
+    setData(DataComponentTypes.RARITY, ItemRarity.COMMON)
+    setData(DataComponentTypes.MAX_STACK_SIZE, 1)
+    setData(DataComponentTypes.POTION_CONTENTS, effects(BILE_COLOR, Bottles.BILE))
+    setData(DataComponentTypes.CONSUMABLE, potion.getData(DataComponentTypes.CONSUMABLE)!!)
+    setData(DataComponentTypes.USE_REMAINDER, potion.getData(DataComponentTypes.USE_REMAINDER)!!)
+    hint(BULL_BILE)
+  }
+
+  /** Bile from 1.4.1 and before: a potion, which no brewing stand takes. [Upgrades] swaps it for today's. */
+  fun isOldBile(item: ItemStack?): Boolean = item?.type == Material.POTION && id(item) == BULL_BILE
 
   fun crudeTaurine(): ItemStack = bottle(CRUDE_TAURINE, CRUDE_COLOR, Bottles.CRUDE_TAURINE)
 

@@ -45,10 +45,12 @@ class Recipes(private val server: Server) {
       }
     }
 
+    // A brewing stand's slots, and the client's, take the item types of the brewing recipes' examples, so each choice
+    // shows our own item: PotionMix.createPredicateChoice's example is stone, which kept bile out of the slot.
     server.potionBrewer.addPotionMix(PotionMix(
       brewing, Items.crudeTaurine(),
-      PotionMix.createPredicateChoice(Items::isWaterBottle),
-      PotionMix.createPredicateChoice { Items.id(it) == Ids.BULL_BILE },
+      RecipeChoice.predicateChoice(Items::isWaterBottle, Items.waterBottle()),
+      RecipeChoice.predicateChoice({ Items.id(it) == Ids.BULL_BILE }, Items.bile()),
     ))
 
     server.addRecipe(FurnaceRecipe(evaporating, Items.taurine(), RecipeChoice.ExactChoice(Items.crudeTaurine()), 0.35f, 200), true)
