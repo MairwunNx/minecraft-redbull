@@ -68,9 +68,9 @@ tasks.shadowJar {
   // Relocated so other plugins that ship their own Kotlin or kaml can't clash with ours.
   listOf("kotlin", "kotlinx", "com.charleskorn.kaml", "it.krzeminski.snakeyaml", "okio", "net.thauvin")
     .forEach { relocate(it, "ru.mairwunnx.redbull.libs.$it") }
-  // The pack carries the assets; the jar keeps only the English texts, as fallbacks for players without it.
+  // The pack carries the assets. The jar keeps the texts: English as players' fallback without the pack, and every
+  // language for the server's side, where Allay names the items in the player's language.
   exclude("assets/redbull/textures/**", "assets/redbull/models/**", "assets/redbull/items/**", "data/**")
-  exclude { it.path.startsWith("assets/redbull/lang/") && it.name != "en_us.json" }
   exclude("META-INF/*.kotlin_module", "META-INF/versions/*/module-info.class", "module-info.class")
   dependencies { exclude(dependency("org.jetbrains:annotations")) }
 }
