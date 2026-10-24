@@ -13,8 +13,23 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class RedBullExpansionTest {
-  private fun call(vararg args: Pair<String, Any>) = object : ToolCall {
-    override fun asker(): Asker = error("the tool reads no asker")
+  /** A player whose game is in [locale] and who reads Allay in [language]. */
+  private fun asker(locale: String = "en_us", language: String = locale) = object : Asker {
+    override fun uuid(): UUID = UUID(0, 1)
+    override fun name() = "MairwunNx"
+    override fun locale() = locale
+    override fun language() = language
+    override fun isOperator() = false
+    override fun hasPermission(permission: String, byDefault: Boolean) = byDefault
+    override fun dimension() = "overworld"
+    override fun x() = 0
+    override fun y() = 64
+    override fun z() = 0
+    override fun <T> unwrap(type: Class<T>): T? = null
+  }
+
+  private fun call(vararg args: Pair<String, Any>, asker: Asker = asker()) = object : ToolCall {
+    override fun asker(): Asker = asker
     override fun args() = Args(mapOf(*args))
     override fun mode() = ToolCall.Mode.ASK
     override fun isPublic() = false
@@ -75,10 +90,37 @@ class RedBullExpansionTest {
   fun `the expansion is what Allay checks`() {
     val expansion = RedBullExpansion()
     assertTrue(expansion.id().matches(Regex("[a-z0-9_]{1,24}")))
-    assertEquals(AllayApi.VERSION, expansion.requiresApi())
+    // 1.0, so an older Allay still runs it; 1.3's Asker.language only where Allay has it.
+    assertEquals("1.0.0", expansion.requiresApi())
+    assertTrue(AllayApi.satisfies(AllayApi.VERSION, expansion.requiresApi()))
     expansion.tools().forEach {
       assertTrue(it.name().matches(Regex("[a-z0-9_]{1,32}")))
       assertTrue(it.description().length <= 1000)
     }
   }
+
+  @Test
+  fun `names come in the language Allay answers in, not the game's`() {
+    // The owner's game is in English, and Allay answers him in Russian: taurine is «Таурин», never a guess.
+    val result = RedBullExpansion.Recipes.run(call(asker = asker("en_us", "ru_ru")))
+    @Suppress("UNCHECKED_CAST")
+    val names = result.data()["names"] as Map<String, String>
+    assertEquals("Таурин", names["redbull:taurine"])
+    assertEquals("Сырой таурин", names["redbull:crude_taurine"])
+    assertEquals("Бычья желчь", names["redbull:bull_bile"])
+    assertEquals("Пустая банка", names["redbull:empty_can"])
+    val original = cans(result).first { it["id"] == "redbull:original" }
+    assertEquals("Red Bull Energy Drink", original["name"])
+    assertEquals("Оригинальный вкус", original["flavour"])
+    assertTrue(json(result.data()).length < 8000, "${json(result.data()).length} characters")
+    // English for an English reader; another Spanish reads Spain's; an unknown language falls back to English.
+    assertEquals("Taurine", names(asker("ru_ru", "en_us"))["redbull:taurine"])
+    assertEquals(names(asker("es_es"))["redbull:taurine"], names(asker("es_mx"))["redbull:taurine"])
+    assertEquals("Taurine", names(asker("xx_yy"))["redbull:taurine"])
+    // A flavour in the reader's language finds its can.
+    assertEquals("redbull:original", cans(RedBullExpansion.Recipes.run(call("can" to "оригинальный вкус", asker = asker("en_us", "ru_ru")))).single()["id"])
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  private fun names(asker: Asker) = RedBullExpansion.Recipes.run(call(asker = asker)).data()["names"] as Map<String, String>
 }

@@ -2,11 +2,14 @@ package ru.mairwunnx.redbull.core
 
 import chat.allay.expansion.AllayApi
 import chat.allay.expansion.AllayExpansion
+import chat.allay.expansion.AllayExpansions
+import chat.allay.expansion.Asker
 import chat.allay.expansion.AllayTool
 import chat.allay.expansion.Schema
 import chat.allay.expansion.ToolCall
 import chat.allay.expansion.ToolException
 import chat.allay.expansion.ToolResult
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * What every platform tells [RedBullExpansion] about itself. A class of its own, so a platform can set it without
@@ -26,7 +29,8 @@ object RedBullInfo {
 class RedBullExpansion : AllayExpansion {
   override fun id() = "redbull"
 
-  override fun requiresApi(): String = AllayApi.VERSION
+  /** 1.0, Allay 6.12: [language] reads 1.3's `Asker.language` only where Allay has it. */
+  override fun requiresApi(): String = "1.0.0"
 
   override fun name() = "Red Bull"
 
@@ -40,7 +44,8 @@ class RedBullExpansion : AllayExpansion {
       "smelted into taurine, then crafted with an empty can, a flavour, a dye, sugar or honeycomb, and a water bottle. " +
       "Four cans are legends found only in chests. Every can adds ${RULES.perCan.toInt()} caffeine, which wears off by " +
       "a point every 6 seconds of play; above ${RULES.limit.toInt()} the heart gives out, and milk takes " +
-      "${RULES.milk.toInt()}. Before you explain how to make or find a can, call x_redbull_recipes: never guess a recipe."
+      "${RULES.milk.toInt()}. Before you explain how to make or find a can, call x_redbull_recipes: never guess a recipe. " +
+      "Call Red Bull's items by the names it gives in `names`, as the game shows them to the player; never translate an id."
 
   /** `x_redbull_recipes`: the ingredients' way, and one can or every can. */
   object Recipes : AllayTool {
@@ -49,7 +54,8 @@ class RedBullExpansion : AllayExpansion {
     override fun description() =
       "How Red Bull cans and their ingredients are made and found on this server. Returns `ingredients` (bull bile, " +
         "crude taurine, taurine, the empty can: drops, brewing, smelting, crafting), `grid` (the crafting shape every " +
-        "can shares), and `cans`: each can's id, English name, flavour, and its own dye, flavour item, and sweetener, " +
+        "can shares), `names` (those items' names in the player's language), and `cans`: each can's id, name (English " +
+        "on every can), flavour in the player's language, and its own dye, flavour item, and sweetener, " +
         "or for a chest-only legend the biomes and chance of its chests. Pass `can` for one can in full, with its " +
         "buffs, wings, chests, and trader price; leave it out for every can in short."
 
@@ -60,15 +66,16 @@ class RedBullExpansion : AllayExpansion {
 
     override fun run(call: ToolCall): ToolResult {
       val asked = call.args().string("can")
-      val result = linkedMapOf<String, Any>("ingredients" to INGREDIENTS, "grid" to GRID)
+      val texts = Names.of(language(call.asker()))
+      val result = linkedMapOf<String, Any>("ingredients" to INGREDIENTS, "grid" to GRID, "names" to Names.items(texts))
       if (asked == null) {
-        result["cans"] = CANS.map { short(it) }
+        result["cans"] = CANS.map { short(it, texts) }
         result["elsewhere"] = ELSEWHERE
         return ToolResult.of(result).summary("${CANS.size} cans")
       }
-      val found = find(asked)
+      val found = find(asked, texts)
       if (found.isEmpty()) throw ToolException("no can matches \"$asked\"; the cans are ${CANS.joinToString { "redbull:${it.id}" }}")
-      result["cans"] = found.map { full(it) }
+      result["cans"] = found.map { full(it, texts) }
       return ToolResult.of(result).summary(found.joinToString { Names.name(it) })
     }
   }
@@ -106,8 +113,15 @@ class RedBullExpansion : AllayExpansion {
       "A crumpled can, what a drink leaves, smelts into $CRUMPLED_NUGGETS iron nuggets",
     )
 
-    private fun short(can: Can): Map<String, Any> {
-      val entry = linkedMapOf<String, Any>("id" to "redbull:${can.id}", "name" to Names.name(can), "flavour" to Names.flavour(can))
+    /**
+     * The language Allay answers the asker in, as a game language (`ru_ru`; API 1.3), or their game's on an older
+     * Allay, which has no `Asker.language`.
+     */
+    fun language(asker: Asker): String =
+      if (AllayApi.satisfies(AllayExpansions.apiVersion(), "1.3.0")) asker.language() else asker.locale()
+
+    private fun short(can: Can, texts: Map<String, String>): Map<String, Any> {
+      val entry = linkedMapOf<String, Any>("id" to "redbull:${can.id}", "name" to Names.name(can), "flavour" to Names.flavour(can, texts))
       val recipe = can.recipe
       if (recipe == null) {
         entry["chest_only"] = true
@@ -120,8 +134,8 @@ class RedBullExpansion : AllayExpansion {
       return entry
     }
 
-    private fun full(can: Can): Map<String, Any> {
-      val entry = linkedMapOf<String, Any>("id" to "redbull:${can.id}", "name" to Names.name(can), "flavour" to Names.flavour(can))
+    private fun full(can: Can, texts: Map<String, String>): Map<String, Any> {
+      val entry = linkedMapOf<String, Any>("id" to "redbull:${can.id}", "name" to Names.name(can), "flavour" to Names.flavour(can, texts))
       val recipe = can.recipe
       if (recipe == null) {
         entry["chest_only"] = true
@@ -146,28 +160,56 @@ class RedBullExpansion : AllayExpansion {
 
     private fun bare(id: String) = id.removePrefix("minecraft:")
 
-    /** Cans by id, name, or flavour, as a player might put it: “cherry”, “Red Bull Cherry Edition”, “Cherry-Sakura”. */
-    fun find(asked: String): List<Can> {
+    /**
+     * Cans by id, name, or flavour, as a player might put it: “cherry”, “Red Bull Cherry Edition”, “Cherry-Sakura”, or
+     * the flavour in [texts]' language.
+     */
+    fun find(asked: String, texts: Map<String, String> = emptyMap()): List<Can> {
       val words = fold(asked.removePrefix("redbull:"))
       CANS.firstOrNull { fold(it.id) == words }?.let { return listOf(it) }
       val named = CANS.filter { words == fold(Names.name(it)) || words == fold(Names.name(it).removePrefix("Red Bull ")) }
       if (named.isNotEmpty()) return named
-      return CANS.filter { words == fold(Names.flavour(it)) }
+      return CANS.filter { words == fold(Names.flavour(it)) || words == fold(Names.flavour(it, texts)) }
     }
 
     private fun fold(text: String) = text.lowercase().filter { it.isLetterOrDigit() }
   }
 }
 
-/** The cans' English names and flavours from core's `en_us.json`, which every platform's jar carries. */
+/**
+ * Red Bull's texts from core's language files, which every platform's jar carries: the cans' names (English in every
+ * language) and flavours, and the ingredients' names, in the asker's language or English.
+ */
 internal object Names {
-  private val texts: Map<String, String> by lazy {
-    val json = Names::class.java.getResourceAsStream("/assets/redbull/lang/en_us.json")?.use { it.readBytes().decodeToString() } ?: ""
+  private const val ENGLISH = "en_us"
+  private val files = ConcurrentHashMap<String, Map<String, String>>()
+
+  private fun file(locale: String): Map<String, String> = files.getOrPut(locale) {
+    val json = Names::class.java.getResourceAsStream("/assets/redbull/lang/$locale.json")?.use { it.readBytes().decodeToString() } ?: ""
     Regex("\"((?:[^\"\\\\]|\\\\.)*)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"").findAll(json)
       .associate { it.groupValues[1] to it.groupValues[2].replace("\\\"", "\"").replace("\\\\", "\\") }
   }
 
-  fun name(can: Can) = texts[can.translation] ?: can.id
+  private val english: Map<String, String> get() = file(ENGLISH)
 
-  fun flavour(can: Can) = texts["${can.translation}.flavour"] ?: can.id
+  /** The texts in [locale] (`ru_ru`), else in another variant of its language (`es_mx` reads `es_es`), else English. */
+  fun of(locale: String?): Map<String, String> {
+    val code = locale?.trim()?.lowercase()?.replace('-', '_')?.takeIf { Regex("[a-z]{2,3}(_[a-z0-9]{2,4})?").matches(it) } ?: return english
+    file(code).takeIf { it.isNotEmpty() }?.let { return it }
+    val language = code.substringBefore('_')
+    return LANGUAGES.firstOrNull { it.substringBefore('_') == language }?.let(::file)?.takeIf { it.isNotEmpty() } ?: english
+  }
+
+  /** The languages core ships. */
+  private val LANGUAGES = listOf("en_us", "ru_ru", "de_de", "es_es", "pt_br")
+
+  fun name(can: Can) = english[can.translation] ?: can.id
+
+  fun flavour(can: Can, texts: Map<String, String> = english) = texts["${can.translation}.flavour"] ?: english["${can.translation}.flavour"] ?: can.id
+
+  /** The ingredients' and the empty can's names in [texts]' language, by id: what the recipes name only by id. */
+  fun items(texts: Map<String, String>): Map<String, String> =
+    listOf(Ids.BULL_BILE, Ids.CRUDE_TAURINE, Ids.TAURINE, Ids.EMPTY_CAN).associate { id ->
+      "redbull:$id" to (texts["item.redbull.$id"] ?: english["item.redbull.$id"] ?: id)
+    }
 }
