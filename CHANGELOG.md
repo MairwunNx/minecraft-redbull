@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.4.1
+
+- 🏷️ **Allay names the ingredients in your language:** Allay’s AI got Red Bull’s items only by their ids and translated them itself, so in Russian taurine came out as «таврин». Red Bull now hands it the names of bull bile, crude taurine, taurine, and the empty can, and each can’s flavour, in the language Allay talks to the player in (Allay 6.17 or newer; older Allay gets the game’s language). The Paper jar also carries every language, so Allay’s own item search finds the names there too.
+
 ## 1.4.0
 
 - 🤖 **Allay knows the recipes:** with [Allay](https://github.com/allay-ai/minecraft) 6.12 or newer on the server, its AI asks Red Bull itself how a can is made and where it turns up: the crafting grid of each can, the bile, brewing, and furnace on the way to taurine, a legend’s chests, a trader’s price. It works on Paper, Fabric, and NeoForge alike, and Red Bull runs as before without Allay.
