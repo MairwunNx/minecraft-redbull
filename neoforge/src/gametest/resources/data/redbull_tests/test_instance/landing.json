@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:function",
-  "environment": "minecraft:default",
-  "function": "redbull_tests:landing",
-  "max_ticks": 60,
-  "setup_ticks": 1,
-  "structure": "minecraft:empty"
-}

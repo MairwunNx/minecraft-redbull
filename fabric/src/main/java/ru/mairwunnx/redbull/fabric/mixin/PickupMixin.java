@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import ru.mairwunnx.redbull.fabric.Collected;
+import ru.mairwunnx.redbull.modcore.Collected;
 
 /**
  * A picked-up can joins the collection once some of it made it into the inventory. Fabric has no pickup event,

@@ -10,11 +10,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.world.level.storage.loot.LootPool
-import net.minecraft.world.level.storage.loot.LootTable
-import net.minecraft.world.level.storage.loot.entries.LootItem
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer
-import net.minecraft.world.level.storage.loot.entries.NestedLootTable
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition
 import net.neoforged.bus.api.IEventBus
@@ -25,7 +20,9 @@ import net.neoforged.neoforge.registries.DeferredRegister
 import net.neoforged.neoforge.registries.NeoForgeRegistries
 import ru.mairwunnx.redbull.core.Bile
 import ru.mairwunnx.redbull.core.CANS
-import ru.mairwunnx.redbull.core.Fishing
+import ru.mairwunnx.redbull.modcore.Junk
+import ru.mairwunnx.redbull.modcore.MOD_ID
+import ru.mairwunnx.redbull.modcore.RedBullItems
 import ru.mairwunnx.redbull.neoforge.mixin.LootPoolAccessor
 import java.util.Optional
 import net.minecraft.core.Holder
@@ -50,31 +47,13 @@ object Loot {
 
   fun register(bus: IEventBus) = SERIALIZERS.register(bus)
 
-  /**
-   * The junk table is rolled inside the fishing table, where no loot modifier sees it, so its pool takes the cans
-   * as it loads: weights beside the game's junk, as Fabric adds them.
-   */
+  /** The junk table's pool takes the cans as it loads: weights beside the game's junk, as Fabric adds them. */
   fun listen(bus: IEventBus) {
     bus.on<LootTableLoadEvent> { event ->
-      if (event.name.toString() != JUNK) return@on
+      if (event.name.toString() != Junk.TABLE) return@on
       val pool = event.table.getPool("main") as? LootPoolAccessor ?: return@on
-      pool.`redbull$setEntries`(pool.`redbull$entries`() + junk())
+      pool.`redbull$setEntries`(pool.`redbull$entries`() + Junk.entries())
     }
-  }
-
-  private const val JUNK = "minecraft:gameplay/fishing/junk"
-
-  /**
-   * An empty can, and a crumpled can of any flavour, the flavours sharing one weight, so a can turns up as often as
-   * core says however many flavours there are.
-   */
-  private fun junk(): List<LootPoolEntryContainer> {
-    val crumpled = LootPool.lootPool()
-    Items.crumpled.values.forEach { crumpled.add(LootItem.lootTableItem(it.get())) }
-    return listOf(
-      LootItem.lootTableItem(Items.emptyCan.get()).setWeight(Fishing.EMPTY_WEIGHT).build(),
-      NestedLootTable.inlineLootTable(LootTable.lootTable().withPool(crumpled).build()).setWeight(Fishing.CRUMPLED_WEIGHT).build(),
-    )
   }
 
   abstract class Modifier(condition: Optional<Holder<LootItemCondition>>, priority: Int) : LootModifier(condition, priority) {
@@ -92,7 +71,7 @@ object Loot {
       val killer = context.getOptional(LootContextParams.LAST_DAMAGE_PLAYER) ?: return loot
       val looting = context.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(Enchantments.LOOTING)
         .map { EnchantmentHelper.getItemEnchantmentLevel(it, killer.mainHandItem) }.orElse(0)
-      if (context.random.nextDouble() < Bile.chance(looting) * Settings.bile.get()) loot += ItemStack(Items.bile.get())
+      if (context.random.nextDouble() < Bile.chance(looting) * Settings.bile) loot += ItemStack(RedBullItems.bile)
       return loot
     }
 
@@ -108,7 +87,7 @@ object Loot {
         ?: return loot
       for (can in CANS) {
         val chests = can.chests ?: continue
-        if (biome in chests.biomes && context.random.nextDouble() < chests.chance * Settings.chests.get()) loot += Items.can(can)
+        if (biome in chests.biomes && context.random.nextDouble() < chests.chance * Settings.chests) loot += RedBullItems.can(can)
       }
       return loot
     }

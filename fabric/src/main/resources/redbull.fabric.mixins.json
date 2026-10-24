@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "ru.mairwunnx.redbull.fabric.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["CloseContainerMixin", "MilkMixin", "PickupMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

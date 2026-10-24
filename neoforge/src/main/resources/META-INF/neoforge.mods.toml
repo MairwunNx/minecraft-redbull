@@ -15,6 +15,9 @@ description = '''
 [[mixins]]
 config = "redbull.mixins.json"
 
+[[mixins]]
+config = "redbull.neoforge.mixins.json"
+
 [[dependencies.redbull]]
 modId = "neoforge"
 type = "required"

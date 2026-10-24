@@ -10,12 +10,12 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen
 import net.minecraft.network.chat.Component
 import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Caffeine
-import ru.mairwunnx.redbull.fabric.Awards
-import ru.mairwunnx.redbull.fabric.Caffeines
-import ru.mairwunnx.redbull.fabric.Collected
-import ru.mairwunnx.redbull.fabric.Menu
-import ru.mairwunnx.redbull.fabric.RedBullItems
-import ru.mairwunnx.redbull.fabric.Wings
+import ru.mairwunnx.redbull.modcore.Awards
+import ru.mairwunnx.redbull.modcore.Caffeines
+import ru.mairwunnx.redbull.modcore.Collected
+import ru.mairwunnx.redbull.modcore.Menu
+import ru.mairwunnx.redbull.modcore.id
+import ru.mairwunnx.redbull.modcore.Wings
 
 /**
  * A real client in a fresh survival world at noon, as a player without operator rights, and the README's screenshots:
@@ -51,7 +51,7 @@ class RedBullClientGameTest : FabricClientGameTest {
         .forEachIndexed { slot, id -> world.server.runCommand("item replace entity @a inventory.${slot * 2} with redbull:$id") }
       context.waitTicks(20)
       val shown = context.computeOnClient<Pair<Int?, Boolean>, RuntimeException> {
-        it.player?.getEffect(Caffeines.EFFECT)?.amplifier to (it.player?.hasEffect(Wings.WINGS) == true)
+        it.player?.getEffect(Caffeines.EFFECT)?.amplifier to (it.player?.hasEffect(Wings.EFFECT) == true)
       }
       check(shown == (1 to true)) { "the client sees Caffeine at level ${shown.first} and Wings ${shown.second}, not II and Wings" }
       context.setScreen { InventoryScreen(Minecraft.getInstance().player!!) }
@@ -81,7 +81,7 @@ class RedBullClientGameTest : FabricClientGameTest {
       context.waitTicks(5)
       context.runOnClient<RuntimeException> {
         val advancements = it.player!!.connection.advancements
-        val root = advancements.get(RedBullItems.id(Advancements.ROOT)) ?: error("the client has no Red Bull advancements")
+        val root = advancements.get(id(Advancements.ROOT)) ?: error("the client has no Red Bull advancements")
         advancements.setSelectedTab(root, false)
       }
       context.setScreen { AdvancementsScreen(Minecraft.getInstance().player!!.connection.advancements) }

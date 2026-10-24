@@ -10,23 +10,19 @@ import java.nio.file.Path
  * It's read on start and on `/reload`; a missing file is written with the defaults, and a missing key keeps its own.
  * Only the few lines it needs of TOML are understood: `key = value`, one `[loot]` table, and `#` comments.
  */
-object Settings {
+object Settings : ru.mairwunnx.redbull.modcore.Settings {
   private val log = LoggerFactory.getLogger("Red Bull")
 
-  /** Four cans too fast, and the heart gives out. Off: caffeine still builds up, but nobody dies. */
-  var overdose = true
+  override var overdose = true
     private set
 
-  /** Cans with wings launch the player and give the Wings effect to glide with. */
-  var wings = true
+  override var wings = true
     private set
 
-  /** Multiplies the chance that a cow drops bull bile. */
-  var bile = 1.0
+  override var bile = 1.0
     private set
 
-  /** Multiplies each can's chance to turn up in a chest of its biomes. */
-  var chests = 1.0
+  override var chests = 1.0
     private set
 
   private val DEFAULTS = """

@@ -1,8 +1,0 @@
-{
-  "type": "minecraft:function",
-  "environment": "minecraft:default",
-  "function": "redbull_tests:elytra",
-  "max_ticks": 100,
-  "setup_ticks": 1,
-  "structure": "minecraft:empty"
-}

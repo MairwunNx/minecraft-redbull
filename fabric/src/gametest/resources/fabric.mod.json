@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "redbull-gametest",
+  "id": "redbull_gametest",
   "version": "0.0.0",
   "name": "Red Bull game tests",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["ru.mairwunnx.redbull.fabric.gametest.RedBullGameTests"],
+    "fabric-gametest": ["ru.mairwunnx.redbull.modcore.gametest.RedBullGameTests", "ru.mairwunnx.redbull.fabric.gametest.FabricGameTests"],
     "fabric-client-gametest": ["ru.mairwunnx.redbull.fabric.gametest.RedBullClientGameTest"]
   },
   "depends": {

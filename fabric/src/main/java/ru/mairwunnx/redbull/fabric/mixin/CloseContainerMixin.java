@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import ru.mairwunnx.redbull.fabric.Collected;
+import ru.mairwunnx.redbull.modcore.Collected;
 
 /**
  * Whatever a player took from a chest or anything else with slots is in their inventory once they close it, their

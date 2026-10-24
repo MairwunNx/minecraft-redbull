@@ -27,11 +27,24 @@ loom {
 fabricApi {
   configureTests {
     createSourceSet = true
-    modId = "redbull-gametest"
+    modId = "redbull_gametest"
     enableGameTests = true
     enableClientGameTests = true
     eula = true
   }
+}
+
+val core = project(":core")
+val modcore = project(":modcore")
+evaluationDependsOn(modcore.path)
+
+// The game tests are modcore's, shared with NeoForge; Fabric API's `GameTest` stands in for the annotation they name.
+kotlin.sourceSets.named("gametest") {
+  kotlin.srcDir(modcore.file("src/gametest/kotlin"))
+}
+// The tests' data (a crate of another mod's) is modcore's too.
+sourceSets.named("gametest") {
+  resources.srcDir(modcore.file("src/gametest/resources"))
 }
 
 dependencies {
@@ -40,29 +53,34 @@ dependencies {
   implementation("net.fabricmc.fabric-api:fabric-api:$fabricApi")
   implementation("net.fabricmc:fabric-language-kotlin:$fabricKotlin")
   implementation(project(":core"))
+  // Without its Minecraft: the game comes from Loom here.
+  implementation(project(":modcore")) { isTransitive = false }
 }
 
 kotlin {
   jvmToolchain(25)
 }
 
-// The recipes come from core, as on Paper: a small program writes them as the game's data before every build.
-val generator: SourceSet = sourceSets.create("generator")
-dependencies {
-  "generatorImplementation"(project(":core"))
+// The recipes come from core, as on Paper: modcore's small program writes them as the game's data before every build.
+val recipeGenerator: Configuration by configurations.creating {
+  attributes { attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME)) }
 }
-
+dependencies {
+  recipeGenerator(project(":modcore", "recipeGenerator"))
+}
 val generateData = tasks.register<JavaExec>("generateData") {
   val output = layout.buildDirectory.dir("generated/data")
-  classpath = generator.runtimeClasspath
-  mainClass = "ru.mairwunnx.redbull.fabric.generator.RecipesKt"
-  args(output.get().asFile.absolutePath)
+  classpath = recipeGenerator
+  mainClass = "ru.mairwunnx.redbull.modcore.data.RecipesKt"
+  args(output.get().asFile.absolutePath, "fabric")
   outputs.dir(output)
 }
 
-// Core's assets ship in the mod: the textures, models, item definitions, and languages every platform shares.
+// Core's assets ship in the mod: the textures, models, item definitions, and languages every platform shares; and
+// modcore's data and mixins, which both mods share.
 sourceSets.main {
-  resources.srcDir(project(":core").layout.projectDirectory.dir("src/main/resources"))
+  resources.srcDir(core.layout.projectDirectory.dir("src/main/resources"))
+  resources.srcDir(modcore.layout.projectDirectory.dir("src/main/resources"))
   resources.srcDir(generateData)
 }
 
@@ -75,15 +93,15 @@ tasks.processResources {
   }
   from(rootProject.file("media/icon.png")) { into("assets/redbull") }
   // The game has no fallback between dialects: Mexico and Portugal get Spain's and Brazil's texts, as on NeoForge.
-  val lang = project(":core").layout.projectDirectory.dir("src/main/resources/assets/redbull/lang")
+  val lang = core.layout.projectDirectory.dir("src/main/resources/assets/redbull/lang")
   from(lang.file("es_es.json")) { into("assets/redbull/lang"); rename { "es_mx.json" } }
   from(lang.file("pt_br.json")) { into("assets/redbull/lang"); rename { "pt_pt.json" } }
 }
 
-// Core is plain Kotlin, not a mod: its classes go into the mod's jar. Fabric Language Kotlin brings Kotlin itself.
-val core = project(":core")
+// Core and modcore aren't mods: their classes go into the mod's jar. Fabric Language Kotlin brings Kotlin itself.
 tasks.jar {
-  dependsOn(core.tasks.named("classes"))
+  dependsOn(core.tasks.named("classes"), modcore.tasks.named("classes"))
   from(core.layout.buildDirectory.dir("classes/kotlin/main"))
+  from(modcore.layout.buildDirectory.dir("classes/kotlin/main"), modcore.layout.buildDirectory.dir("classes/java/main"))
 }
 

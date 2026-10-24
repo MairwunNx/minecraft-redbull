@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import ru.mairwunnx.redbull.fabric.Drinks;
+import ru.mairwunnx.redbull.modcore.Drinks;
 
 /**
  * Milk takes some caffeine away. Fabric has no event for a finished drink, so this wraps the method every one ends

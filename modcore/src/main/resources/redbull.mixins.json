@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "ru.mairwunnx.redbull.modcore.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["GlideMixin", "WanderingTraderMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

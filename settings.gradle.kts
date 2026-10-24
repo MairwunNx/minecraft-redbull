@@ -11,5 +11,6 @@ plugins {
 
 rootProject.name = "redbull"
 
-// core: the rules and the assets every platform shares; Paper, NeoForge, and Fabric each build on it.
-include("core", "paper", "neoforge", "fabric")
+// core: the rules and the assets every platform shares; Paper, NeoForge, and Fabric each build on it. modcore is what
+// both mods share, the game without a loader; neoforge and fabric are thin adapters around it.
+include("core", "paper", "modcore", "neoforge", "fabric")

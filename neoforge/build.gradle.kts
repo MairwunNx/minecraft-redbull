@@ -9,28 +9,36 @@ val minecraft = "26.3"
 val neoforgeVersion = "26.3.0.95"
 
 val core = project(":core")
+val modcore = project(":modcore")
 evaluationDependsOn(core.path)
+evaluationDependsOn(modcore.path)
 val coreMain: SourceSet = core.sourceSets.main.get()
+val modcoreMain: SourceSet = modcore.sourceSets.main.get()
 
-// `data`: writes the recipes from core's cans as the game's JSON; see Recipes.kt there.
-val data: SourceSet = sourceSets.create("data")
-// `gametest`: a dev-only mod with game tests for drinking, wings, and loot; never in the jar.
+// `gametest`: a dev-only mod that runs modcore's game tests, shared with Fabric; never in the jar.
 val gametest: SourceSet = sourceSets.create("gametest") {
-  compileClasspath += sourceSets.main.get().output + coreMain.output
-  runtimeClasspath += sourceSets.main.get().output + coreMain.output
+  compileClasspath += sourceSets.main.get().output + coreMain.output + modcoreMain.output
+  runtimeClasspath += sourceSets.main.get().output + coreMain.output + modcoreMain.output
+  // The tests' data (a crate of another mod's) is modcore's, shared with Fabric.
+  resources.srcDir(modcore.file("src/gametest/resources"))
+}
+kotlin.sourceSets.named("gametest") {
+  kotlin.srcDir(modcore.file("src/gametest/kotlin"))
+  kotlin.srcDir(modcore.file("src/gametestPlain/kotlin"))
 }
 
 neoForge {
   version = neoforgeVersion
   addModdingDependenciesTo(gametest)
 
-  // The mod is this module and core together, in dev runs as in the jar.
+  // The mod is this module, modcore, and core together, in dev runs as in the jar.
   mods {
     register("redbull") {
       sourceSet(sourceSets.main.get())
+      sourceSet(modcoreMain)
       sourceSet(coreMain)
     }
-    register("redbull_tests") {
+    register("redbull_gametest") {
       sourceSet(gametest)
     }
   }
@@ -50,15 +58,16 @@ neoForge {
       type = "gameTestServer"
       sourceSet = gametest
       gameDirectory = file("run/gametest")
-      systemProperty("neoforge.enabledGameTestNamespaces", "redbull_tests")
+      systemProperty("neoforge.enabledGameTestNamespaces", "redbull_gametest")
     }
   }
 }
 
 dependencies {
-  // core's classes go into the jar itself (see tasks.jar), so it isn't a library at runtime.
+  // core's and modcore's classes go into the jar itself (see tasks.jar), so they aren't libraries at runtime.
   compileOnly(project(":core"))
-  "dataImplementation"(project(":core"))
+  // Without its Minecraft: the game comes from NeoForge here.
+  compileOnly(project(":modcore")) { isTransitive = false }
   // Kotlin ships inside the jar, so players need no Kotlin mod; NeoForge picks the newest copy if another mod has one.
   jarJar("org.jetbrains.kotlin:kotlin-stdlib:${getKotlinPluginVersion()}") { isTransitive = false }
 }
@@ -67,12 +76,19 @@ kotlin {
   jvmToolchain(25)
 }
 
+// The recipes come from core, as on Paper: modcore's small program writes them as the game's data before every build.
+val recipeGenerator: Configuration by configurations.creating {
+  attributes { attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME)) }
+}
+dependencies {
+  recipeGenerator(project(":modcore", "recipeGenerator"))
+}
 val generateData = tasks.register<JavaExec>("generateData") {
   val out = layout.buildDirectory.dir("generated/data")
-  classpath = data.runtimeClasspath
-  mainClass = "ru.mairwunnx.redbull.neoforge.data.RecipesKt"
+  classpath = recipeGenerator
+  mainClass = "ru.mairwunnx.redbull.modcore.data.RecipesKt"
   outputs.dir(out)
-  argumentProviders += CommandLineArgumentProvider { listOf(out.get().asFile.absolutePath) }
+  argumentProviders += CommandLineArgumentProvider { listOf(out.get().asFile.absolutePath, "neoforge") }
 }
 
 sourceSets.main {
@@ -95,6 +111,6 @@ tasks.processResources {
 
 tasks.jar {
   archiveBaseName = "redbull-neoforge"
-  from(coreMain.output)
+  from(modcoreMain.output, coreMain.output)
 }
 
