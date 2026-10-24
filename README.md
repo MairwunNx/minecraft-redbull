@@ -59,7 +59,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends with a yellow name like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 15% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends with a yellow name like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 10% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
@@ -85,10 +85,10 @@ Every can carries the same caffeine, as the real ones do; they differ in buffs a
 | Coconut Edition | milk bucket, white dye; beaches | Saturation, Speed I for 12 min | 32 s |
 | Coconut Edition Sugarfree | milk bucket, white dye; beaches | Water Breathing for 12 min | 32 s |
 | Blue Edition | blue orchid, blue dye; the deep dark | Night Vision and Speed I for 12 min | 32 s |
-| Ruby Edition | only in Nether chests, 8% | Fire Resistance for 16 min, Strength II for 3 min | — |
-| Summer Edition | only in badlands chests, 5% | Speed III for 16 min | 64 s |
-| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 5% | Slow Falling and Resistance I for 16 min | 64 s |
-| Spring Edition | only in cherry grove chests, 3% | Slow Falling for 16 min | 64 s |
+| Ruby Edition | only in Nether chests, 5% | Fire Resistance for 16 min, Strength II for 3 min | — |
+| Summer Edition | only in badlands chests, 3.5% | Speed III for 16 min | 64 s |
+| Glacier Edition | only in chests on frozen and jagged peaks and snowy slopes, 3.5% | Slow Falling and Resistance I for 16 min | 64 s |
+| Spring Edition | only in cherry grove chests, 2% | Slow Falling for 16 min | 64 s |
 
 ## Where else cans come from
 

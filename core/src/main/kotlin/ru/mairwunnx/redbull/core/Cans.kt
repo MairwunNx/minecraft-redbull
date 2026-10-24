@@ -78,6 +78,14 @@ const val WINGS_ZERO = 42
 const val HEALING = 16
 const val STRENGTH_II = 180
 
+/** A chest's chance to hold an Edition of its biome: 10% (15% up to 1.4.1). */
+const val EDITION_CHESTS = 0.10
+
+/** The legends, rarer than any Edition: Ruby 5% (8%), Summer and Glacier 3.5% (5%), and Spring 2% (3%). */
+const val RUBY_CHESTS = 0.05
+const val PEAK_CHESTS = 0.035
+const val SPRING_CHESTS = 0.02
+
 private fun chests(chance: Double, vararg biomes: String) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun chests(chance: Double, biomes: List<String>) = Chests(biomes.map { "minecraft:$it" }, chance)
 private fun recipe(flavour: String, dye: String) =
@@ -93,80 +101,80 @@ val CANS = listOf(
   Can("pink_sugarfree", true, listOf(effect("regeneration", HEALING)), WINGS_COMMON, recipe("sweet_berries", "pink"), null),
   Can(
     "green", false, listOf(effect("luck", EDITION), speed(EDITION)), WINGS_EDITION, recipe("cactus_flower", "green"),
-    chests(0.15, "mangrove_swamp", "swamp", "lush_caves"),
+    chests(EDITION_CHESTS, "mangrove_swamp", "swamp", "lush_caves"),
   ),
   Can(
     "cherry", false, listOf(effect("luck", EDITION), speed(EDITION, 2)), WINGS_EDITION, recipe("pink_petals", "red"),
-    chests(0.15, "cherry_grove"),
+    chests(EDITION_CHESTS, "cherry_grove"),
   ),
   Can(
     "ice", false, listOf(effect("resistance", EDITION)), WINGS_EDITION, recipe("packed_ice", "light_blue"),
-    chests(0.15, "ice_spikes", "frozen_ocean", "deep_frozen_ocean"),
+    chests(EDITION_CHESTS, "ice_spikes", "frozen_ocean", "deep_frozen_ocean"),
   ),
   Can(
     "winter_apple", false, listOf(effect("absorption", EDITION, 2)), WINGS_EDITION, recipe("apple", "orange"),
-    chests(0.15, "snowy_taiga", "grove"),
+    chests(EDITION_CHESTS, "snowy_taiga", "grove"),
   ),
   Can(
     "winter_pistachio", false, listOf(effect("regeneration", HEALING, 2)), WINGS_EDITION, recipe("sweet_berries", "lime"),
-    chests(0.15, "snowy_plains", "snowy_beach"),
+    chests(EDITION_CHESTS, "snowy_plains", "snowy_beach"),
   ),
   Can(
     "yellow", false, listOf(speed(EDITION), effect("jump_boost", EDITION)), WINGS_EDITION, recipe("sunflower", "yellow"),
-    chests(0.15, "desert"),
+    chests(EDITION_CHESTS, "desert"),
   ),
   Can(
     "tropical", false, listOf(effect("jump_boost", EDITION, 2)), WINGS_EDITION, recipe("cocoa_beans", "yellow"),
-    chests(0.15, "jungle", "sparse_jungle", "bamboo_jungle"),
+    chests(EDITION_CHESTS, "jungle", "sparse_jungle", "bamboo_jungle"),
   ),
   Can(
     "amber", false, listOf(haste(EDITION, 2)), WINGS_EDITION, recipe("sweet_berries", "orange"),
-    chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
+    chests(EDITION_CHESTS, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
     "amber_sugarfree", true, listOf(haste(EDITION)), WINGS_EDITION, recipe("sweet_berries", "orange"),
-    chests(0.15, "savanna", "savanna_plateau", "windswept_savanna"),
+    chests(EDITION_CHESTS, "savanna", "savanna_plateau", "windswept_savanna"),
   ),
   Can(
     "peach", false, listOf(effect("health_boost", EDITION)), WINGS_EDITION, recipe("pink_tulip", "pink"),
-    chests(0.15, "plains", "sunflower_plains"),
+    chests(EDITION_CHESTS, "plains", "sunflower_plains"),
   ),
   Can(
     "lilac_sugarfree", true, listOf(effect("absorption", EDITION)), WINGS_EDITION, recipe("lilac", "magenta"),
-    chests(0.15, "forest", "flower_forest", "birch_forest"),
+    chests(EDITION_CHESTS, "forest", "flower_forest", "birch_forest"),
   ),
   Can(
     "purple", false, listOf(effect("invisibility", EDITION), speed(EDITION)), WINGS_EDITION, recipe("chorus_fruit", "purple"),
-    chests(0.15, "dark_forest", "pale_garden"),
+    chests(EDITION_CHESTS, "dark_forest", "pale_garden"),
   ),
   Can(
     "sea_blue", false, listOf(effect("dolphins_grace", EDITION), effect("conduit_power", EDITION)), 0,
-    recipe("sea_pickle", "cyan"), chests(0.15, OCEANS),
+    recipe("sea_pickle", "cyan"), chests(EDITION_CHESTS, OCEANS),
   ),
   Can(
     "coconut", false, listOf(effect("saturation", 1), speed(EDITION)), WINGS_EDITION, recipe("milk_bucket", "white"),
-    chests(0.15, "beach"),
+    chests(EDITION_CHESTS, "beach"),
   ),
   Can(
     "coconut_sugarfree", true, listOf(effect("water_breathing", EDITION)), WINGS_EDITION, recipe("milk_bucket", "white"),
-    chests(0.15, "beach"),
+    chests(EDITION_CHESTS, "beach"),
   ),
   Can(
     "blue", false, listOf(effect("night_vision", EDITION), speed(EDITION)), WINGS_EDITION, recipe("blue_orchid", "blue"),
-    chests(0.15, "deep_dark"),
+    chests(EDITION_CHESTS, "deep_dark"),
   ),
   // The legends: no recipe, only chests in the hardest places.
   Can(
-    "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(STRENGTH_II, 2)), 0, null, chests(0.08, NETHER),
+    "ruby", false, listOf(effect("fire_resistance", LEGEND), strength(STRENGTH_II, 2)), 0, null, chests(RUBY_CHESTS, NETHER),
   ),
   Can(
-    "summer", false, listOf(speed(LEGEND, 3)), WINGS_LEGEND, null, chests(0.05, "badlands", "eroded_badlands", "wooded_badlands"),
+    "summer", false, listOf(speed(LEGEND, 3)), WINGS_LEGEND, null, chests(PEAK_CHESTS, "badlands", "eroded_badlands", "wooded_badlands"),
   ),
   Can(
     "glacier", false, listOf(effect("slow_falling", LEGEND), effect("resistance", LEGEND)), WINGS_LEGEND, null,
-    chests(0.05, "frozen_peaks", "jagged_peaks", "snowy_slopes"),
+    chests(PEAK_CHESTS, "frozen_peaks", "jagged_peaks", "snowy_slopes"),
   ),
-  Can("spring", false, listOf(effect("slow_falling", LEGEND)), WINGS_LEGEND, null, chests(0.03, "cherry_grove")),
+  Can("spring", false, listOf(effect("slow_falling", LEGEND)), WINGS_LEGEND, null, chests(SPRING_CHESTS, "cherry_grove")),
 )
 
 fun can(id: String): Can? = CANS.firstOrNull { it.id == id }

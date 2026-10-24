@@ -30,6 +30,15 @@ class CansTest {
   }
 
   @Test
+  fun `chests hold an Edition one time in ten and a legend more rarely`() {
+    val (legends, editions) = CANS.filter { it.chests != null }.partition { it.recipe == null }
+    editions.forEach { assertEquals(EDITION_CHESTS, it.chests!!.chance, it.id) }
+    assertEquals(0.10, EDITION_CHESTS)
+    legends.forEach { assertTrue(it.chests!!.chance < EDITION_CHESTS, "${it.id} is as common as an Edition") }
+    assertEquals(mapOf("ruby" to 0.05, "summer" to 0.035, "glacier" to 0.035, "spring" to 0.02), legends.associate { it.id to it.chests!!.chance })
+  }
+
+  @Test
   fun `sugarfree cans say so in their id`() {
     CANS.forEach { assertEquals(it.sugarfree, it.id.endsWith("sugarfree") || it.id == "zero", it.id) }
   }
