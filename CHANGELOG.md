@@ -2,6 +2,11 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.4.0
+
+- 🤖 **Allay knows the recipes:** with [Allay](https://github.com/allay-ai/minecraft) 6.12 or newer on the server, its AI asks Red Bull itself how a can is made and where it turns up: the crafting grid of each can, the bile, brewing, and furnace on the way to taurine, a legend’s chests, a trader’s price. It works on Paper, Fabric, and NeoForge alike, and Red Bull runs as before without Allay.
+- 🧰 **One core for both mods:** Fabric and NeoForge now run the same code for the cans, caffeine, wings, loot, the collection, and `/redbull`, so every fix reaches both at once. For players nothing changes: the same items, recipes, loot, advancements, settings, and jar names.
+
 ## 1.3.0
 
 - 🧳 **A wandering trader brings cans:** one or two different ones besides its own wares, 6 emeralds for a crafted can and 10 for an Edition, three times each. It never sells a legend.

@@ -35,6 +35,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🏆 **Six advancements** in a Red Bull tab: Gives You Wings, Sugar Pit, On the Edge, Legend, and Collector.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
+- 🤖 **Allay knows the recipes:** with [Allay](https://github.com/allay-ai/minecraft), the AI helper, on the server, ask `/ask how do I make a Cherry Edition?` and it answers from Red Bull itself, on Paper, Fabric, and NeoForge. Without Allay nothing changes.
 
 ## Screenshots
 
