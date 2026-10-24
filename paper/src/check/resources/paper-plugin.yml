@@ -1,0 +1,12 @@
+name: RedBullCheck
+version: '1'
+main: ru.mairwunnx.redbull.check.RedBullCheck
+api-version: '26.3'
+load: POSTWORLD
+description: "Never on a real server: walks Red Bull's whole way to a can in blocks of a test world, then says how it went."
+dependencies:
+  server:
+    RedBull:
+      load: BEFORE
+      required: true
+      join-classpath: true

@@ -78,6 +78,19 @@ tasks.shadowJar {
 tasks.jar { enabled = false }
 tasks.assemble { dependsOn(tasks.shadowJar) }
 
+// RedBullCheck, a plugin for test servers only: it walks the way to a can in blocks, bile through a hopper into a
+// brewing stand included, and logs how it went. `paper_smoke.py` runs it beside the plugin (CLAUDE.md, “Checking a change”).
+val check = sourceSets.create("check") {
+  compileClasspath += sourceSets.main.get().output + configurations.compileClasspath.get()
+}
+
+val checkJar = tasks.register<Jar>("checkJar") {
+  archiveFileName = "redbull-check.jar"
+  destinationDirectory = layout.buildDirectory.dir("libs")
+  from(check.output)
+}
+tasks.assemble { dependsOn(checkJar) }
+
 // `./gradlew modrinth` with MODRINTH_TOKEN set; the release workflow runs it when asked to.
 modrinth {
   token = providers.environmentVariable("MODRINTH_TOKEN")
