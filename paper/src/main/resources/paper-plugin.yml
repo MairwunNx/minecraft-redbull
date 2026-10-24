@@ -7,6 +7,13 @@ load: POSTWORLD
 authors: [ MairwunNx ]
 description: "Red Bull in survival: brew taurine from bull bile, fill 26 real cans, find the rarest in chests, and fly on their wiiings. Four cans too fast, and the heart gives out."
 website: "https://github.com/MairwunNx/minecraft-redbull"
+# Allay, the AI assistant, is optional: with it on the class path, it finds Red Bull's expansion and its recipes tool.
+dependencies:
+  server:
+    Allay:
+      load: BEFORE
+      required: false
+      join-classpath: true
 permissions:
   redbull.admin:
     description: Take any item from /redbull, and use /redbull give and /redbull caffeine

@@ -31,3 +31,11 @@ type = "required"
 versionRange = "[${minecraft}]"
 ordering = "NONE"
 side = "BOTH"
+
+# Allay, the AI assistant, finds Red Bull's expansion when it's there.
+[[dependencies.redbull]]
+modId = "allay"
+type = "optional"
+versionRange = "*"
+ordering = "NONE"
+side = "SERVER"

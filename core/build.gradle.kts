@@ -3,6 +3,9 @@ plugins {
 }
 
 dependencies {
+  // Allay's expansion API: its classes come with Allay, so it's never in a jar of ours.
+  compileOnly("chat.allay:allay-expansion:1.0.0")
+  testImplementation("chat.allay:allay-expansion:1.0.0")
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:6.1.3"))
   testImplementation("org.junit.jupiter:junit-jupiter")

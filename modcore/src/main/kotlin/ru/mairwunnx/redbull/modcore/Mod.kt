@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import org.slf4j.LoggerFactory
 import ru.mairwunnx.redbull.core.CANS
+import ru.mairwunnx.redbull.core.RedBullInfo
 
 const val MOD_ID = "redbull"
 
@@ -27,14 +28,10 @@ object Mod {
 
   val settings: Settings get() = loader.settings
 
-  /** The mod's version, as its loader reads it. */
-  var version = "dev"
-    private set
-
-  /** Registers every item and effect through [loader]; [version] is the mod's, for the log. */
+  /** Registers every item and effect through [loader]; [version] is the mod's, for the log and Allay. */
   fun init(loader: Loader, version: String) {
     this.loader = loader
-    this.version = version
+    RedBullInfo.version = version
     // Reaching each registers what it holds.
     RedBullItems.TAB
     Caffeines.EFFECT
@@ -62,7 +59,7 @@ object Mod {
 
   /** As Paper says it: the version, the cans, the crafting recipes, and here the items too. */
   fun started(server: MinecraftServer) {
-    log.info("Red Bull $version is on: ${CANS.size} cans, ${crafting(server).size} recipes, ${RedBullItems.all.size} items")
+    log.info("Red Bull ${RedBullInfo.version} is on: ${CANS.size} cans, ${crafting(server).size} recipes, ${RedBullItems.all.size} items")
   }
 
   /** A singleplayer game starts a server for every world; what waited for this one is gone with it. */

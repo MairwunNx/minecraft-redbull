@@ -23,5 +23,8 @@
     "fabric-language-kotlin": ">=${kotlin}",
     "minecraft": "~${minecraft}",
     "java": ">=25"
+  },
+  "suggests": {
+    "allay": "*"
   }
 }

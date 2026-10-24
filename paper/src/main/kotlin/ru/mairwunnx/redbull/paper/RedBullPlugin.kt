@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.Ids
+import ru.mairwunnx.redbull.core.RedBullInfo
 
 class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
@@ -19,6 +20,8 @@ class RedBullPlugin : JavaPlugin(), Listener {
   private val tasks = mutableListOf<BukkitTask>()
 
   override fun onEnable() {
+    // For Allay, which finds Red Bull's expansion once this plugin is on.
+    RedBullInfo.version = pluginMeta.version
     loadSettings()
     // Every item once through the game's codecs, so a component it rejects shows now, not in a player's hands.
     Items.ids.forEach { Items.create(it)!!.serializeAsBytes() }
