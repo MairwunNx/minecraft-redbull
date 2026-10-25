@@ -158,6 +158,10 @@ Where the versions live, for `/update-deps` and `/update-minecraft` (both in `.c
 - Java: `jvmToolchain` in every module, the foojay resolver in `settings.gradle.kts`, and CI's `setup-java`.
 - Gradle in `gradle/wrapper/gradle-wrapper.properties`; Kotlin and the Gradle plugins in the root `build.gradle.kts`; libraries in each module's `dependencies`.
 
+## CurseForge
+
+The plugin is project `1766151` (Bukkit Plugins, on dev.bukkit.org) and the mods project `1766201` (Mods, on minecraft.curseforge.com), MIT, created by the owner on authors.curseforge.com on 2026-10-25: CurseForge has no API to create a project. The “Release” workflow's `curseforge` switch, off by default, runs `scripts/curseforge.py` for each jar after the build, with Fabric API and Fabric Language Kotlin as required projects of the Fabric file; it takes the game version from the build files and looks up CurseForge's ids by name. Settings, the icon, and the page are edited on the site; the mods’ page is MODRINTH.md without the Paper parts, and each page links to the other. The token is the `CURSEFORGE_TOKEN` secret, also in `~/.secrets/cloud.env`; never put it in the repo.
+
 ## Platforms
 
 How the family ships a project to more than one platform; this one follows it since 1.2.0.
@@ -166,17 +170,18 @@ How the family ships a project to more than one platform; this one follows it si
 - **Jars.** `<name>-paper-X.Y.Z.jar`, `<name>-fabric-X.Y.Z.jar`, and `<name>-neoforge-X.Y.Z.jar`, each attached again without the version, so `releases/latest/download/<name>-<platform>.jar` always fetches the newest. A project that builds only for Paper keeps its jar’s present name until it gains a second platform, so links and Moonlands’ `jars.txt` keep working.
 - **Modrinth.** One project for every platform. Each platform is its own version, numbered `X.Y.Z+paper`, `X.Y.Z+fabric`, or `X.Y.Z+neoforge`, with its own loaders and dependencies; a mod’s version says it runs on the client and the server.
 - **Hangar.** Paper only, numbered `X.Y.Z`.
+- **CurseForge.** Two projects, since one holds a single class: Paper's jar in a Bukkit Plugins project, numbered `X.Y.Z`, and both mods as files of one Mods project, “X.Y.Z for Fabric” and “X.Y.Z for NeoForge”. A Paper-only project has the plugin project alone.
 - **Moonlands** runs the Paper jar only.
 
 ## Releasing and Moonlands
 
 1. Keep a `## X.Y.Z` section in CHANGELOG.md, written for server owners. After a change that reaches what the project ships, add it in the same push: under the topmost section while that version isn't released (`gh release view vX.Y.Z` fails), or under a new section with the next version.
-2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches every platform’s jar as “Platforms” names them, `redbull.jar` (the Paper jar’s name up to 1.1.1, kept so old links work), and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
+2. Run the “Release” workflow: `gh workflow run release.yml -R MairwunNx/minecraft-redbull -f version=X.Y.Z -f modrinth=true -f hangar=true -f curseforge=true`. It builds with `-PreleaseVersion`, tags `vX.Y.Z`, and attaches every platform’s jar as “Platforms” names them, `redbull.jar` (the Paper jar’s name up to 1.1.1, kept so old links work), and `redbull-pack-X.Y.Z.zip`. Nothing in the repo holds the version; local and CI builds are `dev`.
 3. Its `deploy` job ships the jar to Moonlands through `ship-plugin.yml`, which points the Red Bull line in `minecraft/extras/jars.txt` at it.
 
 ## Stores
 
-Both are on since 1.1.0 (2026-10-21), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true`, then check the version on each store.
+Modrinth and Hangar are on since 1.1.0 (2026-10-21), CurseForge since 1.4.2 (2026-10-25), at the owner's word: run every release, the autopilot's too, with `-f modrinth=true -f hangar=true -f curseforge=true`, then check the version on each store (CurseForge in “CurseForge” below).
 
 - **Modrinth:** `minecraft-redbull` (id `X5nYFSkK`; `redbull` and `red-bull` belong to other, hidden projects), MIT. `./gradlew :paper:modrinth` uploads the Paper jar as `X.Y.Z+paper` (`X.Y.Z` up to 1.1.1) and syncs MODRINTH.md as the description. `scripts/modrinth_mods.py` uploads the mods as `X.Y.Z+fabric` (with Fabric API and Fabric Language Kotlin required) and `X.Y.Z+neoforge` through Modrinth's v3 API, marked `client_and_server`: Minotaur can't set a version's `environment`, and Modrinth refuses a mod version without it while the project is in review. It skips versions already there. Submitted for review with 1.1.0.
 - **Hangar:** `MairwunNx/RedBull`, MIT, created 2026-10-21 through `POST /api/internal/projects/create`. `./gradlew publishPluginPublicationToHangar` uploads each version; it took the first one, 1.1.0, too, which older Hangar projects of the family had to upload on the website. The release syncs the project page from MODRINTH.md (`syncAllPluginPublicationPagesToHangar`); the icon is edited on the site.

@@ -18,6 +18,10 @@ on:
         description: "Also publish to Hangar (needs the HANGAR_TOKEN secret)"
         type: boolean
         default: false
+      curseforge:
+        description: "Also publish to CurseForge (needs the CURSEFORGE_TOKEN secret)"
+        type: boolean
+        default: false
       moonlands:
         description: "Ship the release to Moonlands (needs the FAMILY_ACTIONS_TOKEN secret)"
         type: boolean
@@ -100,6 +104,19 @@ jobs:
         run: ./gradlew publishPluginPublicationToHangar syncAllPluginPublicationPagesToHangar -PreleaseVersion="$VERSION" -PchangelogFile="$NOTES" --no-configuration-cache
         env:
           HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+
+      - name: Publish to CurseForge
+        if: inputs.curseforge
+        # A CurseForge project holds one class, so Paper's jar goes to the plugin project (on dev.bukkit.org) and the
+        # mods to the mod project; the game version comes from the build, as Modrinth's does.
+        run: |
+          game=$(sed -nE 's/.*gameVersions\.addAll\("([^"]+)".*/\1/p' paper/build.gradle.kts)
+          python3 -I scripts/curseforge.py "paper/build/libs/redbull-paper-$VERSION.jar" --project 1766151 --kind plugin --game "$game" --name "Red Bull $VERSION" --notes "$NOTES"
+          mods_game=$(sed -nE 's/^val minecraft = "([^"]+)"/\1/p' fabric/build.gradle.kts)
+          python3 -I scripts/curseforge.py "fabric/build/libs/redbull-fabric-$VERSION.jar" --project 1766201 --kind mod --loader fabric --requires fabric-api --requires fabric-language-kotlin --game "$mods_game" --name "Red Bull $VERSION for Fabric" --notes "$NOTES"
+          python3 -I scripts/curseforge.py "neoforge/build/libs/redbull-neoforge-$VERSION.jar" --project 1766201 --kind mod --loader neoforge --game "$mods_game" --name "Red Bull $VERSION for NeoForge" --notes "$NOTES"
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
 
   deploy:
     needs: release
