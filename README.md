@@ -162,7 +162,7 @@ Then type `/redbull`, take a can, and drink it. `/redbull give <item> [player] [
 ## Related projects
 
 - **[Moonlands](https://minecraft.mairwunnx.com)** – the hard-survival server where all of these run.
-- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)** – REST and WebSocket API to a Paper server's world, players, and stats.
+- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)** – REST and WebSocket API to the world, players, and stats of a Paper, Fabric, or NeoForge server.
 - **[Minecraft MCP](https://github.com/MairwunNx/minecraft-mcp)** – lets an AI client read and run a server through WorldAPI.
 - **[Allay](https://github.com/allay-ai/minecraft)** – an AI helper in the game: ask with `/ask`, right in the chat.
 - **[Allay Server](https://github.com/allay-ai/server)** – the backend behind Allay.

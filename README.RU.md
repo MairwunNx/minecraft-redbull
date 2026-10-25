@@ -162,7 +162,7 @@ Red Bull работает на Moonlands — моём сервере со сло
 ## Другие проекты
 
 - **[Moonlands](https://minecraft.mairwunnx.com)** — сервер со сложным выживанием, где всё это работает.
-- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)** — REST и WebSocket API к миру, игрокам и статистике сервера Paper.
+- **[WorldAPI](https://github.com/MairwunNx/minecraft-worldapi)** — REST и WebSocket API к миру, игрокам и статистике сервера на Paper, Fabric или NeoForge.
 - **[Minecraft MCP](https://github.com/MairwunNx/minecraft-mcp)** — даёт ИИ-клиенту читать сервер и управлять им через WorldAPI.
 - **[Allay](https://github.com/allay-ai/minecraft)** — ИИ-помощник в игре: спросите через `/ask` прямо в чате.
 - **[Allay Server](https://github.com/allay-ai/server)** — бэкенд Allay.
