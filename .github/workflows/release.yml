@@ -107,6 +107,9 @@ jobs:
 
       - name: Publish to CurseForge
         if: inputs.curseforge
+        # CurseForge adds a new game version a little after Mojang; until then this step fails alone, so the
+        # release still ships to Moonlands. The autopilot checks every store and uploads what's missing by hand.
+        continue-on-error: true
         # A CurseForge project holds one class, so Paper's jar goes to the plugin project (on dev.bukkit.org) and the
         # mods to the mod project; the game version comes from the build, as Modrinth's does.
         run: |
