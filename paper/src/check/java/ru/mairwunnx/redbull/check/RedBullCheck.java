@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -78,6 +79,9 @@ public final class RedBullCheck extends JavaPlugin {
     blocks.add(furnace);
     Inventory furnaceHopper = inventory(hopper(world.getBlockAt(10, Y + 1, 2), BlockFace.DOWN));
 
+    // A forced chunk loads on its own time, and its hoppers stand still until it ticks block entities.
+    Chunk chunk = world.getChunkAt(0, 0);
+    steps.add(new Step("the check's chunk ticks", 4000, () -> chunk.getLoadLevel() == Chunk.LoadLevel.ENTITY_TICKING, () -> {}));
     steps.add(new Step("a hopper puts bull bile into the ingredient slot", 100,
       () -> is(brewer(stand).getIngredient(), Ids.BULL_BILE), () -> {}));
     steps.add(new Step("one bile brews three water bottles into crude taurine", 600, () -> {
