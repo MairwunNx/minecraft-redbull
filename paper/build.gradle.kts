@@ -11,7 +11,7 @@ plugins {
 dependencies {
   implementation(project(":core"))
   compileOnly("io.papermc.paper:paper-api:26.3.build.223-stable")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.12.0")
   implementation("com.charleskorn.kaml:kaml:0.104.0")
 
   testImplementation("io.papermc.paper:paper-api:26.3.build.223-stable")
