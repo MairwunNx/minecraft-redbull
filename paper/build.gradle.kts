@@ -10,11 +10,11 @@ plugins {
 
 dependencies {
   implementation(project(":core"))
-  compileOnly("io.papermc.paper:paper-api:26.3.build.205-stable")
+  compileOnly("io.papermc.paper:paper-api:26.3.build.223-stable")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
   implementation("com.charleskorn.kaml:kaml:0.104.0")
 
-  testImplementation("io.papermc.paper:paper-api:26.3.build.205-stable")
+  testImplementation("io.papermc.paper:paper-api:26.3.build.223-stable")
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:6.1.3"))
   testImplementation("org.junit.jupiter:junit-jupiter")

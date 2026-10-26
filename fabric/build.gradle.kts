@@ -4,8 +4,8 @@ plugins {
 }
 
 val minecraft = "26.3"
-val loader = "0.19.5"
-val fabricApi = "0.164.0+26.3"
+val loader = "0.20.1"
+val fabricApi = "0.165.0+26.3"
 val fabricKotlin = "1.14.2+kotlin.2.4.21"
 
 base {
