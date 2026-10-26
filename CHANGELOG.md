@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.4.3
+
+- 📦 **Built on the newest platforms:** Paper API 26.3 build 223, NeoForge 26.3.0.99, Fabric Loader 0.20.1, and Fabric API 0.165.0, with Gradle 9.8.2 and kotlinx-serialization 1.12.0. Nothing changes in the game.
+
 ## 1.4.2
 
 - 🧪 **Bull bile goes into the brewing stand on Paper:** the ingredient slot never took it, by click, shift-click, number key, or hopper, so no crude taurine, taurine, or can could be made. A brewing stand takes an ingredient by its item alone, the player’s client too, and bile was a potion underneath, like the bottles. It’s an ominous bottle underneath now, still drawn and drunk as before, so one bile brews three water bottles into crude taurine on a vanilla client. Bile from older versions turns into the new one when you join, open a container, or pick it up. Fabric and NeoForge took it all along.
