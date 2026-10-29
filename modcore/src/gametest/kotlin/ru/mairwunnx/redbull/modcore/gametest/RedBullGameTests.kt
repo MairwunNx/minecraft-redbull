@@ -202,7 +202,7 @@ class RedBullGameTests {
     }
     helper.succeedWhen {
       helper.assertFalse(player.hasEffect(Wings.EFFECT), "Wings ran out")
-      equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "five seconds of Slow Falling")
+      equal(helper, player.getEffect(MobEffects.SLOW_FALLING)?.let { it.duration > 80 }, true, "six seconds of Slow Falling")
       helper.assertTrue("redbull.wings.gone" in player.overlays, "what Wings say when they run out: ${player.overlays}")
     }
   }

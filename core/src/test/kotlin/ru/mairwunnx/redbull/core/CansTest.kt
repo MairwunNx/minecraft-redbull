@@ -69,4 +69,14 @@ class CansTest {
   fun `a winged can outlasts its own flight`() {
     assertTrue(wingedCanExpiry(0, WINGS_LEGEND) > WINGS_LEGEND * 1000L)
   }
+
+  @Test
+  fun `a winged can wears out in flight as many times faster as its flight is shorter`() {
+    assertEquals(76, wingedCanSeconds(WINGS_COMMON))
+    assertEquals(76_000L, wingedCanExpiry(0, WINGS_COMMON))
+    CANS.filter { it.wings > 0 }.forEach { can ->
+      assertEquals(wingedCanSeconds(can.wings).toDouble(), can.wings * wingedCanFlightPace(can.wings), 1e-9, can.id)
+      assertTrue(can.wings > WINGS_WARNING_FLIGHT_SECONDS, can.id)
+    }
+  }
 }

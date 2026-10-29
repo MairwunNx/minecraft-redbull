@@ -11,6 +11,7 @@ import io.papermc.paper.datacomponent.item.PotionContents
 import io.papermc.paper.datacomponent.item.UseRemainder
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation
 import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Color
 import org.bukkit.Material
@@ -34,6 +35,7 @@ import ru.mairwunnx.redbull.core.Ids.EMPTY_CAN
 import ru.mairwunnx.redbull.core.Ids.TAURINE
 import ru.mairwunnx.redbull.core.Ids.WINGED_CAN
 import ru.mairwunnx.redbull.core.wingedCanExpiry
+import ru.mairwunnx.redbull.core.wingedCanSeconds
 import ru.mairwunnx.redbull.core.can
 
 /**
@@ -103,21 +105,25 @@ object Items {
   fun flavourOf(item: ItemStack): Can? = item.persistentDataContainer.get(FLAVOUR, PersistentDataType.STRING)?.let(::can)
 
   /**
-   * The can after a drink with wings: a glider held in the main hand. The game wears a glider by one point per
-   * second of flight and stops one point before it breaks, so [seconds] of flight is all it gives. Unflown, it
-   * crumples at [expires] (epoch milliseconds), as a can of [flavour] would; see [Wings].
+   * The can after a drink with wings: a glider held in the main hand. Its durability is its seconds on the ground,
+   * [wingedCanSeconds] of [seconds] of wings, which [Wings] wears down in flight as many times faster, so a fresh can
+   * still glides for [seconds]. The game stops a glider a point before it breaks. However it was worn, it crumples at
+   * [expires] (epoch milliseconds), as a can of [flavour] would.
    */
   fun wingedCan(seconds: Int, expires: Long, flavour: Can): ItemStack = base(WINGED_CAN).apply {
     unsetData(DataComponentTypes.CONSUMABLE)
     setData(DataComponentTypes.GLIDER)
     setData(DataComponentTypes.EQUIPPABLE, Equippable.equippable(EquipmentSlot.HAND).swappable(false).build())
-    setData(DataComponentTypes.MAX_DAMAGE, seconds + 1)
+    setData(DataComponentTypes.MAX_DAMAGE, wingedCanSeconds(seconds) + 1)
     setData(DataComponentTypes.DAMAGE, 0)
     editPersistentDataContainer {
       it.set(EXPIRES, PersistentDataType.LONG, expires)
       it.set(FLAVOUR, PersistentDataType.STRING, flavour.id)
     }
-    hint(WINGED_CAN)
+    setData(DataComponentTypes.LORE, ItemLore.lore(listOf(
+      Texts.line("item.redbull.$WINGED_CAN.hint", NamedTextColor.GRAY),
+      Texts.line("item.redbull.$WINGED_CAN.fades", NamedTextColor.GRAY, args = arrayOf(Component.text(wingedCanSeconds(seconds)))),
+    )))
   }
 
   /**

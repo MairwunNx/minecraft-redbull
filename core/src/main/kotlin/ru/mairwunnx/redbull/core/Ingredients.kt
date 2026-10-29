@@ -26,12 +26,27 @@ object Bottles {
 const val CRUMPLED_NUGGETS = 2
 
 /** When wings run out in the air, the player floats down under Slow Falling for this long. */
-const val SOFT_LANDING_SECONDS = 5
+const val SOFT_LANDING_SECONDS = 6
 
-/** A winged can lasts its seconds of flight plus this long after the drink, flown or not; flying wears it out sooner. */
+/** Unflown, a winged can lasts its seconds of flight plus this long after the drink. */
 const val WINGS_GRACE_MILLIS = 60_000L
 
-fun wingedCanExpiry(drunkAt: Long, wings: Int): Long = drunkAt + wings * 1000L + WINGS_GRACE_MILLIS
+/** Unflown, a winged can of [wings] seconds lasts this many seconds after the drink. */
+fun wingedCanSeconds(wings: Int): Int = wings + (WINGS_GRACE_MILLIS / 1000).toInt()
+
+fun wingedCanExpiry(drunkAt: Long, wings: Int): Long = drunkAt + wingedCanSeconds(wings) * 1000L
+
+/**
+ * How many times faster a winged can wears out in flight than on the ground: in the air its whole life is [wings]
+ * seconds, on the ground [wingedCanSeconds]. A half-worn can has half its flight left, however it got there.
+ */
+fun wingedCanFlightPace(wings: Int): Double = wingedCanSeconds(wings).toDouble() / wings.coerceAtLeast(1)
+
+/** A winged can warns its holder once this many seconds of it are left on the ground… */
+const val WINGS_WARNING_SECONDS = 10
+
+/** …or this many in flight. */
+const val WINGS_WARNING_FLIGHT_SECONDS = 5
 
 /** The colours every platform shares: the bottles' tint and the effects' particles and icons' frames. */
 object Colors {

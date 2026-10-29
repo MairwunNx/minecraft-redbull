@@ -2,6 +2,11 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.5.0
+
+- 🪽 **The winged can shows what it has left on Paper:** its durability bar is all its wings now. It drains over the can’s flight time plus a minute while you stand or climb, and over its flight time alone while you glide, so the bar never sits full while a hidden timer runs out. A chime and the action bar warn you shortly before it crumples, and its tooltip says when it will without a flight.
+- 🛬 **A softer landing:** when the wings run out mid-glide, 6 seconds of Slow Falling set you down instead of 5, on every platform.
+
 ## 1.4.3
 
 - 📦 **Built on the newest platforms:** Paper API 26.3 build 223, NeoForge 26.3.0.99, Fabric Loader 0.20.1, and Fabric API 0.165.0, with Gradle 9.8.2 and kotlinx-serialization 1.12.0. Nothing changes in the game.

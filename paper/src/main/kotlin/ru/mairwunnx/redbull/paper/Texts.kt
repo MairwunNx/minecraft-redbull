@@ -19,6 +19,6 @@ object Texts {
     Component.translatable(key, english[key], *args)
 
   /** A line of an item's name or tooltip: not italic, as names the game gives are not. */
-  fun line(key: String, color: NamedTextColor? = null, italic: Boolean = false): Component =
-    text(key).color(color).decoration(TextDecoration.ITALIC, italic)
+  fun line(key: String, color: NamedTextColor? = null, italic: Boolean = false, args: Array<out ComponentLike> = emptyArray()): Component =
+    text(key, *args).color(color).decoration(TextDecoration.ITALIC, italic)
 }

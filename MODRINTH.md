@@ -97,7 +97,7 @@ Type `/redbull` to open your collection: every can you have ever held, crafted, 
 A can with wings throws you upward as you finish it. Jump while in the air, and you glide as with an elytra for as many seconds as the can gives. Feathers trail behind you as you fly. If the wings run out in the air, Slow Falling sets you down gently.
 
 - **In the mods,** the can gives you the Wings effect, with its icon and timer among your other effects. Elytra you wear don’t wear out while it carries you.
-- **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. Once its flight runs out, or a minute after it would have, it crumples.
+- **On Paper,** a plugin can’t add effects, so the can leaves a winged can in your hand instead. It glides only from your main hand, and switching away drops you. Its durability bar is all the wings have left: it drains over the can’s flight time plus a minute while you stand or climb, and over its flight time alone while you glide, so a climb to a cliff costs flight. Shortly before the can crumples, a chime and the bar above your hotbar warn you.
 
 ## Crumpled cans
 

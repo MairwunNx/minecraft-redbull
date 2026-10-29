@@ -29,7 +29,7 @@ Five modules: `core` holds what every platform shares, `paper` is the Paper plug
 | `paper/…/Upgrades.kt` | Swaps items of older versions for today's where a player meets them: 1.4.1's potion bile on join, in an opened container, and on pickup |
 | `paper/…/Recipes.kt` | The crafting recipes, the brewing mix, and the furnace recipe; removed again on disable |
 | `paper/…/Drinks.kt` | Caffeine on a drink, the crash, the overdose, wings, milk, the bottles, and the death message |
-| `paper/…/Wings.kt` | Crumples spent winged cans; looks only at players it was told hold one |
+| `paper/…/Wings.kt` | Wears winged cans down once a second, warns before one runs out, and crumples spent ones; looks only at players it was told hold one |
 | `paper/…/Heart.kt` | Jitters and crash every two seconds: hunger, heartbeats, warnings |
 | `paper/…/Loot.kt` | Bull bile from cows, cans in chests by biome |
 | `paper/…/Wanderers.kt` | A wandering trader's cans and cans among fishing junk, by core's `Trades` and `Fishing` |
@@ -70,7 +70,7 @@ Five modules: `core` holds what every platform shares, `paper` is the Paper plug
 - A potion names itself after its contents and ignores `item_name`, so names go in `custom_name`, not italic.
 - Every text players read is a translation key with the English text as its fallback (`Texts`). A new key goes into all five language files; `AssetsTest` fails otherwise.
 - A new can is a line in `Cans.kt`, a line in `scripts/textures.py`, a name, flavour, and slogan in every language, and a row in both READMEs and MODRINTH.md. `CansTest` keeps recipes unique and every can obtainable; `AssetsTest` checks its texture and model.
-- The winged can glides because the game lets any item with `glider` and `equippable` for a slot glide from that slot, the main hand included (`LivingEntity.canGlide` walks every slot). The game wears it by a point per second of flight and stops a point before it breaks; that's the flight time.
+- The winged can glides because the game lets any item with `glider` and `equippable` for a slot glide from that slot, the main hand included (`LivingEntity.canGlide` walks every slot). Its durability is its seconds on the ground (`wingedCanSeconds`, the flight plus `WINGS_GRACE_MILLIS`): `Wings` takes a point a second on the ground and adds `wingedCanFlightPace` less the game's own point a second in flight, and the game stops the glide a point before it breaks. `Wings` changes nothing on the item but `damage` while it's held: the client plays the swap animation on any other component's change (`DataComponentType::ignoreSwapAnimation` marks only `damage` and `max_damage`). `redbull:expires` stays as it was written and only catches the bar up after a time away.
 - The jar carries the same pack zip the release attaches, and `Pack` hashes the copy in the jar. The release URL comes from the version, so dev builds send no pack unless `resource_pack.url` is set.
 - Nothing loops over every online player but `Heart`, which reads two numbers each: the collection and the winged cans run on events, so hundreds of players cost little.
 - Sugar or sugarfree: `Can.sweetener` fills a recipe's bottom corners (sugar, or honeycomb), `crashes()` lets only a can with sugar bring the crash, and every can with sugar sinks the player into `sugarPit()` when its buffs end, announced in gold on every platform.
