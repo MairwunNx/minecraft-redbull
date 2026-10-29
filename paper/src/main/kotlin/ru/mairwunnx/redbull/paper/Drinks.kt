@@ -5,6 +5,7 @@ import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.Statistic
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -88,10 +89,14 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
     return false
   }
 
-  /** After the buffs, the crash: a minute slower and weaker. */
+  /**
+   * After the buffs, the crash: a minute slower and weaker. Not after a death in between: the player respawns as the
+   * same Bukkit player, and death took the caffeine.
+   */
   private fun crashLater(player: Player, can: Can) {
+    val deaths = player.getStatistic(Statistic.DEATHS)
     plugin.server.scheduler.runTaskLater(plugin, Runnable {
-      if (!player.isOnline || player.isDead) return@Runnable
+      if (!player.isOnline || player.isDead || player.getStatistic(Statistic.DEATHS) != deaths) return@Runnable
       crash().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
     }, crashDelay(can) * 20L)
   }

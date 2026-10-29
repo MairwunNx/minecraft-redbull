@@ -7,6 +7,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 - 🪽 **The winged can shows what it has left on Paper:** its durability bar is all its wings now. It drains over the can’s flight time plus a minute while you stand or climb, and over its flight time alone while you glide, so the bar never sits full while a hidden timer runs out. A chime and the action bar warn you shortly before it crumples, and its tooltip says when it will without a flight.
 - 🛬 **A softer landing:** when the wings run out mid-glide, 6 seconds of Slow Falling set you down instead of 5, on every platform.
 - 🍬 **One sugar pit, and deeper the more you drink:** the pit no longer follows each can’s buffs. It comes once your caffeine wears off, Hunger I and Slowness I for one can with sugar since your caffeine was last gone, a level deeper and longer for each one more, down to Hunger V and Slowness V after five. `sugar_pit_texts` in the settings picks its messages: `arcade` (“Double sugar pit!”, the default) or `feelings` (“Deep sugar pit. Your legs turn to jelly.”).
+- 💀 **Death ends it all on Paper:** a sugar pit or a crash no longer finds you after you respawn. The mods never had this.
 
 ## 1.4.3
 
