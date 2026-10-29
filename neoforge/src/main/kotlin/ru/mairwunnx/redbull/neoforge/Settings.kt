@@ -1,6 +1,7 @@
 package ru.mairwunnx.redbull.neoforge
 
 import net.neoforged.neoforge.common.ModConfigSpec
+import ru.mairwunnx.redbull.core.SugarPitTexts
 
 /**
  * `config/redbull.toml`: the same switches, comments, and defaults as Fabric's file of that name and Paper's
@@ -16,6 +17,10 @@ object Settings : ru.mairwunnx.redbull.modcore.Settings {
   private val WINGS: ModConfigSpec.BooleanValue = builder
     .comment("Cans with wings launch the player and give the Wings effect to glide with.")
     .define("wings", true)
+
+  private val SUGAR_PIT_TEXTS: ModConfigSpec.ConfigValue<String> = builder
+    .comment("How the sugar pit announces itself once the caffeine is gone: \"arcade\" counts it up like a combo (Double sugar pit!), \"feelings\" says how the player feels (Deep sugar pit. Your legs turn to jelly.).")
+    .defineInList("sugar_pit_texts", SugarPitTexts.ARCADE.id, SugarPitTexts.entries.map { it.id })
 
   private val BILE: ModConfigSpec.DoubleValue
   private val CHESTS: ModConfigSpec.DoubleValue
@@ -35,6 +40,7 @@ object Settings : ru.mairwunnx.redbull.modcore.Settings {
 
   override val overdose get() = OVERDOSE.get()
   override val wings get() = WINGS.get()
+  override val sugarPitTexts get() = SugarPitTexts.of(SUGAR_PIT_TEXTS.get()) ?: SugarPitTexts.ARCADE
   override val bile get() = BILE.get()
   override val chests get() = CHESTS.get()
 }

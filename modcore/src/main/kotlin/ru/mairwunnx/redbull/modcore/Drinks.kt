@@ -23,7 +23,8 @@ import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
 import ru.mairwunnx.redbull.core.sugarPit
-import ru.mairwunnx.redbull.core.sugarPitDelay
+import ru.mairwunnx.redbull.core.SUGAR_PIT_DEEPEST
+import ru.mairwunnx.redbull.core.sugarPitDue
 import java.util.UUID
 
 /**
@@ -50,10 +51,9 @@ object Drinks {
 
   /** After a can went down: caffeine, maybe a crash later, and wings. */
   fun can(player: ServerPlayer, can: Can) {
-    val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
+    val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player), sugar = !can.sugarfree)
     if (!caffeine(player, drink)) return
     if (crashes(can, drink.stage)) crashLater(player, can)
-    if (!can.sugarfree) sugarPitLater(player, can)
     if (Mod.settings.wings && can.wings > 0) wings(player, can)
   }
 
@@ -91,15 +91,20 @@ object Drinks {
     if (!player.hasDisconnected() && player.isAlive) crash().mapNotNull(RedBullItems::effect).forEach(player::addEffect)
   }
 
-  /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
-  private fun sugarPitLater(player: ServerPlayer, can: Can) = Later.run(sugarPitDelay(can) * 20L) {
-    if (!player.hasDisconnected() && player.isAlive) sugarPit(player)
+  /** Once the caffeine is gone: the sugar pit of every can with sugar since, if there were any. */
+  fun sugarPitIfDue(player: ServerPlayer) {
+    val caffeine = Caffeines.now(player)
+    val depth = caffeine.sugarPitDue()
+    if (depth == 0) return
+    Caffeines.set(player, caffeine.copy(sugar = 0))
+    sugarPit(player, depth)
   }
 
-  /** The sugar pit itself, and its advancement. */
-  fun sugarPit(player: ServerPlayer) {
-    sugarPit().mapNotNull(RedBullItems::effect).forEach(player::addEffect)
-    player.sendOverlayMessage(text("redbull.sugar_pit", ChatFormatting.GOLD))
+  /** The sugar pit of [depth] cans: hungry and slow by how deep it is, told so (the deepest two in red), and its advancement. */
+  private fun sugarPit(player: ServerPlayer, depth: Int) {
+    sugarPit(depth).mapNotNull(RedBullItems::effect).forEach(player::addEffect)
+    val color = if (depth >= SUGAR_PIT_DEEPEST - 1) ChatFormatting.RED else ChatFormatting.GOLD
+    player.sendOverlayMessage(text(Mod.settings.sugarPitTexts.key(depth), color))
     Awards.award(player, Advancements.SUGAR_PIT)
   }
 

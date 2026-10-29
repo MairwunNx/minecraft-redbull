@@ -8,7 +8,8 @@ import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.core.Rules
 
 /**
- * A player's caffeine lives in their persistent data: the level and the play-time tick it was measured at.
+ * A player's caffeine lives in their persistent data: the level, the play-time tick it was measured at, and the cans
+ * with sugar since it was last gone.
  * The clock is ticks played (`PLAY_ONE_MINUTE` counts ticks despite its name), so caffeine waits while they're away.
  */
 object Caffeines {
@@ -16,6 +17,7 @@ object Caffeines {
 
   private val LEVEL = NamespacedKey("redbull", "caffeine")
   private val AT = NamespacedKey("redbull", "caffeine_at")
+  private val SUGAR = NamespacedKey("redbull", "sugar")
 
   fun clock(player: Player): Long = player.getStatistic(Statistic.PLAY_ONE_MINUTE).toLong()
 
@@ -25,6 +27,7 @@ object Caffeines {
     val stored = Caffeine(
       data.getOrDefault(LEVEL, PersistentDataType.DOUBLE, 0.0),
       data.getOrDefault(AT, PersistentDataType.LONG, 0L),
+      data.getOrDefault(SUGAR, PersistentDataType.INTEGER, 0),
     )
     return stored.now(clock(player), rules)
   }
@@ -32,6 +35,7 @@ object Caffeines {
   fun set(player: Player, caffeine: Caffeine) {
     player.persistentDataContainer.set(LEVEL, PersistentDataType.DOUBLE, caffeine.level)
     player.persistentDataContainer.set(AT, PersistentDataType.LONG, caffeine.at)
+    player.persistentDataContainer.set(SUGAR, PersistentDataType.INTEGER, caffeine.sugar)
   }
 
   fun reset(player: Player) = set(player, Caffeine(0.0, clock(player)))

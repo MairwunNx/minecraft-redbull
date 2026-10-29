@@ -83,7 +83,7 @@ A Red Bull tab joins your advancements with your first can:
 | Advancement | How |
 |---|---|
 | Gives You Wings | Glide on the wings of a can |
-| Sugar Pit | Sink into a sugar pit when a can’s buffs run out |
+| Sugar Pit | Sink into a sugar pit when the caffeine wears off |
 | On the Edge | Have 90 caffeine or more, and live |
 | Legend | Find Ruby, Summer, Glacier, or Spring |
 | Collector | Hold every one of the 26 cans |
@@ -105,7 +105,7 @@ Every can you finish leaves a crumpled can in its own colours. They stack to 64,
 
 ## Sugar or sugarfree
 
-A can with sugar is cheaper and feeds you a little (two hunger points), but sugar burns out: when its buffs end, you sink into a sugar pit, Hunger I for 30 seconds and Slowness I for 15, and the bar above your hotbar says so in gold. A sugarfree can costs two honeycombs, feeds nothing, and leaves no pit, and too much caffeine from it brings no crash either. The caffeine is the same, and so is the death above 100.
+A can with sugar is cheaper and feeds you a little (two hunger points), but sugar burns out. Once your caffeine wears off, you sink into a sugar pit, and the bar above your hotbar says so. One can with sugar since your caffeine was last gone brings Hunger I for 30 seconds and Slowness I for 15. Each one more makes the pit a level deeper and longer, down to Hunger V and Slowness V for 105 and 53 seconds after five cans. A sugarfree can costs two honeycombs, feeds nothing, and adds nothing to the pit, and too much caffeine from it brings no crash either. The caffeine is the same, and so is the death above 100.
 
 ## Caffeine
 
@@ -124,7 +124,7 @@ A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and cr
 
 ## Get started
 
-**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, and scales the bile and chest chances.
+**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, scales the bile and chest chances, and picks how the sugar pit announces itself: counted up like a combo or told as a feeling.
 
 **Fabric.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) with [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) for Minecraft 26.3, on the client and on the server.
 

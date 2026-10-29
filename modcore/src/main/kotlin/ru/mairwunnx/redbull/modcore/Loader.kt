@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.item.Item
 import ru.mairwunnx.redbull.core.Caffeine
+import ru.mairwunnx.redbull.core.SugarPitTexts
 
 /**
  * What a loader hands modcore: its registries, its data attachments, and its settings. Fabric registers at once,
@@ -43,6 +44,9 @@ interface Settings {
 
   /** Cans with wings launch the player and give the Wings effect to glide with. */
   val wings: Boolean
+
+  /** How the sugar pit announces itself: counted up like a combo, or how the player feels. */
+  val sugarPitTexts: SugarPitTexts
 
   /** Multiplies the chance that a cow drops bull bile. */
   val bile: Double

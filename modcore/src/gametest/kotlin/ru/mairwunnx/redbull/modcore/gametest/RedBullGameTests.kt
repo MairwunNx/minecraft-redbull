@@ -573,7 +573,10 @@ class RedBullGameTests {
     helper.succeed()
   }
 
-  /** On the edge at 90 caffeine, alive; the sugar pit when it comes; an overdose earns nothing. */
+  /**
+   * On the edge at 90 caffeine, alive; the sugar pit once the caffeine is gone, as deep as the cans with sugar since
+   * were many, and only once; an overdose earns nothing.
+   */
   @GameTest
   fun caffeineEarnsAdvancements(helper: GameTestHelper) {
     val player = player(helper)
@@ -582,9 +585,20 @@ class RedBullGameTests {
     helper.assertFalse(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
     drink(player, can("zero"))
     helper.assertTrue(done(helper, player, Advancements.EDGE), "the edge at ${caffeine(player)} caffeine")
-    helper.assertFalse(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit before it comes")
-    Drinks.sugarPit(player)
-    helper.assertTrue(done(helper, player, Advancements.SUGAR_PIT), "the sugar pit")
+
+    val sweet = player(helper)
+    drink(sweet, can("original"))
+    drink(sweet, can("sugarfree"))
+    drink(sweet, can("red"))
+    Drinks.sugarPitIfDue(sweet)
+    helper.assertFalse(done(helper, sweet, Advancements.SUGAR_PIT), "the sugar pit with caffeine left")
+    equal(helper, Caffeines.now(sweet).sugar, 2, "cans with sugar")
+    Caffeines.set(sweet, Caffeines.now(sweet).copy(level = 0.0))
+    Drinks.sugarPitIfDue(sweet)
+    helper.assertTrue(done(helper, sweet, Advancements.SUGAR_PIT), "the sugar pit")
+    equal(helper, sweet.getEffect(MobEffects.HUNGER)?.let { it.amplifier to it.duration }, 1 to 60 * 20, "Hunger II for a minute")
+    helper.assertTrue("redbull.sugar_pit.arcade.2" in sweet.overlays, "a double sugar pit: ${sweet.overlays}")
+    equal(helper, Caffeines.now(sweet).sugar, 0, "sugar after the pit")
 
     val dying = player(helper)
     Caffeines.set(dying, Caffeine(80.0, Caffeines.clock(dying)))

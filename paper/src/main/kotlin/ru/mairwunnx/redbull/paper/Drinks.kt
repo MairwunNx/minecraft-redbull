@@ -27,8 +27,6 @@ import ru.mairwunnx.redbull.core.crashes
 import ru.mairwunnx.redbull.core.drink
 import ru.mairwunnx.redbull.core.drinkCrudeTaurine
 import ru.mairwunnx.redbull.core.milk
-import ru.mairwunnx.redbull.core.sugarPit
-import ru.mairwunnx.redbull.core.sugarPitDelay
 import java.util.UUID
 
 /**
@@ -68,11 +66,10 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       }
       else -> {
         val can = Items.canOf(event.item) ?: return
-        val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player))
+        val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player), sugar = !can.sugarfree)
         if (!caffeine(player, drink)) return
         if (drink.caffeine.level >= Advancements.EDGE_LEVEL) Awards.grant(player, Advancements.EDGE)
         if (crashes(can, drink.stage)) crashLater(player, can)
-        if (!can.sugarfree) sugarPitLater(player, can)
         if (plugin.settings.wings && can.wings > 0) wings(event, player, can)
       }
     }
@@ -97,16 +94,6 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       if (!player.isOnline || player.isDead) return@Runnable
       crash().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
     }, crashDelay(can) * 20L)
-  }
-
-  /** When a can with sugar runs out of buffs, the sugar pit: a little hungry, a little slow, and told why. */
-  private fun sugarPitLater(player: Player, can: Can) {
-    plugin.server.scheduler.runTaskLater(plugin, Runnable {
-      if (!player.isOnline || player.isDead) return@Runnable
-      sugarPit().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
-      player.sendActionBar(Texts.text("redbull.sugar_pit").color(NamedTextColor.GOLD))
-      Awards.grant(player, Advancements.SUGAR_PIT)
-    }, sugarPitDelay(can) * 20L)
   }
 
   private fun wings(event: PlayerItemConsumeEvent, player: Player, can: Can) {

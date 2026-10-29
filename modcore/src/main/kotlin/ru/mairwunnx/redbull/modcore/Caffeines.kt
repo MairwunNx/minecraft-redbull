@@ -21,8 +21,8 @@ import ru.mairwunnx.redbull.core.sleepless
 import kotlin.math.abs
 
 /**
- * A player's caffeine lives in a data attachment ([Loader.caffeine]): the level and the play-time tick it was measured
- * at. The clock is ticks played, so caffeine waits while they're away. Death drops it, since the attachment isn't
+ * A player's caffeine lives in a data attachment ([Loader.caffeine]): the level, the play-time tick it was measured
+ * at, and the cans with sugar since it was last gone. The clock is ticks played, so caffeine waits while they're away. Death drops it, since the attachment isn't
  * copied to the respawned player.
  *
  * The `redbull:caffeine` effect shows it: Caffeine I calm, II in the jitters, III in the crash, for as long as the
@@ -35,11 +35,12 @@ import kotlin.math.abs
 object Caffeines {
   val rules = Rules()
 
-  /** Saved as `{level, at}` on both loaders. */
+  /** Saved as `{level, at, sugar}` on both loaders; caffeine saved before the sugar counted has none. */
   val CODEC: MapCodec<Caffeine> = RecordCodecBuilder.mapCodec { instance ->
     instance.group(
       Codec.DOUBLE.fieldOf("level").forGetter(Caffeine::level),
       Codec.LONG.fieldOf("at").forGetter(Caffeine::at),
+      Codec.INT.optionalFieldOf("sugar", 0).forGetter(Caffeine::sugar),
     ).apply(instance, ::Caffeine)
   }
 

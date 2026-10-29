@@ -2,6 +2,7 @@ package ru.mairwunnx.redbull.fabric
 
 import net.fabricmc.loader.api.FabricLoader
 import org.slf4j.LoggerFactory
+import ru.mairwunnx.redbull.core.SugarPitTexts
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -19,6 +20,9 @@ object Settings : ru.mairwunnx.redbull.modcore.Settings {
   override var wings = true
     private set
 
+  override var sugarPitTexts = SugarPitTexts.ARCADE
+    private set
+
   override var bile = 1.0
     private set
 
@@ -30,6 +34,8 @@ object Settings : ru.mairwunnx.redbull.modcore.Settings {
     |overdose = true
     |# Cans with wings launch the player and give the Wings effect to glide with.
     |wings = true
+    |# How the sugar pit announces itself once the caffeine is gone: "arcade" counts it up like a combo (Double sugar pit!), "feelings" says how the player feels (Deep sugar pit. Your legs turn to jelly.).
+    |sugar_pit_texts = "arcade"
     |
     |[loot]
     |# Multiplies the chance that a cow drops bull bile (5%, plus 2% per Looting level).
@@ -51,6 +57,7 @@ object Settings : ru.mairwunnx.redbull.modcore.Settings {
     val values = parse(text)
     overdose = values["overdose"]?.toBooleanStrictOrNull() ?: true
     wings = values["wings"]?.toBooleanStrictOrNull() ?: true
+    sugarPitTexts = values["sugar_pit_texts"]?.let(SugarPitTexts::of) ?: SugarPitTexts.ARCADE
     bile = multiplier(values["loot.bile"])
     chests = multiplier(values["loot.chests"])
   }

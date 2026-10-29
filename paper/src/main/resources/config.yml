@@ -14,6 +14,11 @@ overdose: true
 # Cans with wings launch the player and leave a winged can to glide with.
 wings: true
 
+# How the sugar pit announces itself once the caffeine is gone, deeper for every can with sugar since:
+# "arcade" counts it up like a combo (Double sugar pit!, Mega sugar pit!!!), "feelings" says how the player feels
+# (Deep sugar pit. Your legs turn to jelly.).
+sugar_pit_texts: arcade
+
 loot:
   # Multiplies the chance that a cow drops bull bile (5%, plus 2% per Looting level).
   bile: 1.0
