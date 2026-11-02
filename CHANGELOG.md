@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.5.1
+
+- 📦 **Built on the newest platforms:** Paper API 26.3 build 237 and NeoForge 26.3.0.101. Nothing changes in the game.
+
 ## 1.5.0
 
 - 🪽 **The winged can shows what it has left on Paper:** its durability bar is all its wings now. It drains over the can’s flight time plus a minute while you stand or climb, and over its flight time alone while you glide, so the bar never sits full while a hidden timer runs out. A chime and the action bar warn you shortly before it crumples, and its tooltip says when it will without a flight.
