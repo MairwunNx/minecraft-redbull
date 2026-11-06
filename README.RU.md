@@ -174,4 +174,11 @@ Red Bull работает на Moonlands — моём сервере со сло
 - **[minecraft-exporter](https://github.com/MairwunNx/minecraft-exporter)** — метрики Prometheus из WorldAPI.
 - **[minecraft-grafana](https://github.com/MairwunNx/minecraft-grafana)** — дашборд Grafana для WorldAPI.
 
+## Раскрытие контента
+
+- 🤖 **Код от ИИ.** Большую часть кода написали ИИ-агенты.
+- 🧩 **Чужие работы.** Текстура таурина — соль из Mekanism, а рисунок банки вырос из фанатского пиксель-арта (см. «Благодарности»).
+- 📦 **Ресурспак.** На Paper игра игрока скачивает его из релиза этого репозитория на GitHub, если вы не указали другой адрес.
+- Генеративного ИИ, телеметрии, платных функций, рекламы и вспышек нет.
+
 > 🫡 Сделал Павел Ерохин (Pavel Erokhin), он же mairwunnx.

@@ -174,4 +174,11 @@ Then type `/redbull`, take a can, and drink it. `/redbull give <item> [player] [
 - **[minecraft-exporter](https://github.com/MairwunNx/minecraft-exporter)** – Prometheus metrics from WorldAPI.
 - **[minecraft-grafana](https://github.com/MairwunNx/minecraft-grafana)** – the Grafana dashboard for WorldAPI.
 
+## Content disclosures
+
+- 🤖 **AI-generated code.** AI agents wrote much of the code.
+- 🧩 **Someone else’s work.** Taurine’s texture is Mekanism’s salt, and the can art grew from a fan pixel-art can (see Credits).
+- 📦 **The resource pack.** On Paper, players’ games download it from this repository’s GitHub release, unless you set another URL.
+- No generative AI, telemetry, paid features, ads, or flashing lights.
+
 > 🫡 Made by Pavel Erokhin (Павел Ерохин), aka mairwunnx.
