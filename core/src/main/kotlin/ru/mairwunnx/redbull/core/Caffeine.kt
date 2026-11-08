@@ -22,9 +22,10 @@ enum class Stage { CALM, JITTERS, CRASH, OVERDOSE }
 /**
  * The caffeine in a player at clock [at]; read it through [now], which applies what wore off since. [sugar] counts
  * the cans with sugar drunk since the caffeine was last gone, up to [SUGAR_PIT_DEEPEST]: the depth of the sugar pit
- * that comes when it's gone again.
+ * that comes when it's gone again. [sugarUntil] is the clock at which the buffs of those cans end: the pit waits for
+ * them too, so no buff of a can softens it.
  */
-data class Caffeine(val level: Double = 0.0, val at: Long = 0, val sugar: Int = 0) {
+data class Caffeine(val level: Double = 0.0, val at: Long = 0, val sugar: Int = 0, val sugarUntil: Long = 0) {
   fun now(clock: Long, rules: Rules) =
     copy(level = (level - (clock - at).coerceAtLeast(0) * rules.decayPerTick).coerceAtLeast(0.0), at = clock)
 
@@ -43,15 +44,26 @@ data class Drink(val caffeine: Caffeine, val stage: Stage) {
   val fatal get() = stage == Stage.OVERDOSE
 }
 
-/** A can: its caffeine, and with [sugar] one more can of it for the sugar pit. */
-fun Rules.drink(before: Caffeine, clock: Long, sugar: Boolean = false) = before.plus(perCan, clock, this)
-  .let { if (sugar) it.copy(sugar = (it.sugar + 1).coerceAtMost(SUGAR_PIT_DEEPEST)) else it }
+/**
+ * A can: its caffeine, and if it has sugar, one more can for the sugar pit, which then waits for the can's buffs to end.
+ * Without a [can], plain caffeine.
+ */
+fun Rules.drink(before: Caffeine, clock: Long, can: Can? = null) = before.plus(perCan, clock, this)
+  .let {
+    if (can == null || can.sugarfree) it
+    else it.copy(
+      sugar = (it.sugar + 1).coerceAtMost(SUGAR_PIT_DEEPEST),
+      sugarUntil = maxOf(it.sugarUntil, clock + can.buffSeconds * 20L),
+    )
+  }
   .let { Drink(it, it.stage(this)) }
 
 fun Rules.drinkCrudeTaurine(before: Caffeine, clock: Long) =
   before.plus(perCrudeTaurine, clock, this).let { Drink(it, it.stage(this)) }
 
-fun Rules.milk(before: Caffeine, clock: Long) = before.plus(-milk, clock, this).let { it.copy(level = it.level.coerceAtLeast(0.0)) }
+/** Milk takes some caffeine and every buff, so the sugar pit no longer waits for the buffs. */
+fun Rules.milk(before: Caffeine, clock: Long) =
+  before.plus(-milk, clock, this).let { it.copy(level = it.level.coerceAtLeast(0.0), sugarUntil = minOf(it.sugarUntil, clock)) }
 
 /**
  * The Caffeine effect the mods show: its level is the stage (I calm, II jitters, III crash) and its duration the
@@ -83,22 +95,29 @@ const val SUGAR_PIT_DEEPEST = 5
 /** How much longer each depth of the sugar pit lasts than the first. */
 private val SUGAR_PIT_LENGTHS = listOf(1.0, 2.0, 2.4, 3.0, 3.5)
 
+/** The first depth's Hunger and Slowness; Hunger, the pit's real cost, lasts three times as long as it slows. */
+private const val SUGAR_PIT_HUNGER = 45
+private const val SUGAR_PIT_SLOWNESS = 15
+
 /**
- * The sugar pit: once the caffeine is gone, so is the sugar, and the player is hungry and slow. Every can with sugar
- * drunk since the caffeine was last gone makes it deeper: Hunger and Slowness a level higher each, and longer, down to
- * Hunger V and Slowness V at [SUGAR_PIT_DEEPEST] cans. A sugarfree can adds none.
+ * The sugar pit: once the caffeine and the buffs are gone, so is the sugar, and the player is hungry and slow. Every
+ * can with sugar drunk since the caffeine was last gone makes it deeper: Hunger and Slowness a level higher each, and
+ * longer, down to Hunger V and Slowness V at [SUGAR_PIT_DEEPEST] cans. A sugarfree can adds none.
  */
 fun sugarPit(depth: Int): List<Effect> {
   val level = depth.coerceIn(1, SUGAR_PIT_DEEPEST)
   val length = SUGAR_PIT_LENGTHS[level - 1]
   return listOf(
-    Effect("minecraft:hunger", (30 * length).roundToInt(), level - 1),
-    Effect("minecraft:slowness", (15 * length).roundToInt(), level - 1),
+    Effect("minecraft:hunger", (SUGAR_PIT_HUNGER * length).roundToInt(), level - 1),
+    Effect("minecraft:slowness", (SUGAR_PIT_SLOWNESS * length).roundToInt(), level - 1),
   )
 }
 
-/** The depth of the pit due now: the cans of sugar, once the caffeine is gone; 0 while it lasts or without sugar. */
-fun Caffeine.sugarPitDue(): Int = if (level > 0) 0 else sugar
+/**
+ * The depth of the pit due now: the cans of sugar, once the caffeine is gone and their buffs ended; 0 while either
+ * lasts or without sugar. Read it from [Caffeine.now], whose [Caffeine.at] is the clock.
+ */
+fun Caffeine.sugarPitDue(): Int = if (level > 0 || at < sugarUntil) 0 else sugar
 
 /** How the sugar pit announces itself: a game's combo or how the player feels. */
 enum class SugarPitTexts(val id: String) {
@@ -117,4 +136,4 @@ enum class SugarPitTexts(val id: String) {
 }
 
 /** The crash comes when the can's longest buff ends, but no later than three minutes after the drink. */
-fun crashDelay(can: Can): Int = can.effects.maxOf { it.seconds }.coerceAtMost(CRASH_DELAY_LIMIT)
+fun crashDelay(can: Can): Int = can.buffSeconds.coerceAtMost(CRASH_DELAY_LIMIT)

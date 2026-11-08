@@ -35,6 +35,9 @@ data class Can(
   /** What sweetens it in the recipe's bottom corners: sugar, or honeycomb in a sugarfree can. */
   val sweetener get() = if (sugarfree) "minecraft:honeycomb" else "minecraft:sugar"
 
+  /** How long its longest buff lasts. */
+  val buffSeconds get() = effects.maxOf { it.seconds }
+
   /** The model of this can once drunk and crumpled. */
   val crumpled get() = "crumpled_$id"
 }

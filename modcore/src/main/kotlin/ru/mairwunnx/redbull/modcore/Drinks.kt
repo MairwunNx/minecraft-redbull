@@ -51,7 +51,7 @@ object Drinks {
 
   /** After a can went down: caffeine, maybe a crash later, and wings. */
   fun can(player: ServerPlayer, can: Can) {
-    val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player), sugar = !can.sugarfree)
+    val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player), can)
     if (!caffeine(player, drink)) return
     if (crashes(can, drink.stage)) crashLater(player, can)
     if (Mod.settings.wings && can.wings > 0) wings(player, can)
@@ -91,7 +91,7 @@ object Drinks {
     if (!player.hasDisconnected() && player.isAlive) crash().mapNotNull(RedBullItems::effect).forEach(player::addEffect)
   }
 
-  /** Once the caffeine is gone: the sugar pit of every can with sugar since, if there were any. */
+  /** Once the caffeine and the buffs are gone: the sugar pit of every can with sugar since, if there were any. */
   fun sugarPitIfDue(player: ServerPlayer) {
     val caffeine = Caffeines.now(player)
     val depth = caffeine.sugarPitDue()

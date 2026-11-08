@@ -6,6 +6,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 
 - ☕ **Caffeine lasts as long as the buffs:** it wears off by a point every 16 seconds instead of 6, so a can’s caffeine is gone in 8 minutes, when a crafted can’s buffs end. A fresh can every three minutes no longer stacks a dozen effects: after the first three, one more fits every 8 minutes.
 - 🛏️ **One can lets you sleep:** the bed refuses you from 37 caffeine, more than a single can, instead of at any caffeine.
+- 🍬 **The sugar pit waits for the buffs:** it comes once your caffeine is gone and the buffs of your last can with sugar have ended, so Speed no longer hides it. Milk takes the buffs, so after it the pit waits only for the caffeine. Its Hunger lasts half as long again: from 45 seconds at the first depth to 158 at the fifth; Slowness stays as it was.
 
 ## 1.5.1
 

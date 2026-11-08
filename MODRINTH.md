@@ -105,7 +105,7 @@ Every can you finish leaves a crumpled can in its own colours. They stack to 64,
 
 ## Sugar or sugarfree
 
-A can with sugar is cheaper and feeds you a little (two hunger points), but sugar burns out. Once your caffeine wears off, you sink into a sugar pit, and the bar above your hotbar says so. One can with sugar since your caffeine was last gone brings Hunger I for 30 seconds and Slowness I for 15. Each one more makes the pit a level deeper and longer, down to Hunger V and Slowness V for 105 and 53 seconds after five cans. A sugarfree can costs two honeycombs, feeds nothing, and adds nothing to the pit, and too much caffeine from it brings no crash either. The caffeine is the same, and so is the death above 100.
+A can with sugar is cheaper and feeds you a little (two hunger points), but sugar burns out. Once your caffeine wears off and the buffs of your last can with sugar end, whichever comes later, you sink into a sugar pit, and the bar above your hotbar says so. One can with sugar since your caffeine was last gone brings Hunger I for 45 seconds and Slowness I for 15. Each one more makes the pit a level deeper and longer, down to Hunger V and Slowness V for 158 and 53 seconds after five cans. A sugarfree can costs two honeycombs, feeds nothing, and adds nothing to the pit, and too much caffeine from it brings no crash either. The caffeine is the same, and so is the death above 100.
 
 ## Caffeine
 
@@ -120,7 +120,7 @@ Each can adds 30 caffeine, and caffeine wears off by one point every 16 seconds 
 
 From 37 caffeine, more than one can, you can’t sleep. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
 
-A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
+A bucket of milk takes 20 caffeine away, and with the buffs gone, the sugar pit waits only for the caffeine. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
 
 ## Get started
 

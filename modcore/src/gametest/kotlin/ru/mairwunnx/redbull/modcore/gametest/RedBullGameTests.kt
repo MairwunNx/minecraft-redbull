@@ -576,8 +576,8 @@ class RedBullGameTests {
   }
 
   /**
-   * On the edge at 90 caffeine, alive; the sugar pit once the caffeine is gone, as deep as the cans with sugar since
-   * were many, and only once; an overdose earns nothing.
+   * On the edge at 90 caffeine, alive; the sugar pit once the caffeine and the buffs are gone, as deep as the cans
+   * with sugar since were many, and only once; an overdose earns nothing.
    */
   @GameTest
   fun caffeineEarnsAdvancements(helper: GameTestHelper) {
@@ -597,8 +597,11 @@ class RedBullGameTests {
     equal(helper, Caffeines.now(sweet).sugar, 2, "cans with sugar")
     Caffeines.set(sweet, Caffeines.now(sweet).copy(level = 0.0))
     Drinks.sugarPitIfDue(sweet)
+    helper.assertFalse(done(helper, sweet, Advancements.SUGAR_PIT), "the sugar pit with buffs left")
+    Caffeines.set(sweet, Caffeines.now(sweet).copy(sugarUntil = 0))
+    Drinks.sugarPitIfDue(sweet)
     helper.assertTrue(done(helper, sweet, Advancements.SUGAR_PIT), "the sugar pit")
-    equal(helper, sweet.getEffect(MobEffects.HUNGER)?.let { it.amplifier to it.duration }, 1 to 60 * 20, "Hunger II for a minute")
+    equal(helper, sweet.getEffect(MobEffects.HUNGER)?.let { it.amplifier to it.duration }, 1 to 90 * 20, "Hunger II for 90 seconds")
     helper.assertTrue("redbull.sugar_pit.arcade.2" in sweet.overlays, "a double sugar pit: ${sweet.overlays}")
     equal(helper, Caffeines.now(sweet).sugar, 0, "sugar after the pit")
 

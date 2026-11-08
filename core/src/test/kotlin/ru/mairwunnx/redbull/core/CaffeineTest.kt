@@ -98,21 +98,41 @@ class CaffeineTest {
 
   @Test
   fun `the sugar pit comes once the caffeine is gone, as deep as the cans with sugar since`() {
-    var caffeine = rules.drink(Caffeine(), 0, sugar = true).caffeine
-    caffeine = rules.drink(caffeine, 0, sugar = false).caffeine
-    caffeine = rules.drink(caffeine, 0, sugar = true).caffeine
+    var caffeine = rules.drink(Caffeine(), 0, can("original")).caffeine
+    caffeine = rules.drink(caffeine, 0, can("sugarfree")).caffeine
+    caffeine = rules.drink(caffeine, 0, can("original")).caffeine
     assertEquals(2, caffeine.sugar)
     assertEquals(0, caffeine.sugarPitDue())
-    assertEquals(0, caffeine.now(caffeine.secondsLeft(rules) * 20L - 20, rules).sugarPitDue())
-    assertEquals(2, caffeine.now(caffeine.secondsLeft(rules) * 20L, rules).sugarPitDue())
+    assertEquals(0, caffeine.now(24 * minute - 20, rules).sugarPitDue())
+    assertEquals(2, caffeine.now(24 * minute, rules).sugarPitDue())
     assertEquals(0, rules.drink(Caffeine(), 0).caffeine.sugar)
-    assertEquals(SUGAR_PIT_DEEPEST, (1..7).fold(Caffeine()) { it, _ -> rules.drink(it, 0, sugar = true).caffeine }.sugar)
+    assertEquals(0, rules.drink(Caffeine(), 0, can("zero")).caffeine.sugar)
+    assertEquals(SUGAR_PIT_DEEPEST, (1..7).fold(Caffeine()) { it, _ -> rules.drink(it, 0, can("original")).caffeine }.sugar)
+  }
+
+  @Test
+  fun `the sugar pit waits for the buffs of a can that outlasts its caffeine`() {
+    val legend = CANS.first { !it.sugarfree && it.buffSeconds == LEGEND }
+    val caffeine = rules.drink(Caffeine(), 0, legend).caffeine
+    assertEquals(0, caffeine.now(8 * minute, rules).sugarPitDue())
+    assertEquals(0, caffeine.now(16 * minute - 1, rules).sugarPitDue())
+    assertEquals(1, caffeine.now(16 * minute, rules).sugarPitDue())
+    assertEquals(16 * minute, rules.drink(caffeine, 4 * minute, can("original")).caffeine.sugarUntil)
+  }
+
+  @Test
+  fun `after milk the sugar pit waits only for the caffeine`() {
+    val legend = CANS.first { !it.sugarfree && it.buffSeconds == LEGEND }
+    val milked = rules.milk(rules.drink(Caffeine(), 0, legend).caffeine, minute)
+    // 26.25 points a minute later, 6.25 after the milk: 100 seconds more.
+    assertEquals(0, milked.now(minute + 2000 - 1, rules).sugarPitDue())
+    assertEquals(1, milked.now(minute + 2000, rules).sugarPitDue())
   }
 
   @Test
   fun `a deeper sugar pit is stronger and longer`() {
-    assertEquals(listOf(Effect("minecraft:hunger", 30), Effect("minecraft:slowness", 15)), sugarPit(1))
-    assertEquals(listOf(60, 72, 90, 105), (2..5).map { sugarPit(it)[0].seconds })
+    assertEquals(listOf(Effect("minecraft:hunger", 45), Effect("minecraft:slowness", 15)), sugarPit(1))
+    assertEquals(listOf(90, 108, 135, 158), (2..5).map { sugarPit(it)[0].seconds })
     assertEquals(listOf(30, 36, 45, 53), (2..5).map { sugarPit(it)[1].seconds })
     assertEquals(listOf(1, 2, 3, 4), (2..5).map { sugarPit(it)[1].amplifier })
     assertEquals(sugarPit(5), sugarPit(9))
