@@ -1,9 +1,10 @@
-"""Upload the mods' jars to Modrinth as versions of the project, each marked to run on the client and the server.
+"""Upload every platform's jar to Modrinth as a version of the project, each with the environment it runs in.
 
 Standard library only: MODRINTH_TOKEN=… python3 -I scripts/modrinth_mods.py --version X.Y.Z --notes release-notes.md
-The release workflow runs it after `./gradlew build`. Minotaur can't set a version's `environment`, which Modrinth
-asks of every mod version (and refuses a version without while the project is in review), so the mods go up through
-Modrinth's v3 API here; Paper's jar still goes through Minotaur. A version already uploaded is skipped.
+The release workflow runs it after `./gradlew build` and Minotaur's sync of the description. Minotaur can't set a
+version's `environment`, which Modrinth asks of every version (and refuses a version without while the project is in
+review), so the jars go up through Modrinth's v3 API here: the mods on the client and the server, Paper's plugin on
+the server only. A version already uploaded is skipped.
 """
 
 import argparse
@@ -20,10 +21,11 @@ ROOT = Path(__file__).resolve().parent.parent
 PROJECT = "minecraft-redbull"
 API = "https://api.modrinth.com"
 AGENT = "MairwunNx/minecraft-redbull (github.com/MairwunNx)"
-MODS = {
-    # loader: its name on the version, and the projects it can't run without
-    "fabric": ("Fabric", ["fabric-api", "fabric-language-kotlin"]),
-    "neoforge": ("NeoForge", []),
+PLATFORMS = {
+    # module: its name on the version, its loaders, where it runs, and the projects it can't run without
+    "paper": ("Paper", ["paper", "purpur"], "server_only", []),
+    "fabric": ("Fabric", ["fabric"], "client_and_server", ["fabric-api", "fabric-language-kotlin"]),
+    "neoforge": ("NeoForge", ["neoforge"], "client_and_server", []),
 }
 
 
@@ -63,17 +65,19 @@ def main():
     project = project_id(PROJECT, token)
     uploaded = {v["version_number"] for v in request("GET", f"/v2/project/{project}/version", token)}
 
-    for loader, (name, needs) in MODS.items():
-        number = f"{args.version}+{loader}"
+    for module, (name, loaders, environment, needs) in PLATFORMS.items():
+        number = f"{args.version}+{module}"
         if number in uploaded:
             print(f"{number}: already on Modrinth")
             continue
-        game = re.search(r'val minecraft = "([^"]+)"', (ROOT / loader / "build.gradle.kts").read_text()).group(1)
-        jar = ROOT / loader / "build/libs" / f"redbull-{loader}-{args.version}.jar"
+        build = (ROOT / module / "build.gradle.kts").read_text()
+        game = re.search(r'val minecraft = "([^"]+)"|gameVersions\.addAll\("([^"]+)"\)', build)
+        game = game.group(1) or game.group(2)
+        jar = ROOT / module / "build/libs" / f"redbull-{module}-{args.version}.jar"
         data = {
             "name": f"Red Bull {args.version} for {name}", "version_number": number, "changelog": notes,
-            "game_versions": [game], "loaders": [loader], "version_type": "release", "featured": True,
-            "project_id": project, "status": "listed", "environment": "client_and_server",
+            "game_versions": [game], "loaders": loaders, "version_type": "release", "featured": True,
+            "project_id": project, "status": "listed", "environment": environment,
             "dependencies": [{"project_id": project_id(slug, token), "dependency_type": "required"} for slug in needs],
             "file_parts": ["file"], "primary_file": "file",
         }
