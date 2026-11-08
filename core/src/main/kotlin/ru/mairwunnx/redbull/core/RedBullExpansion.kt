@@ -43,7 +43,7 @@ class RedBullExpansion : AllayExpansion {
       "glide on. The way to a can: bull bile from cows a player kills, brewed into a water bottle as crude taurine, " +
       "smelted into taurine, then crafted with an empty can, a flavour, a dye, sugar or honeycomb, and a water bottle. " +
       "Four cans are legends found only in chests. Every can adds ${RULES.perCan.toInt()} caffeine, which wears off by " +
-      "a point every 6 seconds of play; above ${RULES.limit.toInt()} the heart gives out, and milk takes " +
+      "a point every 16 seconds of play; above ${RULES.limit.toInt()} the heart gives out, and milk takes " +
       "${RULES.milk.toInt()}. Before you explain how to make or find a can, call x_redbull_recipes: never guess a recipe. " +
       "Call Red Bull's items by the names it gives in `names`, as the game shows them to the player; never translate an id."
 

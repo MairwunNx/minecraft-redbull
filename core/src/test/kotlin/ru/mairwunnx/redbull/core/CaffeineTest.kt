@@ -27,23 +27,24 @@ class CaffeineTest {
   }
 
   @Test
-  fun `four cans within two minutes kill`() {
+  fun `four cans within five minutes twenty kill`() {
     assertTrue(drinks(0, 0, 0, 0).fatal)
-    assertTrue(drinks(0, minute / 2, minute, 2 * minute - 1).fatal)
+    assertTrue(drinks(0, minute, 3 * minute, 16 * minute / 3 - 1).fatal)
   }
 
   @Test
-  fun `the fourth can after two minutes lands exactly on the limit and the player lives`() {
-    val last = drinks(0, 0, 0, 2 * minute)
+  fun `the fourth can after five minutes twenty lands exactly on the limit and the player lives`() {
+    val last = drinks(0, 0, 0, 16 * minute / 3)
     assertEquals(100.0, last.caffeine.level, 1e-9)
     assertFalse(last.fatal)
   }
 
   @Test
-  fun `a can wears off in three minutes`() {
+  fun `a can wears off in eight minutes, as a common can's buffs`() {
     val caffeine = rules.drink(Caffeine(), 0).caffeine
-    assertEquals(0.0, caffeine.now(3 * minute, rules).level, 1e-9)
-    assertEquals(15.0, caffeine.now(3 * minute / 2, rules).level, 1e-9)
+    assertEquals(0.0, caffeine.now(8 * minute, rules).level, 1e-9)
+    assertEquals(15.0, caffeine.now(4 * minute, rules).level, 1e-9)
+    assertEquals(COMMON, caffeine.secondsLeft(rules))
   }
 
   @Test
@@ -76,14 +77,16 @@ class CaffeineTest {
     assertEquals(0, Caffeine(30.0, 0).effectLevel(rules))
     assertEquals(1, Caffeine(60.0, 0).effectLevel(rules))
     assertEquals(2, Caffeine(80.0, 0).effectLevel(rules))
-    assertEquals(180, Caffeine(30.0, 0).secondsLeft(rules))
+    assertEquals(480, Caffeine(30.0, 0).secondsLeft(rules))
     assertEquals(0, Caffeine().secondsLeft(rules))
   }
 
   @Test
-  fun `any caffeine keeps a player awake`() {
-    assertTrue(Caffeine(0.5, 0).sleepless())
-    assertFalse(Caffeine().sleepless())
+  fun `more than a can keeps a player awake`() {
+    assertFalse(drinks(0).caffeine.sleepless(rules))
+    assertTrue(drinks(0, 0).caffeine.sleepless(rules))
+    assertTrue(Caffeine(37.0, 0).sleepless(rules))
+    assertFalse(Caffeine(36.9, 0).sleepless(rules))
   }
 
   @Test

@@ -6,12 +6,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerBedEnterEvent
 import ru.mairwunnx.redbull.core.sleepless
 
-/** What caffeine does to a body besides the stages: any of it keeps a player out of bed. */
+/** What caffeine does to a body besides the stages: more than a can of it keeps a player out of bed. */
 class Symptoms : Listener {
   @EventHandler(ignoreCancelled = true)
   fun onBed(event: PlayerBedEnterEvent) {
     if (event.bedEnterResult != PlayerBedEnterEvent.BedEnterResult.OK) return
-    if (!Caffeines.now(event.player).sleepless()) return
+    if (!Caffeines.now(event.player).sleepless(Caffeines.rules)) return
     event.isCancelled = true
     event.player.sendActionBar(Texts.text("redbull.sleepless").color(NamedTextColor.YELLOW))
   }

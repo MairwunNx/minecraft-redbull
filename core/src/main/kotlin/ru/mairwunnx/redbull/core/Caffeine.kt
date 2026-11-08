@@ -6,8 +6,10 @@ import kotlin.math.roundToInt
 data class Rules(
   val perCan: Double = 30.0,
   val perCrudeTaurine: Double = 10.0,
-  /** One point every 6 seconds: 30 points, a can, wear off in 3 minutes. */
-  val decayPerTick: Double = 1.0 / 120,
+  /** One point every 16 seconds: 30 points, a can, wear off in 8 minutes, as a common can's buffs do. */
+  val decayPerTick: Double = 1.0 / 320,
+  /** From here the heart keeps a player out of bed: one can lets them sleep, two don't. */
+  val sleepless: Double = 37.0,
   val jitters: Double = 50.0,
   val crash: Double = 75.0,
   /** Above this, the heart gives out. Exactly at it, the player lives. */
@@ -63,8 +65,8 @@ fun Caffeine.effectLevel(rules: Rules): Int = when (stage(rules)) {
 
 fun Caffeine.secondsLeft(rules: Rules): Int = kotlin.math.ceil(level / rules.decayPerTick / 20).toInt()
 
-/** Too wired to sleep: any caffeine at all keeps a player out of bed. */
-fun Caffeine.sleepless(): Boolean = level > 0
+/** Too wired to sleep: from [Rules.sleepless] on, more than a single can. */
+fun Caffeine.sleepless(rules: Rules): Boolean = level >= rules.sleepless
 
 const val CRASH_SECONDS = 60
 const val CRASH_DELAY_LIMIT = 180

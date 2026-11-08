@@ -245,12 +245,12 @@ class RedBullGameTests {
   @GameTest
   fun caffeineShowsAsAnEffect(helper: GameTestHelper) {
     val player = player(helper)
-    // 30 points a can, a point every 6 seconds: 3 minutes a can.
+    // 30 points a can, a point every 16 seconds: 8 minutes a can.
     listOf("original", "sugarfree", "zero").forEachIndexed { index, id ->
       drink(player, can(id))
       val shown = player.getEffect(Caffeines.EFFECT)
       equal(helper, shown?.amplifier, index, "the level after ${index + 1} cans")
-      equal(helper, shown?.duration, (index + 1) * 3 * 60 * 20, "the duration after ${index + 1} cans")
+      equal(helper, shown?.duration, (index + 1) * 8 * 60 * 20, "the duration after ${index + 1} cans")
       helper.assertTrue(shown?.isVisible == false && shown.showIcon(), "an icon and no particles")
     }
     Caffeines.reset(player)
@@ -266,7 +266,7 @@ class RedBullGameTests {
     drink(player, Items.MILK_BUCKET)
     equal(helper, caffeine(player), 10.0, "caffeine after milk")
     val shown = player.getEffect(Caffeines.EFFECT)
-    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 60 * 20, "a minute of Caffeine right after milk, not $shown")
+    helper.assertTrue(shown?.amplifier == 0 && shown.duration == 160 * 20, "160 seconds of Caffeine right after milk, not $shown")
     player.removeAllEffects()
     helper.assertFalse(player.hasEffect(Caffeines.EFFECT), "Caffeine after /effect clear")
     // The heart beats every two seconds and puts the effect back.
@@ -288,20 +288,22 @@ class RedBullGameTests {
 
   private fun key(component: Component?) = (component?.contents as? TranslatableContents)?.key
 
-  /** Caffeine keeps a player awake; without it the same bed takes them. */
+  /** Two cans keep a player awake; after one the same bed takes them. */
   @GameTest
   fun caffeineKeepsPlayersOutOfBed(helper: GameTestHelper) {
     val player = player(helper)
     helper.absoluteVec(Vec3(1.5, 1.0, 1.5)).let { player.teleportTo(it.x, it.y, it.z) }
     drink(player, can("sea_blue"))
+    drink(player, can("sea_blue"))
     val refused = sleep(helper, player)
     equal(helper, key(refused.left().orElse(null)?.message), "redbull.sleepless", "what the bed says")
     equal(helper, refused.left().orElse(null)?.message?.style?.color,
       net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW), "its colour")
-    helper.assertFalse(player.isSleeping, "asleep with caffeine")
+    helper.assertFalse(player.isSleeping, "asleep after two cans")
     Caffeines.reset(player)
+    drink(player, can("sea_blue"))
     val allowed = sleep(helper, player)
-    helper.assertTrue(allowed.right().isPresent && player.isSleeping, "without caffeine the bed takes them, not $allowed")
+    helper.assertTrue(allowed.right().isPresent && player.isSleeping, "after one can the bed takes them, not $allowed")
     player.stopSleeping()
     helper.succeed()
   }

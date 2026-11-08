@@ -29,7 +29,7 @@ import kotlin.math.abs
  * caffeine takes to wear off. It only shows; everything else reads the attachment. Milk or `/effect clear` may take
  * the effect off, and the next [refresh] puts it back.
  *
- * Any caffeine keeps a player out of bed ([sleepProblem]). Both loaders ask once the game has checked the bed and set
+ * More than a can's caffeine keeps a player out of bed ([sleepProblem]). Both loaders ask once the game has checked the bed and set
  * the spawn point, as it does when it's too early to sleep.
  */
 object Caffeines {
@@ -52,7 +52,7 @@ object Caffeines {
   /** What a bed answers a caffeinated player, in the action bar, yellow as on Paper. */
   val SLEEPLESS = Player.BedSleepingProblem(Component.translatable("redbull.sleepless").withStyle(ChatFormatting.YELLOW))
 
-  fun sleepProblem(player: ServerPlayer): Player.BedSleepingProblem? = SLEEPLESS.takeIf { now(player).sleepless() }
+  fun sleepProblem(player: ServerPlayer): Player.BedSleepingProblem? = SLEEPLESS.takeIf { now(player).sleepless(rules) }
 
   fun clock(player: ServerPlayer): Long = player.stats.getValue(Stats.CUSTOM, Stats.PLAY_TIME).toLong()
 
@@ -73,7 +73,7 @@ object Caffeines {
    */
   fun refresh(player: ServerPlayer) {
     val caffeine = now(player)
-    if (!caffeine.sleepless()) {
+    if (caffeine.level <= 0) {
       if (player.hasEffect(EFFECT)) player.removeEffect(EFFECT)
       return
     }

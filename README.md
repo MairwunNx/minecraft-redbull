@@ -33,7 +33,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 - 🧪 **A chemistry chain:** cows drop bull bile, a brewing stand turns it into crude taurine, a furnace evaporates that into taurine, and a crafting table fills an empty can.
 - 🗺️ **Cans to find:** most Editions also turn up in chests of their biomes, and four legends turn up nowhere else. A wandering trader brings a can or two, and now and then your fishing rod pulls one out of the water.
 - 🪽 **Real wiiings:** a can with wings launches you and lets you glide like an elytra, from 16 seconds to over a minute.
-- 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within two minutes kills you. Caffeine also keeps you out of bed.
+- 💓 **A price for it:** caffeine builds up. Two cans make you jittery, three bring a crash, and the fourth within five minutes kills you. Two cans also keep you out of bed.
 - 📖 **A collection:** `/redbull` shows every can you have held and question marks for the rest.
 - 🏆 **Six advancements** in a Red Bull tab: Gives You Wings, Sugar Pit, On the Edge, Legend, and Collector.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
@@ -130,7 +130,7 @@ A can with sugar is cheaper and feeds you a little (two hunger points), but suga
 
 ## Caffeine
 
-Each can adds 30 caffeine, and caffeine wears off by one point every six seconds you play.
+Each can adds 30 caffeine, and caffeine wears off by one point every 16 seconds you play: a can in 8 minutes, as long as a crafted can’s buffs.
 
 | Caffeine | What happens |
 |---|---|
@@ -139,7 +139,7 @@ Each can adds 30 caffeine, and caffeine wears off by one point every six seconds
 | 75–100 | The crash, after a can with sugar: when its buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. A sugarfree can doesn’t crash. Your heart pounds. |
 | Over 100 | Your heart gives out. No totem saves you. |
 
-Any caffeine at all keeps you out of bed. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
+From 37 caffeine, more than one can, you can’t sleep. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
 
 A bucket of milk takes 20 caffeine away. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
 
