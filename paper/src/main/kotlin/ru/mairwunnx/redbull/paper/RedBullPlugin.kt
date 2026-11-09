@@ -15,8 +15,8 @@ class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
   val collected = Collected()
   val wings = Wings(this)
-  val stats = Stats()
-  private val metrics = PluginMetrics(this, stats.counts)
+  val stats by lazy { Stats(dataFolder.resolve("stats.yml")) }
+  private val metrics by lazy { PluginMetrics(this, stats.counts) }
 
   private val recipes by lazy { Recipes(server) }
   private val tasks = mutableListOf<BukkitTask>()
@@ -25,6 +25,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     // For Allay, which finds Red Bull's expansion once this plugin is on.
     RedBullInfo.version = pluginMeta.version
     loadSettings()
+    loadStats()
     metrics.apply(settings.metrics)
     // Every item once through the game's codecs, so a component it rejects shows now, not in a player's hands.
     Items.ids.forEach { Items.create(it)!!.serializeAsBytes() }
@@ -38,6 +39,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.tick() }, 20L, 20L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { wings.feathers() }, 2L, 2L)
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
+    tasks += server.scheduler.runTaskTimerAsynchronously(this, Runnable { saveStats() }, SAVE_TICKS, SAVE_TICKS)
 
     val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
@@ -48,6 +50,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     tasks.forEach { it.cancel() }
     tasks.clear()
     recipes.unregister()
+    saveStats()
   }
 
   /** An item handed to a player outside the game's own ways: it joins their collection, and a winged can is watched. */
@@ -68,5 +71,23 @@ class RedBullPlugin : JavaPlugin(), Listener {
     settings = runCatching { Settings.parse(file.readText()) }
       .onFailure { logger.severe("config.yml has an error, using the defaults: ${it.message}") }
       .getOrDefault(Settings())
+  }
+
+  /** A `stats.yml` that doesn't parse is kept aside as `stats.yml.broken`, so the next save doesn't lose it. */
+  private fun loadStats() {
+    runCatching { stats.tally.load() }.onFailure {
+      val file = dataFolder.resolve("stats.yml")
+      logger.severe("stats.yml has an error, starting from zero and keeping it as stats.yml.broken: ${it.message}")
+      file.renameTo(dataFolder.resolve("stats.yml.broken"))
+    }
+  }
+
+  private fun saveStats() {
+    runCatching { stats.tally.save() }.onFailure { logger.warning("Couldn't save stats.yml: ${it.message}") }
+  }
+
+  private companion object {
+    /** Five minutes between saves of `stats.yml`. */
+    const val SAVE_TICKS = 5 * 60 * 20L
   }
 }
