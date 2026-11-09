@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.9.0
+
+- 🤖 **Red Bull in Allay speaks its expansion API 2:** the recipes tool for Allay’s AI now needs [Allay](https://github.com/allay-ai/minecraft) 6.33 or newer. It answers the same as before, so nothing changes for players. With an older Allay, Red Bull runs as before without the tool and logs one line asking for 6.33.
+
 ## 1.8.0
 
 - 📈 **Red Bull in WorldAPI speaks its expansion API 2:** Red Bull’s numbers in WorldAPI now need [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi) 4.5.0 or newer. `/extensions/redbull` serves the same paths and fields, so the Grafana dashboard and anything else that reads them keep working. `GET /extensions` now describes each answer’s fields, the boards to pick from, and the `limit` range, so the MCP server and other clients know what to ask for, and a board that doesn’t exist answers 400 with the four boards. With an older WorldAPI the plugin runs as before without its numbers there and logs one line asking for 4.5.0.
