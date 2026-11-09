@@ -16,6 +16,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
   val collected = Collected()
   val wings = Wings(this)
   val stats by lazy { Stats(dataFolder.resolve("stats.yml")) }
+  private val worldApi = WorldApiLink(this)
   private val metrics by lazy { PluginMetrics(this, stats.counts) }
 
   private val recipes by lazy { Recipes(server) }
@@ -41,12 +42,15 @@ class RedBullPlugin : JavaPlugin(), Listener {
     tasks += server.scheduler.runTaskTimer(this, Runnable { heart.tick() }, 40L, 40L)
     tasks += server.scheduler.runTaskTimerAsynchronously(this, Runnable { saveStats() }, SAVE_TICKS, SAVE_TICKS)
 
+    worldApi.connect()
+
     val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
   }
 
   override fun onDisable() {
     metrics.stop()
+    worldApi.disconnect()
     tasks.forEach { it.cancel() }
     tasks.clear()
     recipes.unregister()
