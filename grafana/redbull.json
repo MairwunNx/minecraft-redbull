@@ -1,0 +1,811 @@
+{
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
+      "version": "2.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "bargauge",
+      "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    }
+  ],
+  "uid": "redbull",
+  "title": "Red Bull",
+  "description": "Red Bull’s numbers from WorldAPI’s redbull namespace: cans, caffeine, overdose deaths, and flight on its wings. Needs an Infinity data source whose base URL is WorldAPI’s /api/v1.",
+  "tags": [
+    "minecraft",
+    "redbull",
+    "worldapi"
+  ],
+  "editable": true,
+  "graphTooltip": 0,
+  "schemaVersion": 41,
+  "version": 1,
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "5m",
+  "timezone": "",
+  "templating": {
+    "list": [
+      {
+        "type": "datasource",
+        "name": "worldapi",
+        "label": "WorldAPI",
+        "query": "yesoreyeram-infinity-datasource",
+        "description": "An Infinity data source whose base URL is WorldAPI’s /api/v1, like https://example.com/worldapi/api/v1.",
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": [],
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "title": "Red Bull",
+      "type": "link",
+      "url": "https://github.com/MairwunNx/minecraft-redbull",
+      "targetBlank": true,
+      "icon": "external link",
+      "tooltip": "",
+      "asDropdown": false,
+      "includeVars": false,
+      "keepTime": false,
+      "tags": []
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Red Bull",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "Everyone’s numbers since Red Bull 1.7.0 started counting: players who drank, cans, caffeine (80 mg a can), deaths by overdose, and time gliding on winged cans. Read from WorldAPI at `/extensions/redbull`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/stats",
+          "root_selector": "",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": []
+          },
+          "columns": [
+            {
+              "selector": "players",
+              "text": "Players",
+              "type": "number"
+            },
+            {
+              "selector": "cans",
+              "text": "Cans drunk",
+              "type": "number"
+            },
+            {
+              "selector": "caffeineMg",
+              "text": "Caffeine",
+              "type": "number"
+            },
+            {
+              "selector": "overdoseDeaths",
+              "text": "Overdose deaths",
+              "type": "number"
+            },
+            {
+              "selector": "flightSeconds",
+              "text": "Flight on wings",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Caffeine"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "massmg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Flight on wings"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "showPercentChange": false,
+        "orientation": "vertical"
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "Players": 0,
+              "Cans drunk": 1,
+              "Caffeine": 2,
+              "Overdose deaths": 3,
+              "Flight on wings": 4
+            }
+          }
+        }
+      ],
+      "id": 1,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Cans by kind",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "How many of each of the 26 cans everyone drank. Read from WorldAPI at `/extensions/redbull`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/stats",
+          "root_selector": "kinds",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": []
+          },
+          "columns": [
+            {
+              "selector": "kind",
+              "text": "Can",
+              "type": "string"
+            },
+            {
+              "selector": "cans",
+              "text": "Cans",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 24
+      },
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Cans",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ],
+      "id": 2,
+      "gridPos": {
+        "h": 18,
+        "w": 10,
+        "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "type": "table",
+      "title": "Drinkers",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "The players who drank the most cans, with their caffeine, deaths by overdose, time gliding on winged cans, and the can they drank most. Read from WorldAPI at `/extensions/redbull`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/drinkers",
+          "root_selector": "",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": [
+              {
+                "key": "limit",
+                "value": "50"
+              }
+            ]
+          },
+          "columns": [
+            {
+              "selector": "name",
+              "text": "Player",
+              "type": "string"
+            },
+            {
+              "selector": "cans",
+              "text": "Cans",
+              "type": "number"
+            },
+            {
+              "selector": "caffeineMg",
+              "text": "Caffeine",
+              "type": "number"
+            },
+            {
+              "selector": "overdoseDeaths",
+              "text": "Overdoses",
+              "type": "number"
+            },
+            {
+              "selector": "flightSeconds",
+              "text": "Flight",
+              "type": "number"
+            },
+            {
+              "selector": "favourite",
+              "text": "Favourite",
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": true,
+            "minWidth": 80
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cans"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Player"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Caffeine"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "massmg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Flight"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Overdoses"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "text",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Cans",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "Player": 0,
+              "Cans": 1,
+              "Caffeine": 2,
+              "Overdoses": 3,
+              "Flight": 4,
+              "Favourite": 5
+            }
+          }
+        }
+      ],
+      "id": 3,
+      "gridPos": {
+        "h": 18,
+        "w": 14,
+        "x": 10,
+        "y": 4
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Most caffeine",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "The players who took the most caffeine from cans and crude taurine, 80 mg a can. Read from WorldAPI at `/extensions/redbull/leaderboards/caffeine`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/leaderboards/caffeine",
+          "root_selector": "entries",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": [
+              {
+                "key": "limit",
+                "value": "10"
+              }
+            ]
+          },
+          "columns": [
+            {
+              "selector": "player.name",
+              "text": "Player",
+              "type": "string"
+            },
+            {
+              "selector": "value",
+              "text": "Value",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "massmg",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 24
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 22
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Most overdoses",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "The players whose heart gave out from caffeine most often. Read from WorldAPI at `/extensions/redbull/leaderboards/overdoses`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/leaderboards/overdoses",
+          "root_selector": "entries",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": [
+              {
+                "key": "limit",
+                "value": "10"
+              }
+            ]
+          },
+          "columns": [
+            {
+              "selector": "player.name",
+              "text": "Player",
+              "type": "string"
+            },
+            {
+              "selector": "value",
+              "text": "Value",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 24
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 22
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Longest flight",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${worldapi}"
+      },
+      "description": "The players who glided longest on winged cans. Read from WorldAPI at `/extensions/redbull/leaderboards/flight`.",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${worldapi}"
+          },
+          "type": "json",
+          "source": "url",
+          "format": "table",
+          "parser": "backend",
+          "url": "/extensions/redbull/leaderboards/flight",
+          "root_selector": "entries",
+          "url_options": {
+            "method": "GET",
+            "data": "",
+            "params": [
+              {
+                "key": "limit",
+                "value": "10"
+              }
+            ]
+          },
+          "columns": [
+            {
+              "selector": "player.name",
+              "text": "Player",
+              "type": "string"
+            },
+            {
+              "selector": "value",
+              "text": "Value",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "showUnfilled": true,
+        "sizing": "auto",
+        "minVizHeight": 16,
+        "maxVizHeight": 24
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 22
+      }
+    }
+  ]
+}

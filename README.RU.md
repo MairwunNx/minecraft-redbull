@@ -38,7 +38,7 @@ Red Bull работает на Moonlands — моём сервере со сло
 - 🏆 **Шесть достижений** на вкладке Red Bull: «Окрыляет», «Сахарная яма», «На грани», «Легенда» и «Коллекционер».
 - 🌍 **Каждый читает на своём языке:** английский, русский, немецкий, испанский и португальский — в ресурс-паке, который плагин отправляет при входе, или внутри модов.
 - 🤖 **Allay знает рецепты:** если на сервере стоит [Allay](https://github.com/allay-ai/minecraft), ИИ-помощник, спросите `/ask как сделать Cherry Edition?` — он ответит по данным самого Red Bull, на Paper, Fabric и NeoForge. Без Allay ничего не меняется.
-- 📈 **Ваши цифры в WorldAPI и Plan:** если на сервере Paper стоит [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi), `/extensions/redbull` отдаёт, сколько банок выпил каждый игрок и каких, его кофеин, смерти от передозировки и полёты на крыльях Red Bull, с таблицей лидеров по каждому. [Plan](https://github.com/plan-player-analytics/Plan) показывает то же на странице каждого игрока и сервера. Без них ничего не меняется.
+- 📈 **Ваши цифры в WorldAPI и Plan:** если на сервере Paper стоит [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi), `/extensions/redbull` отдаёт, сколько банок выпил каждый игрок и каких, его кофеин, смерти от передозировки и полёты на крыльях Red Bull, с таблицей лидеров по каждому. [Plan](https://github.com/plan-player-analytics/Plan) показывает то же на странице каждого игрока и сервера, а [`redbull.json`](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull.json) рисует всё это в Grafana. Без них ничего не меняется.
 
 ## Скриншоты
 

@@ -71,11 +71,22 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - name: Build and test
         run: ./gradlew build -PreleaseVersion="$VERSION"
+      - name: Stamp the Grafana dashboard
+        # The version shows in Grafana's dashboard settings, so an imported copy says which release it is.
+        shell: python
+        run: |
+          import json, os, re
+          dashboard = json.load(open("grafana/redbull.json", encoding="utf-8"))
+          dashboard["description"] = re.sub(r" \(v[\d.]+\)$", "", dashboard["description"]) + f" (v{os.environ['VERSION']})"
+          with open("redbull.json", "w", encoding="utf-8") as file:
+              json.dump(dashboard, file, indent=2, ensure_ascii=False)
+              file.write("\n")
       - name: Publish the GitHub release
         # Every jar twice: with its version, and without, so releases/latest/download/redbull-paper.jar,
         # redbull-neoforge.jar, and redbull-fabric.jar always fetch the newest; redbull.jar too, the Paper jar's
         # name up to 1.1.1, so links to it keep working. The pack under the name the plugin
-        # builds its default URL from.
+        # builds its default URL from. redbull.json, the Grafana dashboard over WorldAPI's redbull namespace, so
+        # releases/latest/download/redbull.json always reaches the newest.
         run: |
           cp "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull-paper.jar
           cp "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull.jar
@@ -86,7 +97,8 @@ jobs:
             "paper/build/libs/redbull-paper-$VERSION.jar" paper/build/libs/redbull-paper.jar paper/build/libs/redbull.jar \
             "paper/build/pack/redbull-pack-$VERSION.zip" \
             "neoforge/build/libs/redbull-neoforge-$VERSION.jar" neoforge/build/libs/redbull-neoforge.jar \
-            "fabric/build/libs/redbull-fabric-$VERSION.jar" fabric/build/libs/redbull-fabric.jar
+            "fabric/build/libs/redbull-fabric-$VERSION.jar" fabric/build/libs/redbull-fabric.jar \
+            redbull.json
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Publish to Modrinth
