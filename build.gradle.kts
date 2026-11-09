@@ -16,6 +16,8 @@ allprojects {
   repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    // Plan's API, for Paper's optional section in Plan.
+    maven("https://repo.playeranalytics.net/releases/") { content { includeGroup("com.djrapitops") } }
     // Mixin's annotations for modcore, as Fabric publishes them.
     maven("https://maven.fabricmc.net/") {
       content { includeModule("net.fabricmc", "sponge-mixin") }

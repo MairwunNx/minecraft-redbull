@@ -17,6 +17,8 @@ dependencies {
   implementation("org.bstats:bstats-bukkit:3.2.1")
   // WorldAPI brings these classes; Red Bull only compiles against them.
   compileOnly("com.mairwunnx:worldapi-expansion:1.0.0")
+  // Plan, when it's there, for its Plugins section.
+  compileOnly("com.djrapitops:plan-api:5.9-R1.3")
 
   testImplementation("io.papermc.paper:paper-api:26.3.build.245-stable")
   testImplementation(kotlin("test"))

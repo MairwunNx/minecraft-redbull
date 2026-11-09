@@ -1,5 +1,6 @@
 package ru.mairwunnx.redbull.paper
 
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.io.File
 import ru.mairwunnx.redbull.core.Can
@@ -14,10 +15,14 @@ class Stats(file: File) {
   val tally = Tally(file)
   val counts = MetricsCounts()
 
+  /** Plan's classes are there only with Plan, so nothing touches [PlanData] without it. */
+  private val plan by lazy { Bukkit.getPluginManager().getPlugin("Plan") != null }
+
   fun drank(player: Player, can: Can) {
     val milligrams = milligrams(Caffeines.rules.perCan)
     tally.drank(player.uniqueId, player.name, can.id, milligrams)
     counts.drank(can.id, milligrams)
+    if (plan) PlanData.update(player)
   }
 
   fun crudeTaurine(player: Player) {
@@ -29,6 +34,7 @@ class Stats(file: File) {
   fun overdose(player: Player) {
     tally.overdose(player.uniqueId, player.name)
     counts.overdose()
+    if (plan) PlanData.update(player)
   }
 
   /** [millis] of gliding on a winged can. */

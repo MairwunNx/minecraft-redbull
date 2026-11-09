@@ -17,7 +17,7 @@
 - 🏆 **Six advancements** in a Red Bull tab: Gives You Wings, Sugar Pit, On the Edge, Legend, and Collector.
 - 🌍 **Every player reads their own language:** English, Russian, German, Spanish, and Portuguese, in the resource pack the plugin sends on join or inside the mods.
 - 🤖 **Allay knows the recipes:** with [Allay](https://github.com/allay-ai/minecraft), the AI helper, on the server, ask `/ask how do I make a Cherry Edition?` and it answers from Red Bull itself, on Paper, Fabric, and NeoForge. Without Allay nothing changes.
-- 📈 **Your numbers in WorldAPI:** with [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi) on a Paper server, `/extensions/redbull` serves the cans each player drank, by kind too, their caffeine, overdose deaths, and flight on Red Bull wings, with a board for each. Without WorldAPI nothing changes.
+- 📈 **Your numbers in WorldAPI and Plan:** with [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi) on a Paper server, `/extensions/redbull` serves the cans each player drank, by kind too, their caffeine, overdose deaths, and flight on Red Bull wings, with a board for each. [Plan](https://github.com/plan-player-analytics/Plan) shows the same on each player’s page and the server’s. Without either nothing changes.
 
 ## Screenshots
 

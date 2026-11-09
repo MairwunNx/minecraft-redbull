@@ -6,6 +6,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 
 - 📊 **bStats on Paper:** the plugin sends bStats the cans drunk, by kind too, the caffeine taken, overdose deaths, and seconds of flight on a winged can. `metrics: false` in `config.yml` turns it off. The mods send nothing.
 - 📈 **Red Bull in WorldAPI:** with [WorldAPI](https://github.com/MairwunNx/minecraft-worldapi) 3.4 or newer on a Paper server, `/extensions/redbull` serves the totals (`stats`), the top drinkers (`drinkers`), each player’s numbers (`players/{player}`), and boards by cans, caffeine, overdoses, and flight (`leaderboards/{board}`). The plugin keeps every player’s numbers in `stats.yml`, counting from this version.
+- 📋 **Red Bull in Plan:** with [Plan](https://github.com/plan-player-analytics/Plan) on a Paper server, each player’s page shows their cans, caffeine, overdose deaths, flight on Red Bull wings, and favourite can, and the players table gets a cans column. The server’s page adds everyone’s numbers, the top drinkers, and cans by kind.
 
 ## 1.6.1
 

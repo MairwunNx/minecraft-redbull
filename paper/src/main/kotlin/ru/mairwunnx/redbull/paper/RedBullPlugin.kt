@@ -43,6 +43,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     tasks += server.scheduler.runTaskTimerAsynchronously(this, Runnable { saveStats() }, SAVE_TICKS, SAVE_TICKS)
 
     worldApi.connect()
+    if (PlanData.available) PlanData.register(this)
 
     val packInfo = if (!settings.resourcePack.enabled) "pack off" else pack.url?.let { "pack from $it" } ?: "no pack URL for a dev build"
     logger.info("Red Bull ${pluginMeta.version} is on: ${CANS.size} cans, ${recipes.keys.size} recipes, $packInfo")
