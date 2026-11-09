@@ -1,6 +1,8 @@
 package ru.mairwunnx.redbull.core
 
 import chat.allay.expansion.AllayApi
+import chat.allay.expansion.AllayExpansion
+import chat.allay.expansion.AllayExpansions
 import chat.allay.expansion.Args
 import chat.allay.expansion.Asker
 import chat.allay.expansion.ToolCall
@@ -12,7 +14,27 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+@Suppress("DEPRECATION")
 class RedBullExpansionTest {
+  /** Red Bull's expansion as Allay's host reads it: API 2's declarations as tools, and its answers as plain values. */
+  private val allay: AllayExpansion by lazy {
+    var found: AllayExpansion? = null
+    AllayExpansions.bind(object : AllayExpansions.Host {
+      override fun register(expansion: AllayExpansion) { found = expansion }
+      override fun unregister(id: String) = Unit
+      override fun apiVersion(): String = AllayApi.VERSION
+    })
+    try {
+      RedBullExpansion.register()
+    } finally {
+      RedBullExpansion.unregister()
+      AllayExpansions.bind(null)
+    }
+    found!!
+  }
+
+  private val recipes get() = allay.tools().single()
+
   /** A player whose game is in [locale] and who reads Allay in [language]. */
   private fun asker(locale: String = "en_us", language: String = locale) = object : Asker {
     override fun uuid(): UUID = UUID(0, 1)
@@ -37,7 +59,7 @@ class RedBullExpansionTest {
     override fun canSee(player: UUID) = true
   }
 
-  private fun run(vararg args: Pair<String, Any>): ToolResult = RedBullExpansion.Recipes.run(call(*args))
+  private fun run(vararg args: Pair<String, Any>): ToolResult = recipes.run(call(*args))
 
   @Suppress("UNCHECKED_CAST")
   private fun cans(result: ToolResult) = result.data()["cans"] as List<Map<String, Any>>
@@ -56,14 +78,17 @@ class RedBullExpansionTest {
     assertEquals(CANS.size, cans(result).size)
     val size = json(result.data()).length
     assertTrue(size < 8000, "$size characters")
-    assertTrue(json(RedBullExpansion().promptExpansion()).length < 2000)
+    assertEquals("26 cans", result.summary())
+    assertTrue(json(allay.promptExpansion()).length < 2000)
   }
 
   @Test
   fun `a can by id, name, or flavour`() {
     assertEquals("redbull:cherry", cans(run("can" to "redbull:cherry")).single()["id"])
     assertEquals("redbull:cherry", cans(run("can" to "Red Bull Cherry Edition")).single()["id"])
-    assertEquals(listOf("redbull:cherry", "redbull:spring"), cans(run("can" to "cherry-sakura")).map { it["id"] })
+    val sakura = run("can" to "cherry-sakura")
+    assertEquals(listOf("redbull:cherry", "redbull:spring"), cans(sakura).map { it["id"] })
+    assertEquals("Red Bull Cherry Edition, Red Bull Spring Edition", sakura.summary())
     assertEquals(listOf("redbull:winter_apple", "redbull:winter_pistachio"), cans(run("can" to "Winter Edition")).map { it["id"] })
   }
 
@@ -88,21 +113,38 @@ class RedBullExpansionTest {
 
   @Test
   fun `the expansion is what Allay checks`() {
-    val expansion = RedBullExpansion()
-    assertTrue(expansion.id().matches(Regex("[a-z0-9_]{1,24}")))
-    // 1.0, so an older Allay still runs it; 1.3's Asker.language only where Allay has it.
-    assertEquals("1.0.0", expansion.requiresApi())
-    assertTrue(AllayApi.satisfies(AllayApi.VERSION, expansion.requiresApi()))
-    expansion.tools().forEach {
-      assertTrue(it.name().matches(Regex("[a-z0-9_]{1,32}")))
-      assertTrue(it.description().length <= 1000)
-    }
+    assertEquals("redbull", allay.id())
+    assertEquals("Red Bull", allay.name())
+    assertTrue(AllayApi.satisfies(AllayApi.VERSION, allay.requiresApi()))
+    val tool = allay.tools().single()
+    assertEquals("recipes", tool.name())
+    assertTrue(tool.description().length <= 1000)
+    assertTrue(tool.inPublic())
+    assertEquals(chat.allay.expansion.AllayTool.Access.READ, tool.access())
+    assertEquals("""{"type":"object","properties":{"can":{"type":"string","description":"One can: its id like redbull:cherry, or its name or flavour like Cherry Edition"}}}""", tool.parameters().toJson())
+    // Allay finds the object through API 2's services file.
+    val services = RedBullExpansion::class.java.getResource("/META-INF/services/chat.allay.expansion.v2.Expansion")!!.readText().trim()
+    assertEquals(RedBullExpansion::class.java.name, services)
+  }
+
+  @Test
+  fun `a can in full keeps its effects and chests as before`() {
+    val ruby = cans(run("can" to "ruby")).single()
+    @Suppress("UNCHECKED_CAST")
+    val chests = ruby["chests"] as Map<String, Any>
+    assertEquals(listOf("biomes", "chance"), chests.keys.toList())
+    @Suppress("UNCHECKED_CAST")
+    val effect = (ruby["effects"] as List<Map<String, Any>>).first()
+    assertEquals(listOf("effect", "level", "seconds"), effect.keys.toList())
+    assertEquals(listOf("id", "name", "flavour", "chest_only", "effects", "wings_seconds", "sugarfree", "chests"), ruby.keys.toList())
+    assertEquals(listOf("ingredients", "grid", "names", "cans", "elsewhere"), run().data().keys.toList())
+    assertEquals(listOf("ingredients", "grid", "names", "cans"), run("can" to "ruby").data().keys.toList())
   }
 
   @Test
   fun `names come in the language Allay answers in, not the game's`() {
     // The owner's game is in English, and Allay answers him in Russian: taurine is «Таурин», never a guess.
-    val result = RedBullExpansion.Recipes.run(call(asker = asker("en_us", "ru_ru")))
+    val result = recipes.run(call(asker = asker("en_us", "ru_ru")))
     @Suppress("UNCHECKED_CAST")
     val names = result.data()["names"] as Map<String, String>
     assertEquals("Таурин", names["redbull:taurine"])
@@ -118,9 +160,9 @@ class RedBullExpansionTest {
     assertEquals(names(asker("es_es"))["redbull:taurine"], names(asker("es_mx"))["redbull:taurine"])
     assertEquals("Taurine", names(asker("xx_yy"))["redbull:taurine"])
     // A flavour in the reader's language finds its can.
-    assertEquals("redbull:original", cans(RedBullExpansion.Recipes.run(call("can" to "оригинальный вкус", asker = asker("en_us", "ru_ru")))).single()["id"])
+    assertEquals("redbull:original", cans(recipes.run(call("can" to "оригинальный вкус", asker = asker("en_us", "ru_ru")))).single()["id"])
   }
 
   @Suppress("UNCHECKED_CAST")
-  private fun names(asker: Asker) = RedBullExpansion.Recipes.run(call(asker = asker)).data()["names"] as Map<String, String>
+  private fun names(asker: Asker) = recipes.run(call(asker = asker)).data()["names"] as Map<String, String>
 }
