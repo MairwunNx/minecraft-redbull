@@ -62,7 +62,7 @@ Red Bull runs on Moonlands, my hard survival server with friends. Join at `minec
 
 ## The cans
 
-Every can carries the same caffeine, as the real ones do; they differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends with a yellow name like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 10% chance unless the table says otherwise.
+Every can carries the same caffeine, as the real ones do. They differ in buffs and wings. A can is harder to make than a potion, so its buffs last longer: 8 minutes for the crafted ones, 12 for the Editions you also find in chests, and 16 for the legends with a yellow name like a bottle o’ enchanting. Healing lasts 16 seconds at most and Strength II 3 minutes, or nobody could die. A can with sugar also feeds you a little. Chests hold a can with a 10% chance unless the table says otherwise.
 
 | Can | Flavour and dye, or where to find it | Buffs | Wings |
 |---|---|---|---|
@@ -140,13 +140,13 @@ Each can adds 30 caffeine, and caffeine wears off by one point every 16 seconds 
 | 75–100 | The crash, after a can with sugar: when its buffs end, three minutes at most, Slowness II and Weakness I follow for a minute. A sugarfree can doesn’t crash. Your heart pounds. |
 | Over 100 | Your heart gives out. No totem saves you. |
 
-From 37 caffeine, more than one can, you can’t sleep. In the mods the Caffeine effect shows your stage as its level and the time until it wears off; on Paper you go by your heartbeat and the warnings above the hotbar.
+From 37 caffeine, more than one can, you can’t sleep. In the mods the Caffeine effect shows your stage as its level and the time until it wears off. On Paper you go by your heartbeat and the warnings above the hotbar.
 
 A bucket of milk takes 20 caffeine away, and with the buffs gone, the sugar pit waits only for the caffeine. Death takes all of it. Bull bile and crude taurine are drinkable too, but you won’t like them, and both within a minute put you in bull mode.
 
 ## Get started
 
-**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, the wings, and bStats on or off, points the pack to your own host, scales the bile and chest chances, and picks how the sugar pit announces itself: counted up like a combo or told as a feeling.
+**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join. Without it the cans show the missing texture. `config.yml` turns the pack, the overdose, the wings, and bStats on or off, points the pack to your own host, scales the bile and chest chances, and picks how the sugar pit announces itself: counted up like a combo or told as a feeling.
 
 **Fabric.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) with [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) for Minecraft 26.3, on the client and on the server.
 
@@ -158,7 +158,7 @@ Then type `/redbull`, take a can, and drink it. `/redbull give <item> [player] [
 
 ## Credits
 
-- The can art grew from a fan pixel-art Red Bull can shared on Reddit; I don’t know its author.
+- The can art grew from a fan pixel-art Red Bull can shared on Reddit. I don’t know its author.
 - Taurine’s texture is Mekanism’s salt, © Aidan C. Brady and contributors, under the [MIT license](LICENSES/Mekanism.txt).
 - Red Bull and “Red Bull gives you wings” are trademarks of Red Bull GmbH. This is a fan project, not made or endorsed by Red Bull.
 
