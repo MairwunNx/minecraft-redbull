@@ -146,4 +146,20 @@ class CaffeineTest {
     assertEquals("minecraft:sugar", can("red")!!.sweetener)
     assertEquals("minecraft:honeycomb", can("red_sugarfree")!!.sweetener)
   }
+
+  @Test
+  fun `crashes coming are told the nearest first and forgotten on death`() {
+    val player = java.util.UUID(7, 7)
+    Crashes.forget(player)
+    assertEquals(null, Crashes.next(player, 0))
+    Crashes.coming(player, 180, now = 0)
+    Crashes.coming(player, 60, now = 1000)
+    assertEquals(60, Crashes.next(player, 1000))
+    // Once the first came, the second is next.
+    assertEquals(119, Crashes.next(player, 61_000))
+    assertEquals(null, Crashes.next(player, 180_000))
+    Crashes.coming(player, 30, now = 0)
+    Crashes.forget(player)
+    assertEquals(null, Crashes.next(player, 0))
+  }
 }

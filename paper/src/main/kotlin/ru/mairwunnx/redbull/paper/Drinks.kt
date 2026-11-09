@@ -22,6 +22,7 @@ import ru.mairwunnx.redbull.core.Drink
 import ru.mairwunnx.redbull.core.Ids
 import ru.mairwunnx.redbull.core.Stage
 import ru.mairwunnx.redbull.core.wingedCanExpiry
+import ru.mairwunnx.redbull.core.Crashes
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
 import ru.mairwunnx.redbull.core.crashes
@@ -97,6 +98,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
    */
   private fun crashLater(player: Player, can: Can) {
     val deaths = player.getStatistic(Statistic.DEATHS)
+    Crashes.coming(player.uniqueId, crashDelay(can))
     plugin.server.scheduler.runTaskLater(plugin, Runnable {
       if (!player.isOnline || player.isDead || player.getStatistic(Statistic.DEATHS) != deaths) return@Runnable
       crash().mapNotNull(Items::potionEffect).forEach(player::addPotionEffect)
@@ -128,6 +130,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
   fun onDeath(event: PlayerDeathEvent) {
     val player = event.player
     Caffeines.reset(player)
+    Crashes.forget(player.uniqueId)
     if (overdosed.remove(player.uniqueId)) {
       plugin.stats.overdose(player)
       event.deathMessage(Texts.text("death.attack.redbull.overdose", player.displayName()))
@@ -138,6 +141,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
   fun onQuit(event: PlayerQuitEvent) {
     val id = event.player.uniqueId
     overdosed.remove(id)
+    Crashes.forget(id)
     bile.remove(id)
     crude.remove(id)
   }

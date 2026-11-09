@@ -1,5 +1,8 @@
 package ru.mairwunnx.redbull.core
 
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /** How caffeine builds up and wears off. Clocks count ticks the player has played, so it doesn't wear off offline. */
@@ -75,7 +78,7 @@ fun Caffeine.effectLevel(rules: Rules): Int = when (stage(rules)) {
   Stage.CRASH, Stage.OVERDOSE -> 2
 }
 
-fun Caffeine.secondsLeft(rules: Rules): Int = kotlin.math.ceil(level / rules.decayPerTick / 20).toInt()
+fun Caffeine.secondsLeft(rules: Rules): Int = ceil(level / rules.decayPerTick / 20).toInt()
 
 /** Too wired to sleep: from [Rules.sleepless] on, more than a single can. */
 fun Caffeine.sleepless(rules: Rules): Boolean = level >= rules.sleepless
@@ -137,3 +140,25 @@ enum class SugarPitTexts(val id: String) {
 
 /** The crash comes when the can's longest buff ends, but no later than three minutes after the drink. */
 fun crashDelay(can: Can): Int = can.buffSeconds.coerceAtMost(CRASH_DELAY_LIMIT)
+
+/**
+ * The crashes each player has coming, in wall-clock milliseconds, for Allay's caffeine tool: every platform notes one
+ * as it schedules it, and forgets a player's on death and on leaving, when the crash never comes.
+ */
+object Crashes {
+  private val due = ConcurrentHashMap<UUID, List<Long>>()
+
+  fun coming(player: UUID, seconds: Int, now: Long = System.currentTimeMillis()) {
+    due.merge(player, listOf(now + seconds * 1000L)) { before, added -> (before.filter { it > now } + added).sorted() }
+  }
+
+  fun forget(player: UUID) {
+    due.remove(player)
+  }
+
+  /** Seconds until the player's next crash, or null without one coming. */
+  fun next(player: UUID, now: Long = System.currentTimeMillis()): Int? {
+    val at = due[player]?.firstOrNull { it > now } ?: return null
+    return ceil((at - now) / 1000.0).toInt()
+  }
+}

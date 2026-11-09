@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import org.slf4j.LoggerFactory
 import ru.mairwunnx.redbull.core.CANS
+import ru.mairwunnx.redbull.core.Crashes
 import ru.mairwunnx.redbull.core.RedBullInfo
 
 const val MOD_ID = "redbull"
@@ -56,7 +57,10 @@ object Mod {
   fun left(player: ServerPlayer) = Drinks.forget(player.uuid)
 
   /** Death takes all caffeine; the respawned player starts without it anyway, and this clears the dead one's too. */
-  fun died(player: ServerPlayer) = Caffeines.reset(player)
+  fun died(player: ServerPlayer) {
+    Caffeines.reset(player)
+    Crashes.forget(player.uuid)
+  }
 
   /** As Paper says it: the version, the cans, the crafting recipes, and here the items too. */
   fun started(server: MinecraftServer) {

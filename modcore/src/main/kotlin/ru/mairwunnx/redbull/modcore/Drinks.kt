@@ -16,6 +16,7 @@ import ru.mairwunnx.redbull.core.Advancements
 import ru.mairwunnx.redbull.core.Bottles
 import ru.mairwunnx.redbull.core.Can
 import ru.mairwunnx.redbull.core.Drink
+import ru.mairwunnx.redbull.core.Crashes
 import ru.mairwunnx.redbull.core.crash
 import ru.mairwunnx.redbull.core.crashDelay
 import ru.mairwunnx.redbull.core.crashes
@@ -87,8 +88,11 @@ object Drinks {
   }
 
   /** After the buffs, the crash: a minute slower and weaker. */
-  private fun crashLater(player: ServerPlayer, can: Can) = Later.run(crashDelay(can) * 20L) {
-    if (!player.hasDisconnected() && player.isAlive) crash().mapNotNull(RedBullItems::effect).forEach(player::addEffect)
+  private fun crashLater(player: ServerPlayer, can: Can) {
+    Crashes.coming(player.uuid, crashDelay(can))
+    Later.run(crashDelay(can) * 20L) {
+      if (!player.hasDisconnected() && player.isAlive) crash().mapNotNull(RedBullItems::effect).forEach(player::addEffect)
+    }
   }
 
   /** Once the caffeine and the buffs are gone: the sugar pit of every can with sugar since, if there were any. */
@@ -133,6 +137,7 @@ object Drinks {
   }
 
   fun forget(id: UUID) {
+    Crashes.forget(id)
     bile.remove(id)
     crude.remove(id)
   }
