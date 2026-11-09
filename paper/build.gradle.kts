@@ -16,11 +16,12 @@ dependencies {
   // bStats, shaded and relocated: it refuses to start under its own package.
   implementation("org.bstats:bstats-bukkit:3.2.1")
   // WorldAPI brings these classes; Red Bull only compiles against them.
-  compileOnly("com.mairwunnx:worldapi-expansion:1.0.0")
+  compileOnly("com.mairwunnx:worldapi-expansion:2.0.0")
   // Plan, when it's there, for its Plugins section.
   compileOnly("com.djrapitops:plan-api:5.9-R1.3")
 
   testImplementation("io.papermc.paper:paper-api:26.3.build.245-stable")
+  testImplementation("com.mairwunnx:worldapi-expansion:2.0.0")
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:6.1.3"))
   testImplementation("org.junit.jupiter:junit-jupiter")
