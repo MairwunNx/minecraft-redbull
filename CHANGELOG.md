@@ -8,6 +8,7 @@ The “Release” workflow takes the notes for a version from its section here, 
 - 🗂️ **Ask Allay about your collection:** it knows which cans you hold and which you miss, and where to get each missing one: crafted, or from chests in which biomes. On Paper it also tells your all-time numbers: cans, caffeine, overdose deaths, and flight.
 - 🔎 **Allay finds every Red Bull item:** its item search and recipe tools now know every can, crumpled can, bull bile, crude taurine, taurine, and the empty can by name in every language, with a line on what each one does. On Paper it now also finds the legends, bull bile, crude taurine and its brew, and taurine’s furnace recipe with crude taurine in it.
 - 🧠 **Allay knows more of Red Bull’s rules:** wings wearing out and Slow Falling at the end of a glide, bull mode, the crash and the sugar pit that sugarfree cans avoid, caffeine that wears off only in play time, and `/redbull`.
+- 🏆 **Collector shows your progress:** the advancement now counts the cans you hold, like “3/26”, on Paper and the mods. Cans you collected before count from your next join, and a Collector you already earned stays yours.
 - 🤖 **Red Bull in Allay speaks its expansion API 2:** Red Bull’s tools for Allay’s AI now need Allay 6.33 or newer. The recipes tool answers as before. With an older Allay, Red Bull runs as before without its tools and logs one line asking for 6.33.
 
 ## 1.8.0
