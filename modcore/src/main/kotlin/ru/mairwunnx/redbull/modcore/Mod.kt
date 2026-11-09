@@ -32,6 +32,7 @@ object Mod {
   fun init(loader: Loader, version: String) {
     this.loader = loader
     RedBullInfo.version = version
+    RedBullInfo.allayTooOld()?.let(log::warn)
     // Reaching each registers what it holds.
     RedBullItems.TAB
     Caffeines.EFFECT

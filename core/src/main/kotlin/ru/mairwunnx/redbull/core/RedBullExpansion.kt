@@ -12,6 +12,26 @@ import java.util.concurrent.ConcurrentHashMap
 object RedBullInfo {
   /** The plugin's or mod's version, set when it starts. */
   @Volatile var version = "dev"
+
+  /**
+   * One line for the log when Allay runs but is older than 6.33, which brought the expansion API 2 [RedBullExpansion]
+   * speaks. Null without Allay or with a new enough one. An older Allay never reads API 2's services file, so Red Bull
+   * runs as before.
+   */
+  fun allayTooOld(): String? {
+    val loader = RedBullInfo::class.java.classLoader
+    if (!present("chat.allay.expansion.AllayExpansions", loader)) return null
+    return if (present("chat.allay.expansion.v2.Expansion", loader)) null else "Allay is too old for Red Bull's recipes tool: it needs Allay 6.33 or newer"
+  }
+
+  private fun present(name: String, loader: ClassLoader?) = try {
+    Class.forName(name, false, loader)
+    true
+  } catch (_: ClassNotFoundException) {
+    false
+  } catch (_: LinkageError) {
+    false
+  }
 }
 
 /**
