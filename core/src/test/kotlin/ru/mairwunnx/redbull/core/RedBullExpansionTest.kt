@@ -33,7 +33,9 @@ class RedBullExpansionTest {
     found!!
   }
 
-  private val recipes get() = allay.tools().single()
+  private val recipes get() = tool("recipes")
+
+  private fun tool(name: String) = allay.tools().single { it.name() == name }
 
   /** A player whose game is in [locale] and who reads Allay in [language]. */
   private fun asker(locale: String = "en_us", language: String = locale) = object : Asker {
@@ -116,11 +118,15 @@ class RedBullExpansionTest {
     assertEquals("redbull", allay.id())
     assertEquals("Red Bull", allay.name())
     assertTrue(AllayApi.satisfies(AllayApi.VERSION, allay.requiresApi()))
-    val tool = allay.tools().single()
-    assertEquals("recipes", tool.name())
-    assertTrue(tool.description().length <= 1000)
-    assertTrue(tool.inPublic())
-    assertEquals(chat.allay.expansion.AllayTool.Access.READ, tool.access())
+    assertEquals(listOf("recipes", "caffeine", "collection"), allay.tools().map { it.name() })
+    allay.tools().forEach {
+      assertTrue(it.description().length <= 1000, it.name())
+      assertEquals(chat.allay.expansion.AllayTool.Access.READ, it.access(), it.name())
+    }
+    // The caffeine and the collection are the asker's own, never for everyone online to read.
+    assertEquals(listOf(true, false, false), allay.tools().map { it.inPublic() })
+    assertEquals("""{"type":"object","properties":{}}""", tool("caffeine").parameters().toJson())
+    val tool = recipes
     assertEquals("""{"type":"object","properties":{"can":{"type":"string","description":"One can: its id like redbull:cherry, or its name or flavour like Cherry Edition"}}}""", tool.parameters().toJson())
     // Allay finds the object through API 2's services file.
     val services = RedBullExpansion::class.java.getResource("/META-INF/services/chat.allay.expansion.v2.Expansion")!!.readText().trim()
@@ -165,4 +171,149 @@ class RedBullExpansionTest {
 
   @Suppress("UNCHECKED_CAST")
   private fun names(asker: Asker) = recipes.run(call(asker = asker)).data()["names"] as Map<String, String>
+
+  /** A platform with one player online, [asker()]'s UUID, with [caffeine], [held] cans, and [allTime]. */
+  private fun online(caffeine: Caffeine, held: Set<String> = emptySet(), allTime: AllTime? = null) {
+    RedBullInfo.players = object : RedBullPlayers {
+      override fun caffeine(player: UUID) = caffeine.takeIf { player == UUID(0, 1) }
+      override fun collection(player: UUID) = held.takeIf { player == UUID(0, 1) }
+      override fun allTime(player: UUID) = allTime.takeIf { player == UUID(0, 1) }
+    }
+  }
+
+  @Test
+  fun `the caffeine tool tells the level, what more cans would do, and what's coming`() {
+    val clock = 100_000L
+    online(Caffeine(64.0, clock, sugar = 2, sugarUntil = clock + 3600))
+    Crashes.forget(UUID(0, 1))
+    try {
+      val result = tool("caffeine").run(call())
+      val data = result.data()
+      assertEquals(listOf("level", "limit", "stage", "room_left", "safe_cans", "seconds_left", "sleepless", "next_can_crashes", "crash_in_seconds", "sugar_pit"), data.keys.toList())
+      assertEquals(64, data["level"])
+      assertEquals(100, data["limit"])
+      assertEquals("jitters", data["stage"])
+      assertEquals(36, data["room_left"])
+      // 64 and one more can is 94: alive, in the crash. Two would kill.
+      assertEquals(1, data["safe_cans"])
+      assertEquals(true, data["next_can_crashes"])
+      assertEquals(64 * 16, data["seconds_left"])
+      assertEquals(true, data["sleepless"])
+      assertEquals(null, data["crash_in_seconds"])
+      @Suppress("UNCHECKED_CAST")
+      val pit = data["sugar_pit"] as Map<String, Any>
+      // The pit waits for the caffeine, which outlasts the buffs here. Two cans of sugar make the second depth.
+      assertEquals(mapOf("depth" to 2, "in_seconds" to 64 * 16, "hunger_seconds" to sugarPit(2)[0].seconds, "slowness_seconds" to sugarPit(2)[1].seconds), pit)
+      assertEquals("caffeine 64", result.summary())
+      Crashes.coming(UUID(0, 1), 90)
+      assertEquals(90, tool("caffeine").run(call()).data()["crash_in_seconds"])
+    } finally {
+      Crashes.forget(UUID(0, 1))
+      RedBullInfo.players = null
+    }
+  }
+
+  @Test
+  fun `a calm player has room for three cans and no pit without sugar`() {
+    online(Caffeine(0.0, 0))
+    try {
+      val data = tool("caffeine").run(call()).data()
+      assertEquals("calm", data["stage"])
+      assertEquals(3, data["safe_cans"])
+      assertEquals(false, data["next_can_crashes"])
+      assertEquals(false, data["sleepless"])
+      assertEquals(null, data["sugar_pit"])
+    } finally {
+      RedBullInfo.players = null
+    }
+  }
+
+  @Test
+  fun `the asker's tools refuse without a player in the world`() {
+    RedBullInfo.players = null
+    assertTrue("isn't running" in assertFailsWith<ToolException> { tool("caffeine").run(call()) }.message!!)
+    online(Caffeine())
+    try {
+      val stranger = object : Asker by asker() {
+        override fun uuid(): UUID = UUID(0, 2)
+      }
+      assertEquals("the asker isn't a player in the world", assertFailsWith<ToolException> { tool("caffeine").run(call(asker = stranger)) }.message)
+      assertEquals("the asker isn't a player in the world", assertFailsWith<ToolException> { tool("collection").run(call(asker = stranger)) }.message)
+    } finally {
+      RedBullInfo.players = null
+    }
+  }
+
+  @Test
+  fun `the collection tool lists the cans held and where to find the rest`() {
+    online(Caffeine(), setOf("original", "cherry"), AllTime(12, 960, 1, 340, "redbull:cherry"))
+    try {
+      val result = tool("collection").run(call(asker = asker("en_us", "ru_ru")))
+      val data = result.data()
+      assertEquals(listOf("held", "total", "cans", "missing", "all_time"), data.keys.toList())
+      assertEquals(2, data["held"])
+      assertEquals(CANS.size, data["total"])
+      assertEquals(listOf("redbull:original", "redbull:cherry"), data["cans"])
+      @Suppress("UNCHECKED_CAST")
+      val missing = data["missing"] as List<Map<String, Any?>>
+      assertEquals(CANS.size - 2, missing.size)
+      val ruby = missing.single { it["id"] == "redbull:ruby" }
+      assertEquals(listOf("id", "name", "flavour", "crafted", "chests"), ruby.keys.toList())
+      assertEquals(false, ruby["crafted"])
+      @Suppress("UNCHECKED_CAST")
+      assertEquals(listOf("biomes", "chance"), (ruby["chests"] as Map<String, Any>).keys.toList())
+      val zero = missing.single { it["id"] == "redbull:zero" }
+      assertEquals(true, zero["crafted"])
+      assertEquals(null, zero["chests"])
+      assertTrue(missing.none { it["flavour"] == it["name"] })
+      assertEquals(mapOf("cans" to 12L, "caffeine_mg" to 960L, "overdoses" to 1L, "flight_seconds" to 340L, "favourite" to "redbull:cherry"), data["all_time"])
+      assertEquals("2 of ${CANS.size} cans", result.summary())
+      assertTrue(json(data).length < 8000, "${json(data).length} characters")
+    } finally {
+      RedBullInfo.players = null
+    }
+  }
+
+  @Test
+  fun `the prompt stays within Allay's limit and names every tool`() {
+    val prompt = allay.promptExpansion()
+    assertTrue(prompt.length <= 2000, "${prompt.length} characters")
+    listOf("x_redbull_recipes", "x_redbull_caffeine", "x_redbull_collection", "Slow Falling", "bull mode", "sugar pit", "/redbull").forEach { assertTrue(it in prompt, it) }
+    assertTrue(';' !in prompt)
+  }
+
+  @Test
+  fun `the items name and describe every Red Bull item, with what Paper hides from Allay`() {
+    try {
+      RedBullInfo.paper = false
+      val mods = allay.items()
+      // The mods register every item and their recipes are data: names and descriptions only.
+      assertEquals(CANS.size * 2 + 4, mods.size)
+      assertTrue(mods.all { it.recipes().isEmpty() && it.base() == null })
+      RedBullInfo.paper = true
+      val paper = allay.items()
+      assertEquals(CANS.size * 2 + 5, paper.size)
+      assertEquals(paper.size, paper.map { it.id() }.toSet().size)
+      for (item in paper) {
+        assertTrue(item.description()!!.length <= 300, "${item.id()}: ${item.description()!!.length}")
+        assertTrue(listOf("en_us", "ru_ru", "de_de", "es_es", "pt_br", "es_mx", "pt_pt").all { it in item.names() }, item.id())
+        assertTrue(';' !in item.description()!!, item.id())
+        assertTrue(item.base() != null, item.id())
+      }
+      val crude = paper.single { it.id() == "redbull:crude_taurine" }
+      assertEquals("Сырой таурин", crude.names()["ru_ru"])
+      val brew = crude.recipes().single()
+      assertEquals(chat.allay.expansion.Recipe.Type.BREWING, brew.type())
+      assertEquals(listOf("redbull:crude_taurine", "redbull:taurine"), paper.filter { it.recipes().isNotEmpty() }.map { it.id() })
+      assertEquals(chat.allay.expansion.Recipe.Type.FURNACE, paper.single { it.id() == "redbull:taurine" }.recipes().single().type())
+      assertEquals("ominous_bottle", paper.single { it.id() == "redbull:bull_bile" }.base())
+      val cherry = paper.single { it.id() == "redbull:cherry" }
+      assertEquals("Red Bull Cherry Edition", cherry.names()["en_us"])
+      assertTrue("30 caffeine" in cherry.description()!!, cherry.description())
+      assertTrue("Speed II for 720 s" in cherry.description()!!, cherry.description())
+      assertEquals("Crumpled Can", paper.single { it.id() == "redbull:crumpled_cherry" }.names()["en_us"])
+    } finally {
+      RedBullInfo.paper = false
+    }
+  }
 }

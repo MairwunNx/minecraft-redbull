@@ -64,11 +64,15 @@ object Mod {
 
   /** As Paper says it: the version, the cans, the crafting recipes, and here the items too. */
   fun started(server: MinecraftServer) {
+    RedBullInfo.players = AllayPlayers(server)
     log.info("Red Bull ${RedBullInfo.version} is on: ${CANS.size} cans, ${crafting(server).size} recipes, ${RedBullItems.all.size} items")
   }
 
   /** A singleplayer game starts a server for every world; what waited for this one is gone with it. */
-  fun stopped() = Later.clear()
+  fun stopped() {
+    RedBullInfo.players = null
+    Later.clear()
+  }
 
   private fun crafting(server: MinecraftServer): List<RecipeHolder<*>> = server.recipeManager.recipes
     .filter { it.id().identifier().namespace == MOD_ID && it.value() is CraftingRecipe }

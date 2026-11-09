@@ -25,6 +25,8 @@ class RedBullPlugin : JavaPlugin(), Listener {
   override fun onEnable() {
     // For Allay, which finds Red Bull's expansion once this plugin is on.
     RedBullInfo.version = pluginMeta.version
+    RedBullInfo.paper = true
+    RedBullInfo.players = AllayPlayers(this)
     RedBullInfo.allayTooOld()?.let(logger::warning)
     loadSettings()
     loadStats()
@@ -51,6 +53,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
   }
 
   override fun onDisable() {
+    RedBullInfo.players = null
     metrics.stop()
     worldApi.disconnect()
     tasks.forEach { it.cancel() }

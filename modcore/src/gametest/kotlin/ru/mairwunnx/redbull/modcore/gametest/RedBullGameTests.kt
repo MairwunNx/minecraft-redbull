@@ -57,7 +57,9 @@ import ru.mairwunnx.redbull.core.CANS
 import ru.mairwunnx.redbull.core.CRUMPLED_NUGGETS
 import ru.mairwunnx.redbull.core.Caffeine
 import ru.mairwunnx.redbull.core.Advancements
+import ru.mairwunnx.redbull.core.Crashes
 import ru.mairwunnx.redbull.core.Fishing
+import ru.mairwunnx.redbull.core.RedBullInfo
 import ru.mairwunnx.redbull.core.Trades
 import ru.mairwunnx.redbull.modcore.Caffeines
 import ru.mairwunnx.redbull.modcore.Collected
@@ -86,6 +88,26 @@ class RedBullGameTests {
 
   private fun equal(helper: GameTestHelper, actual: Any?, expected: Any?, what: String) =
     helper.assertTrue(actual == expected, "$what: expected $expected, got $actual")
+
+  /** What Allay's caffeine and collection tools read: the server's player, their caffeine, the crash it brings, and the cans. */
+  @GameTest
+  fun allaySeesCaffeineCrashAndCollection(helper: GameTestHelper) {
+    val player = player(helper)
+    repeat(3) { drink(player, can("sea_blue")) }
+    val players = RedBullInfo.players
+    helper.assertTrue(players != null, "the server's view for Allay, set when it started")
+    val caffeine = players!!.caffeine(player.uuid)
+    equal(helper, caffeine?.level, Caffeines.rules.perCan * 3, "caffeine after three cans")
+    equal(helper, caffeine?.sugar, 3, "three cans of sugar for the sugar pit")
+    // The third can brought the caffeine into the crash stage: the crash comes when its buffs end.
+    helper.assertTrue(Crashes.next(player.uuid) != null, "a crash coming")
+    equal(helper, players.collection(player.uuid), setOf("sea_blue"), "the collection")
+    equal(helper, players.allTime(player.uuid), null, "no numbers for all time on the mods")
+    equal(helper, players.caffeine(java.util.UUID(0, 0)), null, "nobody offline")
+    Mod.left(player)
+    equal(helper, Crashes.next(player.uuid), null, "no crash after leaving")
+    helper.succeed()
+  }
 
   @GameTest
   fun canAddsCaffeineBuffsAndCrumples(helper: GameTestHelper) {
