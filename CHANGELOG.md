@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.6.1
+
+- 📦 **Built on the newest platforms:** Paper API 26.3 build 245 and Fabric API 0.165.2, with Gradle 9.9.0 and Loom 1.19.4. Nothing changes in the game.
+
 ## 1.6.0
 
 - ☕ **Caffeine lasts as long as the buffs:** it wears off by a point every 16 seconds instead of 6, so a can’s caffeine is gone in 8 minutes, when a crafted can’s buffs end. A fresh can every three minutes no longer stacks a dozen effects: after the first three, one more fits every 8 minutes.
