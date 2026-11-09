@@ -15,6 +15,8 @@ class RedBullPlugin : JavaPlugin(), Listener {
   @Volatile var settings = Settings(); private set
   val collected = Collected()
   val wings = Wings(this)
+  val stats = Stats()
+  private val metrics = PluginMetrics(this, stats.counts)
 
   private val recipes by lazy { Recipes(server) }
   private val tasks = mutableListOf<BukkitTask>()
@@ -23,6 +25,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
     // For Allay, which finds Red Bull's expansion once this plugin is on.
     RedBullInfo.version = pluginMeta.version
     loadSettings()
+    metrics.apply(settings.metrics)
     // Every item once through the game's codecs, so a component it rejects shows now, not in a player's hands.
     Items.ids.forEach { Items.create(it)!!.serializeAsBytes() }
     recipes.register()
@@ -41,6 +44,7 @@ class RedBullPlugin : JavaPlugin(), Listener {
   }
 
   override fun onDisable() {
+    metrics.stop()
     tasks.forEach { it.cancel() }
     tasks.clear()
     recipes.unregister()

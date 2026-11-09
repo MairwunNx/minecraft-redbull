@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.7.0
+
+- 📊 **bStats on Paper:** the plugin sends bStats the cans drunk, by kind too, the caffeine taken, overdose deaths, and seconds of flight on a winged can. `metrics: false` in `config.yml` turns it off. The mods send nothing.
+
 ## 1.6.1
 
 - 📦 **Built on the newest platforms:** Paper API 26.3 build 245 and Fabric API 0.165.2, with Gradle 9.9.0 and Loom 1.19.4. Nothing changes in the game.

@@ -145,7 +145,7 @@ Red Bull работает на Moonlands — моём сервере со сло
 
 ## Как начать
 
-**Сервер Paper.** Скачайте плагин с [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull) или [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) и положите в `plugins/` сервера Paper 26.3 на Java 25. Игроки получат ресурс-пак при входе; без него банки показываются как отсутствующая текстура. В `config.yml` можно включить или выключить пак, передозировку и крылья, указать свой адрес для пака, изменить шансы желчи и сундуков и выбрать, как объявляется сахарная яма: счётом, как комбо в игре, или самочувствием.
+**Сервер Paper.** Скачайте плагин с [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull) или [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) и положите в `plugins/` сервера Paper 26.3 на Java 25. Игроки получат ресурс-пак при входе; без него банки показываются как отсутствующая текстура. В `config.yml` можно включить или выключить пак, передозировку, крылья и bStats, указать свой адрес для пака, изменить шансы желчи и сундуков и выбрать, как объявляется сахарная яма: счётом, как комбо в игре, или самочувствием.
 
 **Fabric.** Поставьте мод с [Modrinth](https://modrinth.com/mod/minecraft-redbull) или [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) вместе с [Fabric API](https://modrinth.com/mod/fabric-api) и [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) для Minecraft 26.3 — и на клиент, и на сервер.
 

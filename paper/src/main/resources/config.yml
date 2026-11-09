@@ -24,3 +24,6 @@ loot:
   bile: 1.0
   # Multiplies each can's chance to turn up in a chest of its biomes.
   chests: 1.0
+
+# false turns off bStats for Red Bull.
+metrics: true

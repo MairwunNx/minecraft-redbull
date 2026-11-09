@@ -145,7 +145,7 @@ A bucket of milk takes 20 caffeine away, and with the buffs gone, the sugar pit 
 
 ## Get started
 
-**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, and the wings on or off, points the pack to your own host, scales the bile and chest chances, and picks how the sugar pit announces itself: counted up like a combo or told as a feeling.
+**A Paper server.** Download the plugin from [Modrinth](https://modrinth.com/plugin/minecraft-redbull), [Hangar](https://hangar.papermc.io/MairwunNx/RedBull), or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-paper.jar) and put it in `plugins/` of a Paper 26.3 server on Java 25. Players get the resource pack when they join; without it the cans show the missing texture. `config.yml` turns the pack, the overdose, the wings, and bStats on or off, points the pack to your own host, scales the bile and chest chances, and picks how the sugar pit announces itself: counted up like a combo or told as a feeling.
 
 **Fabric.** Install the mod from [Modrinth](https://modrinth.com/mod/minecraft-redbull) or [GitHub](https://github.com/MairwunNx/minecraft-redbull/releases/latest/download/redbull-fabric.jar) with [Fabric API](https://modrinth.com/mod/fabric-api) and [Fabric Language Kotlin](https://modrinth.com/mod/fabric-language-kotlin) for Minecraft 26.3, on the client and on the server.
 

@@ -111,6 +111,7 @@ class Wings(private val plugin: RedBullPlugin) : Listener {
     val now = System.currentTimeMillis()
     val seconds = (now - (worn.put(player.uniqueId, now) ?: now)).coerceIn(0, 2_000) / 1000.0
     var left = false
+    var flew = false
     for (slot in 0 until inventory.size) {
       val item = inventory.getItem(slot) ?: continue
       if (Items.id(item) != Ids.WINGED_CAN) continue
@@ -126,11 +127,13 @@ class Wings(private val plugin: RedBullPlugin) : Listener {
       left = true
       val wings = (Items.flavourOf(item) ?: CANS.first()).wings
       val flying = player.isGliding && slot == inventory.heldItemSlot
+      flew = flew || flying
       val pointsLeft = wear(item, can, expires, now, if (flying) seconds * (wingedCanFlightPace(wings) - 1) else seconds)
       if (pointsLeft != null) inventory.setItem(slot, item)
       val secondsLeft = (pointsLeft ?: remaining(item)) / if (flying) wingedCanFlightPace(wings) else 1.0
       if (secondsLeft <= if (flying) WINGS_WARNING_FLIGHT_SECONDS else WINGS_WARNING_SECONDS) warn(player, can)
     }
+    if (flew) plugin.stats.glided(player, (seconds * 1000).toLong())
     return left
   }
 

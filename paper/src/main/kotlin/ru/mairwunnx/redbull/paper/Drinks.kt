@@ -62,11 +62,13 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
       Ids.BULL_BILE -> bottle(player, bile, crude)
       Ids.CRUDE_TAURINE -> {
         bottle(player, crude, bile)
+        plugin.stats.crudeTaurine(player)
         val drink = rules.drinkCrudeTaurine(Caffeines.now(player), Caffeines.clock(player))
         if (caffeine(player, drink) && drink.caffeine.level >= Advancements.EDGE_LEVEL) Awards.grant(player, Advancements.EDGE)
       }
       else -> {
         val can = Items.canOf(event.item) ?: return
+        plugin.stats.drank(player, can)
         val drink = rules.drink(Caffeines.now(player), Caffeines.clock(player), can)
         if (!caffeine(player, drink)) return
         if (drink.caffeine.level >= Advancements.EDGE_LEVEL) Awards.grant(player, Advancements.EDGE)
@@ -127,6 +129,7 @@ class Drinks(private val plugin: RedBullPlugin) : Listener {
     val player = event.player
     Caffeines.reset(player)
     if (overdosed.remove(player.uniqueId)) {
+      plugin.stats.overdose(player)
       event.deathMessage(Texts.text("death.attack.redbull.overdose", player.displayName()))
     }
   }

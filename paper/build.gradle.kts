@@ -13,6 +13,8 @@ dependencies {
   compileOnly("io.papermc.paper:paper-api:26.3.build.245-stable")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.12.0")
   implementation("com.charleskorn.kaml:kaml:0.104.0")
+  // bStats, shaded and relocated: it refuses to start under its own package.
+  implementation("org.bstats:bstats-bukkit:3.2.1")
 
   testImplementation("io.papermc.paper:paper-api:26.3.build.245-stable")
   testImplementation(kotlin("test"))
@@ -68,6 +70,7 @@ tasks.shadowJar {
   // Relocated so other plugins that ship their own Kotlin or kaml can't clash with ours.
   listOf("kotlin", "kotlinx", "com.charleskorn.kaml", "it.krzeminski.snakeyaml", "okio", "net.thauvin")
     .forEach { relocate(it, "ru.mairwunnx.redbull.libs.$it") }
+  relocate("org.bstats", "ru.mairwunnx.redbull.libs.bstats")
   // The pack carries the assets. The jar keeps the texts: English as players' fallback without the pack, and every
   // language for the server's side, where Allay names the items in the player's language.
   exclude("assets/redbull/textures/**", "assets/redbull/models/**", "assets/redbull/items/**", "data/**")

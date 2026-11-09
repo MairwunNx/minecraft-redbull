@@ -17,6 +17,8 @@ data class Settings(
   /** `arcade` or `feelings`; anything else is `arcade`. */
   @SerialName("sugar_pit_texts") val sugarPitTextsId: String = SugarPitTexts.ARCADE.id,
   val loot: Loot = Loot(),
+  /** bStats, on Paper only; false turns it off. */
+  val metrics: Boolean = true,
 ) {
   val sugarPitTexts get() = SugarPitTexts.of(sugarPitTextsId) ?: SugarPitTexts.ARCADE
 
