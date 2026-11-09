@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import org.bukkit.Chunk;
+import org.bukkit.NamespacedKey;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementRequirement;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -21,6 +24,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import ru.mairwunnx.redbull.core.Advancements;
 import ru.mairwunnx.redbull.core.Can;
 import ru.mairwunnx.redbull.core.CansKt;
 import ru.mairwunnx.redbull.core.Ids;
@@ -31,7 +35,8 @@ import ru.mairwunnx.redbull.paper.Items;
  * Red Bull's way to a can in a test world's blocks, as a player's hoppers would walk it: bile from a hopper into a
  * brewing stand's ingredient slot, three water bottles brewed into crude taurine, a furnace evaporating it into
  * taurine, and a crafting grid filling an empty can. A hopper goes through the same check of the ingredient slot as a
- * click, a shift-click, and the client do. A stand beside it keeps a water bottle and dirt out of that slot. It logs
+ * click, a shift-click, and the client do. A stand beside it keeps a water bottle and dirt out of that slot, and the
+ * collector advancement counts every can. It logs
  * “Red Bull check passed” or what failed; `paper_smoke.py` looks for the line.
  */
 public final class RedBullCheck extends JavaPlugin {
@@ -104,6 +109,7 @@ public final class RedBullCheck extends JavaPlugin {
       return is(result, Ids.TAURINE) && result.getAmount() == 2;
     }, () -> {}));
     steps.add(new Step("a crafting grid makes an empty can and fills it", 0, () -> craft(world, furnaceInventory(furnace).getResult()), () -> {}));
+    steps.add(new Step("the collector counts every can", 0, this::collectorCounts, () -> {}));
 
     // Brewing takes 20 seconds and smelting 10 each; the check needn't wait for them. A sprint would skip block entities.
     getServer().dispatchCommand(getServer().getConsoleSender(), "tick rate 400");
@@ -127,6 +133,19 @@ public final class RedBullCheck extends JavaPlugin {
     getServer().dispatchCommand(getServer().getConsoleSender(), "tick rate 20");
     if (failed == null) getLogger().info("Red Bull check passed: " + steps.size() + " steps");
     else getLogger().severe("Red Bull check failed: " + failed + "; " + describe());
+  }
+
+  /**
+   * The collector as the data pack inside the jar gives it to the game: a criterion per can, each its own requirement
+   * or the one that stands for them all, so the game shows how many a player holds.
+   */
+  private boolean collectorCounts() {
+    Advancement collector = getServer().getAdvancement(new NamespacedKey("redbull", Advancements.COLLECTOR));
+    if (collector == null) return false;
+    List<String> cans = CansKt.getCANS().stream().map(Can::getId).toList();
+    List<List<String>> requirements = collector.getRequirements().getRequirements().stream().map(AdvancementRequirement::getRequiredCriteria).toList();
+    return collector.getCriteria().size() == cans.size() + 1
+      && requirements.equals(cans.stream().map(id -> List.of(id, Advancements.COLLECTOR_ALL)).toList());
   }
 
   /** What every block of the check holds, for a failure's line. */

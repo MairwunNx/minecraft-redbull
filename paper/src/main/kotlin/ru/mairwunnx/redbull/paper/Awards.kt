@@ -15,4 +15,13 @@ object Awards {
       if (!progress.isDone) progress.remainingCriteria.forEach(progress::awardCriteria)
     }
   }
+
+  /** The collector's criterion for every can in [collection], and its last once they're all in: the game counts them. */
+  fun collector(player: Player, collection: Set<String>) {
+    val advancement = Bukkit.getAdvancement(NamespacedKey("redbull", Advancements.COLLECTOR)) ?: return
+    val progress = player.getAdvancementProgress(advancement)
+    if (progress.isDone) return
+    val remaining = progress.remainingCriteria
+    Advancements.collectorCriteria(collection).filter { it in remaining }.forEach(progress::awardCriteria)
+  }
 }

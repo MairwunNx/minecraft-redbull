@@ -34,4 +34,15 @@ class WorldTest {
     assertTrue(Advancements.legend(can("spring")!!))
     assertFalse(Advancements.legend(can("original")!!))
   }
+
+  @Test
+  fun `the collector counts every can, and its last criterion stands for them all`() {
+    val json = javaClass.getResource("/data/redbull/advancement/collector.json")!!.readText()
+    val criteria = Regex("\"([a-z_]+)\": \\{\\s*\"trigger\": \"minecraft:impossible\"").findAll(json).map { it.groupValues[1] }.toList()
+    assertEquals(CANS.map { it.id } + Advancements.COLLECTOR_ALL, criteria)
+    val requirements = Regex("\\[\"([a-z_]+)\", \"([a-z_]+)\"]").findAll(json).map { it.groupValues[1] to it.groupValues[2] }.toList()
+    assertEquals(CANS.map { it.id to Advancements.COLLECTOR_ALL }, requirements)
+    assertEquals(listOf("cherry", "ruby"), Advancements.collectorCriteria(setOf("ruby", "cherry", "nothing")))
+    assertEquals(CANS.map { it.id } + Advancements.COLLECTOR_ALL, Advancements.collectorCriteria(CANS.map { it.id }.toSet()))
+  }
 }

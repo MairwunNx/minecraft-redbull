@@ -52,5 +52,19 @@ object Advancements {
 
   fun collector(collected: Set<String>) = CANS.all { it.id in collected }
 
+  /**
+   * The collector's criterion that stands for every can: each can's requirement is its own criterion or this one. Code
+   * awards it once a player holds them all, so a can added later leaves them done, and so does a collector earned
+   * before the cans counted one by one, which this criterion alone completed.
+   */
+  const val COLLECTOR_ALL = "done"
+
+  /**
+   * The collector's criteria a collection earns: one per can held, named after the can, so the game shows how many are
+   * in, and [COLLECTOR_ALL] once they all are.
+   */
+  fun collectorCriteria(collected: Set<String>): List<String> =
+    CANS.map { it.id }.filter { it in collected } + listOfNotNull(COLLECTOR_ALL.takeIf { collector(collected) })
+
   fun legend(can: Can) = can.recipe == null
 }

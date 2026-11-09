@@ -20,8 +20,114 @@
     "announce_to_chat": true
   },
   "criteria": {
+    "original": {
+      "trigger": "minecraft:impossible"
+    },
+    "sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "zero": {
+      "trigger": "minecraft:impossible"
+    },
+    "red": {
+      "trigger": "minecraft:impossible"
+    },
+    "red_sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "pink_sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "green": {
+      "trigger": "minecraft:impossible"
+    },
+    "cherry": {
+      "trigger": "minecraft:impossible"
+    },
+    "ice": {
+      "trigger": "minecraft:impossible"
+    },
+    "winter_apple": {
+      "trigger": "minecraft:impossible"
+    },
+    "winter_pistachio": {
+      "trigger": "minecraft:impossible"
+    },
+    "yellow": {
+      "trigger": "minecraft:impossible"
+    },
+    "tropical": {
+      "trigger": "minecraft:impossible"
+    },
+    "amber": {
+      "trigger": "minecraft:impossible"
+    },
+    "amber_sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "peach": {
+      "trigger": "minecraft:impossible"
+    },
+    "lilac_sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "purple": {
+      "trigger": "minecraft:impossible"
+    },
+    "sea_blue": {
+      "trigger": "minecraft:impossible"
+    },
+    "coconut": {
+      "trigger": "minecraft:impossible"
+    },
+    "coconut_sugarfree": {
+      "trigger": "minecraft:impossible"
+    },
+    "blue": {
+      "trigger": "minecraft:impossible"
+    },
+    "ruby": {
+      "trigger": "minecraft:impossible"
+    },
+    "summer": {
+      "trigger": "minecraft:impossible"
+    },
+    "glacier": {
+      "trigger": "minecraft:impossible"
+    },
+    "spring": {
+      "trigger": "minecraft:impossible"
+    },
     "done": {
       "trigger": "minecraft:impossible"
     }
-  }
+  },
+  "requirements": [
+    ["original", "done"],
+    ["sugarfree", "done"],
+    ["zero", "done"],
+    ["red", "done"],
+    ["red_sugarfree", "done"],
+    ["pink_sugarfree", "done"],
+    ["green", "done"],
+    ["cherry", "done"],
+    ["ice", "done"],
+    ["winter_apple", "done"],
+    ["winter_pistachio", "done"],
+    ["yellow", "done"],
+    ["tropical", "done"],
+    ["amber", "done"],
+    ["amber_sugarfree", "done"],
+    ["peach", "done"],
+    ["lilac_sugarfree", "done"],
+    ["purple", "done"],
+    ["sea_blue", "done"],
+    ["coconut", "done"],
+    ["coconut_sugarfree", "done"],
+    ["blue", "done"],
+    ["ruby", "done"],
+    ["summer", "done"],
+    ["glacier", "done"],
+    ["spring", "done"]
+  ]
 }

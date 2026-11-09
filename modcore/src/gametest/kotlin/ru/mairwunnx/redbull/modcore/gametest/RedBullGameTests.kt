@@ -598,6 +598,27 @@ class RedBullGameTests {
   }
 
   /**
+   * The collector counts every can on its own, so the game shows “3/26”, and its last criterion completes it whatever
+   * the cans: a collector earned before the cans counted keeps it.
+   */
+  @GameTest
+  fun theCollectorCountsEveryCan(helper: GameTestHelper) {
+    val advancement = helper.level.server.advancements.get(id(Advancements.COLLECTOR)) ?: throw helper.assertionException("no collector")
+    val player = player(helper)
+    Collected.add(player, setOf("original", "cherry", "ruby"))
+    val progress = player.advancements.getOrStartProgress(advancement)
+    equal(helper, progress.progressText?.string, "3/${CANS.size}", "the collector's progress after three cans")
+    equal(helper, progress.completedCriteria.toSet(), setOf("original", "cherry", "ruby"), "a criterion per can")
+    helper.assertFalse(progress.isDone, "the collector with three cans")
+    val earlier = player(helper)
+    earlier.advancements.award(advancement, Advancements.COLLECTOR_ALL)
+    val kept = earlier.advancements.getOrStartProgress(advancement)
+    helper.assertTrue(kept.isDone, "a collector earned before the cans counted")
+    equal(helper, kept.progressText?.string, "${CANS.size}/${CANS.size}", "its progress")
+    helper.succeed()
+  }
+
+  /**
    * On the edge at 90 caffeine, alive; the sugar pit once the caffeine and the buffs are gone, as deep as the cans
    * with sugar since were many, and only once; an overdose earns nothing.
    */

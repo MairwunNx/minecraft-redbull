@@ -39,7 +39,7 @@ class Collected : Listener {
     if (collection.isEmpty()) return
     Awards.grant(player, Advancements.ROOT)
     if (collection.any { id -> can(id)?.let(Advancements::legend) == true }) Awards.grant(player, Advancements.LEGEND)
-    if (Advancements.collector(collection)) Awards.grant(player, Advancements.COLLECTOR)
+    Awards.collector(player, collection)
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
