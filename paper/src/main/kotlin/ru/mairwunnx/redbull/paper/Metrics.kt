@@ -90,7 +90,7 @@ class PluginMetrics(private val plugin: RedBullPlugin, private val counts: Metri
   }
 
   companion object {
-    /** The plugin's id on bstats.org; 0 keeps bStats off. */
-    const val BSTATS_ID = 0
+    /** The plugin's id on bstats.org, at bstats.org/plugin/bukkit/RedBull/35230; 0 keeps bStats off. */
+    const val BSTATS_ID = 35230
   }
 }
