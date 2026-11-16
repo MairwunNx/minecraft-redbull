@@ -2,6 +2,10 @@
 
 The “Release” workflow takes the notes for a version from its section here, unless you type them into its `changelog` field. The same notes go to GitHub, Modrinth, and Hangar.
 
+## 1.9.1
+
+- 📦 **Built on the newest platforms:** Paper API 26.3 build 253, NeoForge 26.3.0.103, and Fabric API 0.166.2, with Gradle 9.9.1, kotlinx-serialization 1.13.0, and WorldAPI's expansion API 2.1.0. Red Bull still runs with WorldAPI 4.5.0 and newer. Nothing changes in the game.
+
 ## 1.9.0
 
 - ☕ **Ask Allay about your caffeine:** with [Allay](https://github.com/allay-ai/minecraft) on the server, ask “how many more cans can I drink?” and its AI reads your caffeine: the stage, how many cans are still safe, when it wears off, whether you can sleep, and when a crash or the sugar pit comes. Only you see the answer.
