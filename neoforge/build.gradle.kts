@@ -6,7 +6,7 @@ plugins {
 }
 
 val minecraft = "26.3"
-val neoforgeVersion = "26.3.0.101"
+val neoforgeVersion = "26.3.0.103"
 
 val core = project(":core")
 val modcore = project(":modcore")
