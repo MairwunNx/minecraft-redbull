@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
   implementation(project(":core"))
-  compileOnly("io.papermc.paper:paper-api:26.3.build.253-stable")
+  compileOnly("io.papermc.paper:paper-api:26.3.build.259-stable")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.13.0")
   implementation("com.charleskorn.kaml:kaml:0.104.0")
   // bStats, shaded and relocated: it refuses to start under its own package.
@@ -20,7 +20,7 @@ dependencies {
   // Plan, when it's there, for its Plugins section.
   compileOnly("com.djrapitops:plan-api:5.9-R1.3")
 
-  testImplementation("io.papermc.paper:paper-api:26.3.build.253-stable")
+  testImplementation("io.papermc.paper:paper-api:26.3.build.259-stable")
   testImplementation("com.mairwunnx:worldapi-expansion:2.1.0")
   testImplementation(kotlin("test"))
   testImplementation(platform("org.junit:junit-bom:6.1.3"))
